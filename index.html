@@ -3,327 +3,416 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>나만의 웹툰 서재 & 추천기</title>
-    <!-- Tailwind CSS for styling -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;800&display=swap" rel="stylesheet">
+    <title>웹툰 서재 & 랜덤 룰렛</title>
     <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+            --bg-color: #f3f4f6;
+            --surface: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
-            font-family: 'Pretendard', sans-serif;
-            background-color: #f3f4f6;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.5;
+            padding: 20px;
         }
-        /* Custom scrollbar for textarea and lists */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background-color: var(--surface);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--border);
+        }
+
+        h1, h2 {
+            margin-bottom: 16px;
+            color: var(--text-main);
+        }
+
+        h1 { font-size: 1.5rem; text-align: center; border-bottom: 2px solid var(--border); padding-bottom: 16px; }
+        h2 { font-size: 1.25rem; display: flex; justify-content: space-between; align-items: center; }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        input[type="number"], select, textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .row {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .row > .form-group { flex: 1; min-width: 200px; }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        button:hover { background-color: var(--primary-hover); }
         
-        /* Toast Notification Animation */
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+        button.danger { background-color: var(--danger); }
+        button.danger:hover { background-color: var(--danger-hover); }
+        button.btn-small { padding: 6px 12px; font-size: 0.875rem; }
+
+        .list-container {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            border-radius: 8px;
         }
-        @keyframes slideOut {
-            from { transform: translateX(0); opacity: 1; }
-            to { transform: translateX(100%); opacity: 0; }
+
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
         }
-        .toast-enter { animation: slideIn 0.3s forwards; }
-        .toast-exit { animation: slideOut 0.3s forwards; }
+        .list-item:last-child { border-bottom: none; }
+        .list-item:nth-child(even) { background-color: #f9fafb; }
+
+        .item-info { display: flex; flex-direction: column; gap: 4px; }
+        .item-title { font-weight: bold; font-size: 1.1rem; }
+        .item-meta { font-size: 0.875rem; color: var(--text-muted); display: flex; gap: 8px; align-items: center; }
+        
+        .badge {
+            background-color: #e5e7eb;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .roulette-box {
+            background-color: #fef3c7;
+            border: 2px dashed #f59e0b;
+            border-radius: 12px;
+            padding: 40px 20px;
+            text-align: center;
+            margin-top: 16px;
+            min-height: 160px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .roulette-title { font-size: 1.75rem; font-weight: bold; color: #d97706; margin: 8px 0; }
+        .roulette-meta { font-size: 1.1rem; color: #92400e; }
+
     </style>
 </head>
-<body class="text-gray-800 antialiased min-h-screen p-4 md:p-8">
+<body>
 
-    <!-- Toast Notification Container (alert 대체) -->
-    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2"></div>
+<div class="container">
+    <h1>📚 내 웹툰 서재 & 랜덤 추천기</h1>
 
-    <div class="max-w-4xl mx-auto space-y-6">
-        <!-- Header -->
-        <header class="text-center py-6">
-            <h1 class="text-3xl md:text-4xl font-extrabold text-indigo-600 drop-shadow-sm">📚 내 손안의 웹툰 서재</h1>
-            <p class="text-gray-500 mt-2">웹툰 플랫폼 데이터를 불러오고, 오늘 읽을 작품을 추천받아보세요.</p>
-        </header>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- 1. 웹툰 불러오기 섹션 -->
-            <section class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col h-full">
-                <h2 class="text-xl font-bold mb-4 flex items-center text-gray-700">
-                    <svg class="w-6 h-6 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                    웹툰 불러오기
-                </h2>
-                
-                <textarea id="htmlInput" class="w-full h-32 p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none resize-none mb-4 text-sm" placeholder="개발자 모드(F12)에서 복사한 HTML 코드를 여기에 붙여넣어주세요."></textarea>
-                
-                <div class="flex flex-col sm:flex-row gap-3 mb-4">
-                    <div class="flex-1">
-                        <label class="block text-sm font-medium text-gray-600 mb-1">플랫폼</label>
-                        <select id="importPlatform" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
-                            <option value="레진">레진코믹스</option>
-                            <option value="봄툰">봄툰</option>
-                            <option value="리디">리디</option>
-                            <option value="네이버웹툰">네이버웹툰</option>
-                        </select>
-                    </div>
-                    <div class="w-full sm:w-1/3">
-                        <label class="block text-sm font-medium text-gray-600 mb-1">소장률 기준 (%)</label>
-                        <input type="number" id="minRate" value="40" min="0" max="100" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
-                    </div>
-                </div>
-                
-                <button id="importBtn" class="mt-auto w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-xl transition duration-200 shadow-md flex justify-center items-center">
-                    서재에 추가하기
-                </button>
-            </section>
-
-            <!-- 2. 랜덤 정주행 룰렛 섹션 -->
-            <section class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col h-full">
-                <h2 class="text-xl font-bold mb-4 flex items-center text-gray-700">
-                    <svg class="w-6 h-6 mr-2 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
-                    랜덤 정주행 룰렛
-                </h2>
-                
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-600 mb-1">추천받을 플랫폼 필터</label>
-                    <select id="randomPlatform" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 outline-none">
-                        <option value="전체">전체 플랫폼</option>
-                        <option value="레진">레진코믹스</option>
-                        <option value="봄툰">봄툰</option>
-                        <option value="리디">리디</option>
-                        <option value="네이버웹툰">네이버웹툰</option>
-                    </select>
-                </div>
-                
-                <button id="randomBtn" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-bold py-3 px-4 rounded-xl transition duration-200 shadow-md mb-6">
-                    🎲 랜덤 추천 받기!
-                </button>
-                
-                <div class="mt-auto bg-gray-50 border border-gray-200 rounded-xl p-5 text-center min-h-[120px] flex flex-col justify-center items-center">
-                    <span class="text-sm text-gray-500 mb-2">오늘의 추천 작품</span>
-                    <h3 id="randomResult" class="text-lg md:text-xl font-extrabold text-gray-800 break-words w-full">버튼을 눌러 추천을 받아보세요!</h3>
-                </div>
-            </section>
+    <div class="card">
+        <h2>1. 웹툰 불러오기</h2>
+        <div class="row">
+            <div class="form-group">
+                <label for="platform">플랫폼 선택</label>
+                <select id="platform">
+                    <option value="레진코믹스">레진코믹스</option>
+                    <option value="봄툰">봄툰</option>
+                    <option value="리디">리디</option>
+                    <option value="네이버웹툰">네이버웹툰</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="minPercent">소장률 기준 (%)</label>
+                <input type="number" id="minPercent" value="0" min="0" max="100">
+            </div>
         </div>
-
-        <!-- 3. 내 서재 리스트 섹션 -->
-        <section class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-bold flex items-center text-gray-700">
-                    <svg class="w-6 h-6 mr-2 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                    내 서재 
-                    <span id="libraryCount" class="ml-2 text-sm bg-gray-200 text-gray-700 py-1 px-2 rounded-full">0개</span>
-                </h2>
-                <button id="clearBtn" class="text-sm text-red-500 hover:text-red-700 hover:underline">서재 비우기</button>
-            </div>
-            
-            <div class="max-h-96 overflow-y-auto pr-2 border-t border-gray-100 pt-4">
-                <ul id="library-list" class="space-y-3">
-                    <li class="text-center text-gray-400 py-8">아직 서재에 담긴 작품이 없습니다.</li>
-                </ul>
-            </div>
-        </section>
+        <div class="form-group">
+            <label for="htmlData">HTML 코드 붙여넣기 (개발자 도구에서 복사)</label>
+            <textarea id="htmlData" placeholder="이곳에 복사한 HTML 코드를 붙여넣으세요..."></textarea>
+        </div>
+        <button onclick="parseHTML()">서재에 추가하기</button>
     </div>
 
-    <script>
-        // 전역 상태: 내 서재 데이터 배열
-        let myLibrary = [];
+    <div class="card">
+        <h2>2. 랜덤 정주행 룰렛 🎲</h2>
+        <div class="row" style="align-items: flex-end;">
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="filterPlatform">추천받을 플랫폼</label>
+                <select id="filterPlatform">
+                    <option value="전체">전체 플랫폼</option>
+                    <option value="레진코믹스">레진코믹스</option>
+                    <option value="봄툰">봄툰</option>
+                    <option value="리디">리디</option>
+                    <option value="네이버웹툰">네이버웹툰</option>
+                </select>
+            </div>
+            <button onclick="spinRoulette()" style="background-color: #8b5cf6;">랜덤 픽!</button>
+        </div>
+        <div id="rouletteResult" class="roulette-box">
+            <div style="color: var(--text-muted);">버튼을 눌러 운명의 작품을 뽑아보세요!</div>
+        </div>
+    </div>
 
-        // 플랫폼별 색상 매핑 (배지용)
-        const platformColors = {
-            '레진': 'bg-red-100 text-red-700 border-red-200',
-            '봄툰': 'bg-pink-100 text-pink-700 border-pink-200',
-            '리디': 'bg-blue-100 text-blue-700 border-blue-200',
-            '네이버웹툰': 'bg-green-100 text-green-700 border-green-200',
-        };
+    <div class="card">
+        <h2>
+            <span>3. 내 서재 리스트 (<span id="totalCount">0</span>)</span>
+            <button class="danger btn-small" onclick="clearAll()">전체 초기화</button>
+        </h2>
+        <div class="list-container" id="libraryList">
+            <!-- 자바스크립트로 리스트 항목이 여기에 렌더링됩니다 -->
+        </div>
+    </div>
+</div>
 
-        // DOM 요소 캐싱
-        const htmlInput = document.getElementById('htmlInput');
-        const importPlatform = document.getElementById('importPlatform');
-        const minRateInput = document.getElementById('minRate');
-        const importBtn = document.getElementById('importBtn');
-        const randomPlatform = document.getElementById('randomPlatform');
-        const randomBtn = document.getElementById('randomBtn');
-        const randomResult = document.getElementById('randomResult');
-        const libraryList = document.getElementById('library-list');
-        const libraryCount = document.getElementById('libraryCount');
-        const clearBtn = document.getElementById('clearBtn');
-        const toastContainer = document.getElementById('toast-container');
+<script>
+    let library = [];
 
-        // alert() 대신 사용할 커스텀 토스트 알림 함수
-        function showToast(message, type = 'info') {
-            const toast = document.createElement('div');
+    function init() {
+        const stored = localStorage.getItem('webtoonLib');
+        if (stored) {
+            try {
+                library = JSON.parse(stored);
+            } catch (e) {
+                library = [];
+            }
+        }
+        renderList();
+    }
+
+    function saveToStorage() {
+        localStorage.setItem('webtoonLib', JSON.stringify(library));
+    }
+
+    function parseHTML() {
+        const rawHTML = document.getElementById('htmlData').value.trim();
+        const platform = document.getElementById('platform').value;
+        const threshold = parseInt(document.getElementById('minPercent').value, 10) || 0;
+
+        if (!rawHTML) {
+            alert('HTML 코드를 입력해주세요.');
+            return;
+        }
+
+        // DOMParser를 이용한 파싱
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(rawHTML, 'text/html');
+        
+        // .hy__info 클래스를 가진 모든 요소 찾기
+        const items = doc.querySelectorAll('.hy__info');
+        
+        if (items.length === 0) {
+            alert('입력된 HTML에서 작품 정보를 찾을 수 없습니다.');
+            return;
+        }
+
+        let added = 0;
+        let skipped = 0;
+
+        items.forEach(item => {
+            // 1. 제목 추출 로직
+            const titleEl = item.querySelector('.hy__infoTitle');
+            let title = '제목 없음';
             
-            // 타입별 색상 설정
-            let bgColor = 'bg-gray-800';
-            if(type === 'success') bgColor = 'bg-emerald-600';
-            if(type === 'error') bgColor = 'bg-red-600';
-            if(type === 'warning') bgColor = 'bg-amber-500';
+            if (titleEl) {
+                // 노드를 복제하여 원본 훼손 방지
+                const clonedEl = titleEl.cloneNode(true);
+                // 내부에 있는 span, i 태그(뱃지 등) 모두 제거
+                const badges = clonedEl.querySelectorAll('span, i');
+                badges.forEach(badge => badge.remove());
+                
+                // 순수 텍스트만 가져오기
+                title = clonedEl.textContent.trim();
+            }
 
-            toast.className = `${bgColor} text-white px-6 py-3 rounded-xl shadow-lg flex items-center toast-enter text-sm font-medium z-50`;
-            toast.innerHTML = `
-                <span>${message}</span>
+            // 2. 소장률 추출 로직
+            const progressSpan = item.querySelector('.hy__infoProgress span');
+            let percent = 0;
+            
+            if (progressSpan) {
+                // 정규식을 사용해 숫자만 추출 (예: "98%" -> "98")
+                const match = progressSpan.textContent.match(/(\d+)%/);
+                if (match) {
+                    percent = parseInt(match[1], 10);
+                }
+            }
+
+            // 조건: 기준치 이상이고 제목이 유효할 때
+            if (percent >= threshold && title && title !== '제목 없음') {
+                // 중복 체크
+                const exists = library.some(w => w.title === title && w.platform === platform);
+                if (!exists) {
+                    library.push({
+                        id: Date.now().toString() + Math.random().toString(36).substr(2),
+                        title: title,
+                        platform: platform,
+                        percent: percent
+                    });
+                    added++;
+                } else {
+                    skipped++;
+                }
+            }
+        });
+
+        if (added > 0) {
+            saveToStorage();
+            renderList();
+            document.getElementById('htmlData').value = '';
+            alert(`성공! ${added}개의 작품이 추가되었습니다. (중복/조건미달 제외: ${skipped}개)`);
+        } else {
+            alert(`추가된 작품이 없습니다. 이미 추가된 작품이거나 소장률 기준(${threshold}%)을 넘는 작품이 없습니다.`);
+        }
+    }
+
+    function renderList() {
+        const container = document.getElementById('libraryList');
+        document.getElementById('totalCount').textContent = library.length;
+        
+        container.innerHTML = '';
+
+        if (library.length === 0) {
+            container.innerHTML = `<div style="padding: 24px; text-align: center; color: var(--text-muted);">서재가 비어있습니다. 작품을 추가해주세요.</div>`;
+            return;
+        }
+
+        // 소장률 내림차순 정렬
+        const sorted = [...library].sort((a, b) => b.percent - a.percent);
+
+        sorted.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'list-item';
+            
+            // 보안을 위한 이스케이프 처리
+            const safeTitle = escapeHTML(item.title);
+            const safePlatform = escapeHTML(item.platform);
+
+            div.innerHTML = `
+                <div class="item-info">
+                    <div class="item-title">${safeTitle}</div>
+                    <div class="item-meta">
+                        <span class="badge">${safePlatform}</span>
+                        <span>소장률: <strong style="color: var(--primary);">${item.percent}%</strong></span>
+                    </div>
+                </div>
+                <button class="danger btn-small" onclick="deleteItem('${item.id}')">삭제</button>
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    function deleteItem(id) {
+        library = library.filter(item => item.id !== id);
+        saveToStorage();
+        renderList();
+    }
+
+    function clearAll() {
+        if (library.length === 0) return;
+        if (confirm('정말로 모든 작품을 삭제하시겠습니까?')) {
+            library = [];
+            saveToStorage();
+            renderList();
+            document.getElementById('rouletteResult').innerHTML = '<div style="color: var(--text-muted);">버튼을 눌러 운명의 작품을 뽑아보세요!</div>';
+        }
+    }
+
+    function spinRoulette() {
+        const filter = document.getElementById('filterPlatform').value;
+        const resultBox = document.getElementById('rouletteResult');
+
+        let pool = library;
+        if (filter !== '전체') {
+            pool = library.filter(item => item.platform === filter);
+        }
+
+        if (pool.length === 0) {
+            resultBox.innerHTML = `<div style="color: var(--danger); font-weight: bold;">조건에 맞는 작품이 없습니다!</div>`;
+            return;
+        }
+
+        // 애니메이션 효과
+        let count = 0;
+        const maxTicks = 15;
+        const speed = 80;
+
+        const interval = setInterval(() => {
+            const randomPick = pool[Math.floor(Math.random() * pool.length)];
+            resultBox.innerHTML = `
+                <div class="roulette-meta" style="color: #9ca3af;">고르는 중...</div>
+                <div class="roulette-title" style="color: #6b7280;">${escapeHTML(randomPick.title)}</div>
             `;
             
-            toastContainer.appendChild(toast);
-
-            // 3초 후 사라지는 애니메이션
-            setTimeout(() => {
-                toast.classList.remove('toast-enter');
-                toast.classList.add('toast-exit');
-                // 애니메이션 종료 후 DOM 제거
-                setTimeout(() => {
-                    if(toast.parentElement) toast.parentElement.removeChild(toast);
-                }, 300);
-            }, 3000);
-        }
-
-        // 1. HTML 파싱 및 데이터 추출 로직
-        function handleImport() {
-            const htmlCode = htmlInput.value.trim();
-            const platform = importPlatform.value;
-            const minRate = parseInt(minRateInput.value, 10);
-
-            if (!htmlCode) {
-                showToast("HTML 코드를 텍스트 영역에 먼저 붙여넣어주세요.", "error");
-                return;
-            }
-            if (isNaN(minRate)) {
-                showToast("소장률 기준은 숫자로 입력해주세요.", "error");
-                return;
-            }
-
-            // 문자열을 DOM(HTML 문서)으로 변환
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(htmlCode, 'text/html');
-            let addedCount = 0;
-
-            if (platform === "레진") {
-                // 레진코믹스 파싱 로직
-                const items = doc.querySelectorAll('li.hy__listItem'); 
-                
-                if(items.length === 0) {
-                    showToast("레진코믹스의 'li.hy__listItem' 요소를 찾을 수 없습니다. 코드를 확인해주세요.", "warning");
-                    return;
-                }
-
-                items.forEach(item => {
-                    // 제목 추출
-                    const titleEl = item.querySelector('.hy__infoTitle');
-                    const title = titleEl ? titleEl.innerText.trim() : "제목 없음";
-
-                    // 전체 텍스트에서 퍼센트 추출
-                    const textContent = item.innerText;
-                    const rateMatch = textContent.match(/(\d+)%/);
-                    const rate = rateMatch ? parseInt(rateMatch[1], 10) : 0;
-
-                    // 기준 소장률 이상이고, 중복되지 않는다면 서재에 추가
-                    if (rate >= minRate) {
-                        const isDuplicate = myLibrary.some(webtoon => webtoon.title === title && webtoon.platform === "레진");
-                        if(!isDuplicate) {
-                            myLibrary.push({ title: title, platform: "레진", rate: rate });
-                            addedCount++;
-                        }
-                    }
-                });
-
-                if(addedCount > 0) {
-                    showToast(`레진코믹스에서 조건에 맞는 작품 ${addedCount}개를 서재에 추가했습니다!`, "success");
-                    htmlInput.value = ""; // 입력창 초기화
-                } else {
-                    showToast("조건(소장률)에 맞거나 새로 추가할 작품이 없습니다.", "info");
-                }
-                
-                updateLibraryUI();
-
-            } else {
-                // 다른 플랫폼은 구조 제공 시 추가 개발 가능
-                showToast(`'${platform}' 분석 기능은 현재 준비 중입니다. HTML 코드를 알려주시면 추가 가능합니다.`, "warning");
-            }
-        }
-
-        // 2. 내 서재 UI 업데이트 로직
-        function updateLibraryUI() {
-            libraryList.innerHTML = "";
-            libraryCount.innerText = `${myLibrary.length}개`;
-
-            if (myLibrary.length === 0) {
-                libraryList.innerHTML = `<li class="text-center text-gray-400 py-8">아직 서재에 담긴 작품이 없습니다.</li>`;
-                return;
-            }
-
-            // 최신 추가순(역순)으로 렌더링
-            [...myLibrary].reverse().forEach(item => {
-                const li = document.createElement('li');
-                li.className = "flex justify-between items-center p-4 bg-gray-50 rounded-xl border border-gray-100 hover:shadow-sm transition-shadow";
-                
-                const badgeColor = platformColors[item.platform] || 'bg-gray-100 text-gray-700';
-
-                li.innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <span class="px-2.5 py-1 text-xs font-bold rounded-md border ${badgeColor}">
-                            ${item.platform}
-                        </span>
-                        <span class="font-semibold text-gray-800">${item.title}</span>
-                    </div>
-                    <div class="text-sm font-medium text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full">
-                        소장률 ${item.rate}%
+            count++;
+            if (count >= maxTicks) {
+                clearInterval(interval);
+                // 최종 결정
+                const finalPick = pool[Math.floor(Math.random() * pool.length)];
+                resultBox.innerHTML = `
+                    <div class="roulette-meta">오늘은 이 작품 어때요?</div>
+                    <div class="roulette-title">${escapeHTML(finalPick.title)}</div>
+                    <div class="roulette-meta">
+                        <span class="badge" style="background-color:#fef3c7; border: 1px solid #d97706;">${escapeHTML(finalPick.platform)}</span> 
+                        소장률 ${finalPick.percent}%
                     </div>
                 `;
-                libraryList.appendChild(li);
-            });
-        }
-
-        // 3. 랜덤 룰렛 추천 로직
-        function handleRandomPick() {
-            const targetPlatform = randomPlatform.value;
-            
-            // 필터링
-            let filtered = myLibrary;
-            if (targetPlatform !== "전체") {
-                filtered = myLibrary.filter(item => item.platform === targetPlatform);
             }
+        }, speed);
+    }
 
-            // 예외 처리
-            if (filtered.length === 0) {
-                randomResult.innerText = "조건에 맞는 작품이 서재에 없습니다 😢";
-                randomResult.className = "text-lg font-bold text-gray-400";
-                showToast("조건에 맞는 작품이 없습니다.", "warning");
-                return;
-            }
+    function escapeHTML(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
 
-            // 랜덤 선택 및 간단한 슬롯머신 효과(시각적)
-            randomResult.innerText = "고르는 중...";
-            randomResult.className = "text-lg font-bold text-gray-500 animate-pulse";
-            
-            setTimeout(() => {
-                const randomIndex = Math.floor(Math.random() * filtered.length);
-                const picked = filtered[randomIndex];
-                
-                randomResult.innerHTML = `
-                    <span class="text-2xl">🎉</span><br>
-                    <span class="text-indigo-600 font-extrabold text-2xl mt-1 block">${picked.title}</span>
-                    <span class="text-sm text-gray-500 mt-2 block">(${picked.platform} / 소장률 ${picked.rate}%)</span>
-                `;
-                randomResult.className = "text-lg md:text-xl font-extrabold text-gray-800 break-words w-full";
-            }, 600); // 0.6초 뒤 결과 표시
-        }
-
-        // 서재 비우기
-        function clearLibrary() {
-            if(myLibrary.length === 0) return;
-            
-            // confirm 대신 바로 비우고 토스트 띄움 (규칙 준수)
-            myLibrary = [];
-            updateLibraryUI();
-            randomResult.innerText = "버튼을 눌러 추천을 받아보세요!";
-            showToast("서재를 모두 비웠습니다.", "info");
-        }
-
-        // 이벤트 리스너 등록
-        importBtn.addEventListener('click', handleImport);
-        randomBtn.addEventListener('click', handleRandomPick);
-        clearBtn.addEventListener('click', clearLibrary);
-
-        // 초기화
-        updateLibraryUI();
-    </script>
+    // 앱 시작 시 초기화
+    window.addEventListener('DOMContentLoaded', init);
+</script>
 </body>
 </html>

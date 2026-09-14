@@ -3,308 +3,684 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>웹툰 서재 관리자</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>웹툰 서재 & 랜덤 룰렛</title>
     <style>
-        /* 기본 폰트 설정 및 스크롤바 커스텀 */
-        @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;800&display=swap');
-        body {
-            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: #f3f4f6; /* bg-gray-100 */
-        }
-        
-        .list-container {
-            max-height: 500px;
-            overflow-y: auto;
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+            --success: #10b981;
+            --success-hover: #059669;
+            --bg-color: #f3f4f6;
+            --surface: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
         }
 
-        /* 룰렛 빗금 배경 패턴 */
-        .roulette-bg {
-            background-color: #fef3c7;
-            background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(245, 158, 11, 0.1) 10px, rgba(245, 158, 11, 0.1) 20px);
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.5;
+            padding: 20px;
         }
+
+        .container { max-width: 800px; margin: 0 auto; }
+
+        .card {
+            background-color: var(--surface);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--border);
+        }
+
+        h1, h2 { margin-bottom: 16px; color: var(--text-main); }
+        h1 { font-size: 1.5rem; text-align: center; border-bottom: 2px solid var(--border); padding-bottom: 16px; }
+        h2 { font-size: 1.25rem; display: flex; justify-content: space-between; align-items: center; }
+
+        .form-group { margin-bottom: 16px; }
+
+        label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem; }
+
+        .hint { font-size: 0.8rem; color: var(--text-muted); margin-top: -12px; margin-bottom: 16px; }
+
+        input[type="number"], input[type="text"], input[type="password"], select, textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+            font-size: 0.85rem;
+        }
+
+        .row { display: flex; gap: 16px; flex-wrap: wrap; }
+        .row > .form-group { flex: 1; min-width: 200px; }
+        .row > button { flex: 1; min-width: 160px; }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        button:hover { background-color: var(--primary-hover); }
+
+        button.danger { background-color: var(--danger); }
+        button.danger:hover { background-color: var(--danger-hover); }
+        button.success { background-color: var(--success); }
+        button.success:hover { background-color: var(--success-hover); }
+        button.btn-small { padding: 6px 12px; font-size: 0.875rem; }
+
+        .list-container {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        .list-item:last-child { border-bottom: none; }
+        .list-item:nth-child(even) { background-color: #f9fafb; }
+
+        .item-info { display: flex; flex-direction: column; gap: 4px; }
+        .item-title { font-weight: bold; font-size: 1.1rem; }
+        .item-meta { font-size: 0.875rem; color: var(--text-muted); display: flex; gap: 8px; align-items: center; }
+
+        .badge {
+            background-color: #e5e7eb;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .roulette-box {
+            background-color: #fef3c7;
+            border: 2px dashed #f59e0b;
+            border-radius: 12px;
+            padding: 40px 20px;
+            text-align: center;
+            margin-top: 16px;
+            min-height: 160px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .roulette-title { font-size: 1.75rem; font-weight: bold; color: #d97706; margin: 8px 0; }
+        .roulette-meta { font-size: 1.1rem; color: #92400e; }
+
+        #syncStatus { min-height: 1.2em; }
     </style>
 </head>
-<body class="text-gray-800 p-4 md:p-8">
+<body>
 
-    <!-- 메인 컨테이너 -->
-    <div class="max-w-3xl mx-auto">
-        
-        <div id="main-view" class="space-y-6 block">
-            <!-- 메인 헤더 -->
-            <div class="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-                <h1 class="text-2xl font-extrabold text-gray-900">📚 내 웹툰 서재</h1>
-                <button onclick="toggleView('management-view')" class="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2">
-                    <span>⚙️</span> 관리 및 추가
-                </button>
+<div class="container">
+    <h1>📚 내 웹툰 서재 & 랜덤 추천기</h1>
+
+    <div class="card">
+        <h2>1. 웹툰 불러오기</h2>
+        <div class="row">
+            <div class="form-group">
+                <label for="platform">플랫폼 선택</label>
+                <select id="platform">
+                    <option value="레진코믹스">레진코믹스</option>
+                    <option value="봄툰">봄툰</option>
+                    <option value="리디">리디</option>
+                    <option value="네이버웹툰">네이버웹툰</option>
+                </select>
             </div>
-
-            <!-- 랜덤 정주행 룰렛 카드 -->
-            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-xl font-bold flex items-center gap-2">🎲 랜덤 정주행 룰렛</h2>
-                </div>
-                
-                <div class="flex flex-col sm:flex-row gap-4 items-end mb-4">
-                    <div class="flex-1 w-full">
-                        <label for="rouletteFilter" class="block text-sm font-semibold text-gray-700 mb-2">추천받을 플랫폼</label>
-                        <select id="rouletteFilter" class="w-full border border-gray-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-purple-500">
-                            <option value="전체">전체 플랫폼</option>
-                            <option value="레진코믹스">레진코믹스</option>
-                            <option value="봄툰">봄툰</option>
-                            <option value="리디">리디</option>
-                            <option value="네이버웹툰">네이버웹툰</option>
-                        </select>
-                    </div>
-                    <button onclick="spinRoulette()" class="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white font-bold px-8 py-3 rounded-lg transition-colors shadow-md">
-                        랜덤 픽!
-                    </button>
-                </div>
-
-                <div id="rouletteResult" class="roulette-bg border-2 border-dashed border-amber-500 rounded-xl p-8 text-center min-h-[180px] flex flex-col justify-center items-center transition-all">
-                    <div class="text-gray-500 text-lg">버튼을 눌러 운명의 작품을 뽑아보세요!</div>
-                </div>
+            <div class="form-group">
+                <label for="inputType">입력 방식</label>
+                <select id="inputType" onchange="updatePlaceholder()">
+                    <option value="html">HTML 코드 (개발자 도구 복사)</option>
+                    <option value="text">텍스트 목록 (제목 | 소장률%)</option>
+                </select>
             </div>
-
-            <!-- 내 서재 리스트 카드 -->
-            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-                    <h2 class="text-xl font-bold">
-                        내 서재 리스트 (<span id="totalCount" class="text-purple-600">0</span>)
-                    </h2>
-                    
-                    <!-- 플랫폼 필터 -->
-                    <div class="flex items-center gap-3 w-full sm:w-auto">
-                        <label for="listFilter" class="text-sm font-semibold text-gray-600 whitespace-nowrap">플랫폼 필터:</label>
-                        <select id="listFilter" onchange="renderLibrary()" class="w-full sm:w-48 border border-gray-300 rounded-lg p-2 outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="전체">전체 보기</option>
-                            <option value="레진코믹스">레진코믹스</option>
-                            <option value="봄툰">봄툰</option>
-                            <option value="리디">리디</option>
-                            <option value="네이버웹툰">네이버웹툰</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="list-container border border-gray-200 rounded-xl overflow-hidden" id="libraryList">
-                    <!-- 자바스크립트로 리스트 렌더링 -->
-                </div>
+            <div class="form-group">
+                <label for="minPercent">소장률 기준 (%)</label>
+                <input type="number" id="minPercent" value="0" min="0" max="100">
             </div>
         </div>
-
-        <div id="management-view" class="space-y-6 hidden">
-            <!-- 관리 페이지 헤더 -->
-            <div class="flex items-center gap-4 bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-                <button onclick="toggleView('main-view')" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2">
-                    <span>🔙</span> 메인으로
-                </button>
-                <h1 class="text-2xl font-extrabold text-gray-900">⚙️ 데이터 관리</h1>
-            </div>
-
-            <!-- 웹툰 불러오기 -->
-            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-                <h2 class="text-xl font-bold mb-4 border-b pb-2">1. 웹툰 불러오기</h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                    <div>
-                        <label class="block text-sm font-semibold mb-2">플랫폼 선택</label>
-                        <select class="w-full border border-gray-300 rounded-lg p-3">
-                            <option>레진코믹스</option><option>봄툰</option><option>리디</option><option>네이버웹툰</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-semibold mb-2">입력 방식</label>
-                        <select class="w-full border border-gray-300 rounded-lg p-3">
-                            <option>HTML 코드</option><option>텍스트 목록</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-semibold mb-2">소장률 기준 (%)</label>
-                        <input type="number" value="0" min="0" max="100" class="w-full border border-gray-300 rounded-lg p-3">
-                    </div>
-                </div>
-                <div class="mb-4">
-                    <label class="block text-sm font-semibold mb-2">내용 붙여넣기</label>
-                    <textarea class="w-full border border-gray-300 rounded-lg p-3 h-32 font-mono text-sm" placeholder="내용을 붙여넣으세요..."></textarea>
-                </div>
-                <button onclick="showFeedback('importFeedback', '추가 기능은 현재 모형입니다.')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition-colors">
-                    서재에 추가하기
-                </button>
-                <div id="importFeedback" class="text-sm text-blue-600 mt-2 font-semibold h-5"></div>
-            </div>
-
-            <!-- 클라우드 동기화 -->
-            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-                <h2 class="text-xl font-bold mb-4 border-b pb-2">2. ☁️ 클라우드 동기화 (GitHub Gist)</h2>
-                <p class="text-sm text-gray-500 mb-4">최초 1회 PC에서 "새 동기화 시작"으로 Gist를 만든 뒤, 같은 토큰과 ID를 폰에도 입력하면 됩니다.</p>
-                <div class="space-y-4 mb-4">
-                    <div>
-                        <label class="block text-sm font-semibold mb-2">GitHub Token</label>
-                        <input type="password" placeholder="ghp_xxxxxxxxxxxx" class="w-full border border-gray-300 rounded-lg p-3">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-semibold mb-2">Gist ID</label>
-                        <input type="text" placeholder="Gist ID를 입력하세요" class="w-full border border-gray-300 rounded-lg p-3">
-                    </div>
-                </div>
-                <div class="flex flex-col sm:flex-row gap-3">
-                    <button class="flex-1 bg-gray-800 hover:bg-gray-900 text-white font-bold py-3 rounded-lg">🆕 새 동기화 시작</button>
-                    <button class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg">⬆️ 업로드</button>
-                    <button class="flex-1 bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 rounded-lg">⬇️ 가져오기</button>
-                </div>
-            </div>
-
-            <!-- 로컬 백업 -->
-            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-                <h2 class="text-xl font-bold mb-4 border-b pb-2">3. 로컬 백업 (텍스트)</h2>
-                <div class="mb-4">
-                    <textarea class="w-full border border-gray-300 rounded-lg p-3 h-24 font-mono text-sm" placeholder="내 서재 데이터 (JSON)"></textarea>
-                </div>
-                <div class="flex flex-col sm:flex-row gap-3">
-                    <button class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 rounded-lg">📤 내보내기</button>
-                    <button class="flex-1 bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold py-3 rounded-lg">📥 병합하기</button>
-                    <button class="flex-1 bg-red-100 hover:bg-red-200 text-red-800 font-bold py-3 rounded-lg">⚠️ 덮어쓰기</button>
-                </div>
-            </div>
+        <div class="form-group">
+            <label for="htmlData">내용 붙여넣기</label>
+            <textarea id="htmlData" placeholder="HTML 모드: 개발자 도구에서 복사한 HTML 코드를 붙여넣으세요.&#10;텍스트 모드: 한 줄에 하나씩 '제목 | 소장률%' 형식으로 붙여넣으세요.&#10;예) 여신강림 | 98%"></textarea>
         </div>
-
+        <div class="hint" id="inputHint">현재 모드: HTML 코드 (범용 파싱 → 실패 시 레진 전용 파싱으로 자동 폴백)</div>
+        <button onclick="parseData()">서재에 추가하기</button>
     </div>
 
-    <script>
-        // 초기 Mock 데이터 (테스트용)
-        let library = [
-            { id: 1, title: "킬링 스토킹", platform: "레진코믹스", percentage: 100 },
-            { id: 2, title: "야화첩", platform: "레진코믹스", percentage: 95 },
-            { id: 3, title: "새벽, 구름, 강", platform: "봄툰", percentage: 80 },
-            { id: 4, title: "귀태", platform: "봄툰", percentage: 100 },
-            { id: 5, title: "상수리나무 아래", platform: "리디", percentage: 92 },
-            { id: 6, title: "마귀", platform: "리디", percentage: 70 },
-            { id: 7, title: "화산귀환", platform: "네이버웹툰", percentage: 99 },
-            { id: 8, title: "바른연애 길잡이", platform: "네이버웹툰", percentage: 100 }
-        ];
+    <div class="card">
+        <h2>2. 랜덤 정주행 룰렛 🎲</h2>
+        <div class="row" style="align-items: flex-end;">
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="filterPlatform">추천받을 플랫폼</label>
+                <select id="filterPlatform">
+                    <option value="전체">전체 플랫폼</option>
+                    <option value="레진코믹스">레진코믹스</option>
+                    <option value="봄툰">봄툰</option>
+                    <option value="리디">리디</option>
+                    <option value="네이버웹툰">네이버웹툰</option>
+                </select>
+            </div>
+            <button onclick="spinRoulette()" style="background-color: #8b5cf6;">랜덤 픽!</button>
+        </div>
+        <div id="rouletteResult" class="roulette-box">
+            <div style="color: var(--text-muted);">버튼을 눌러 운명의 작품을 뽑아보세요!</div>
+        </div>
+    </div>
 
-        // 페이지 뷰 토글 함수
-        function toggleView(viewId) {
-            document.getElementById('main-view').classList.add('hidden');
-            document.getElementById('management-view').classList.add('hidden');
-            
-            document.getElementById(viewId).classList.remove('hidden');
-            
-            // 메인 뷰로 돌아올 때 리스트 갱신
-            if(viewId === 'main-view') {
-                renderLibrary();
+    <div class="card">
+        <h2>
+            <span>3. 내 서재 리스트 (<span id="totalCount">0</span>)</span>
+            <button class="danger btn-small" onclick="clearAll()">전체 초기화</button>
+        </h2>
+        <div class="list-container" id="libraryList"></div>
+    </div>
+
+    <div class="card">
+        <h2>4. ☁️ 클라우드 동기화 (GitHub Gist)</h2>
+        <div class="hint">최초 1회 PC에서 "새 동기화 시작"으로 Gist를 만든 뒤, 같은 토큰과 Gist ID를 폰에도 입력하면 됩니다. 자동이 아닌 수동 업로드/다운로드 방식이라 실수로 덮어써질 위험이 없습니다.</div>
+        <div class="form-group">
+            <label for="ghToken">GitHub Personal Access Token (gist 권한만)</label>
+            <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxx">
+        </div>
+        <div class="form-group">
+            <label for="gistId">Gist ID</label>
+            <input type="text" id="gistId" placeholder="처음엔 비워두고 아래 버튼으로 생성 → 표시된 ID를 다른 기기에도 동일하게 입력">
+        </div>
+        <div class="row">
+            <button onclick="createNewGist()">🆕 새 동기화 시작하기 (최초 1회)</button>
+        </div>
+        <div class="row" style="margin-top: 12px;">
+            <button class="success" onclick="pushToCloud()">⬆️ 이 기기 → 클라우드로 업로드</button>
+            <button class="danger" onclick="pullFromCloud()">⬇️ 클라우드 → 이 기기로 가져오기</button>
+        </div>
+        <div id="syncStatus" class="hint" style="margin-top: 12px;"></div>
+    </div>
+
+    <div class="card">
+        <h2>5. 로컬 백업 (텍스트, 보조 수단)</h2>
+        <div class="form-group">
+            <label for="backupData">내 서재 데이터 (JSON)</label>
+            <textarea id="backupData" placeholder="[내보내기]를 누르면 여기에 표시됩니다. 다른 기기에서는 이 값을 복사해 붙여넣고 [가져오기]를 누르세요."></textarea>
+        </div>
+        <div class="row">
+            <button onclick="exportData()">📤 텍스트로 내보내기 (복사)</button>
+            <button class="success" onclick="importDataMerge()">📥 텍스트에서 병합</button>
+            <button class="danger" onclick="importDataOverwrite()">⚠️ 텍스트로 전체 덮어쓰기</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let library = [];
+    const GH_FILENAME = 'webtoon_library.json';
+
+    function init() {
+        const stored = localStorage.getItem('webtoonLib');
+        if (stored) {
+            try { library = JSON.parse(stored); } catch (e) { library = []; }
+        }
+        renderList();
+        updatePlaceholder();
+        initSyncSettings();
+    }
+
+    function saveToStorage() {
+        localStorage.setItem('webtoonLib', JSON.stringify(library));
+    }
+
+    function updatePlaceholder() {
+        const inputType = document.getElementById('inputType').value;
+        const hint = document.getElementById('inputHint');
+        hint.textContent = inputType === 'html'
+            ? '현재 모드: HTML 코드 (범용 파싱 → 실패 시 레진 전용 파싱으로 자동 폴백)'
+            : '현재 모드: 텍스트 목록 (한 줄에 "제목 | 소장률%" 형식)';
+    }
+
+    // ---------- 파싱 ----------
+
+    function parseData() {
+        const rawInput = document.getElementById('htmlData').value.trim();
+        const platform = document.getElementById('platform').value;
+        const threshold = parseInt(document.getElementById('minPercent').value, 10) || 0;
+        const inputType = document.getElementById('inputType').value;
+
+        if (!rawInput) { alert('내용을 입력해주세요.'); return; }
+
+        let parsedItems = [];
+        if (inputType === 'html') {
+            parsedItems = parseGenericHTML(rawInput);
+            if (parsedItems.length === 0) {
+                parsedItems = parseFromLezhinHTML(rawInput);
             }
+        } else {
+            parsedItems = parseFromText(rawInput);
         }
 
-        // 플랫폼에 따른 배지 색상 반환 함수 (요구사항 반영)
-        function getPlatformColorClass(platform) {
-            switch(platform) {
-                case '레진코믹스': return 'bg-red-500 text-white';
-                case '봄툰': return 'bg-pink-400 text-white';
-                case '리디': return 'bg-sky-400 text-white';
-                case '네이버웹툰': return 'bg-green-500 text-white';
-                default: return 'bg-gray-200 text-gray-800'; // 기타 플랫폼
-            }
+        if (parsedItems.length === 0) {
+            alert('입력된 내용에서 작품 정보를 찾을 수 없습니다. 형식을 확인해주세요.');
+            return;
         }
 
-        // 서재 리스트 렌더링 함수
-        function renderLibrary() {
-            const container = document.getElementById('libraryList');
-            const filterValue = document.getElementById('listFilter').value;
-            
-            container.innerHTML = ''; // 초기화
+        let added = 0, skipped = 0;
 
-            // 필터링 적용
-            const filteredData = filterValue === '전체' 
-                ? library 
-                : library.filter(item => item.platform === filterValue);
+        parsedItems.forEach(({ title, percent }) => {
+            if (!title) { skipped++; return; }
+            if (percent >= threshold) {
+                const exists = library.some(w => w.title === title && w.platform === platform);
+                if (!exists) {
+                    library.push({
+                        id: Date.now().toString() + Math.random().toString(36).substr(2),
+                        title, platform, percent
+                    });
+                    added++;
+                } else {
+                    skipped++;
+                }
+            } else {
+                skipped++;
+            }
+        });
 
-            document.getElementById('totalCount').innerText = filteredData.length;
+        if (added > 0) {
+            saveToStorage();
+            renderList();
+            document.getElementById('htmlData').value = '';
+            alert(`성공! ${added}개의 작품이 추가되었습니다. (중복/조건미달 제외: ${skipped}개)`);
+        } else {
+            alert(`추가된 작품이 없습니다. 이미 추가된 작품이거나 소장률 기준(${threshold}%)을 넘는 작품이 없습니다.`);
+        }
+    }
 
-            if (filteredData.length === 0) {
-                container.innerHTML = `
-                    <div class="p-8 text-center text-gray-500 font-medium">
-                        조건에 맞는 웹툰이 없습니다.
-                    </div>`;
-                return;
+    // 범용 HTML 파서: 클래스명(해시)에 의존하지 않고
+    // "N% 텍스트를 가진 리프 노드" 근처의 <img alt="제목"> 을 찾는 방식 (봄툰/리디/네이버웹툰 등)
+    function parseGenericHTML(rawHTML) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(rawHTML, 'text/html');
+        const allEls = doc.querySelectorAll('*');
+        const result = [];
+        const usedContainers = new Set();
+
+        allEls.forEach(el => {
+            if (el.children.length > 0) return; // 리프 노드만
+            const text = el.textContent.trim();
+            const match = text.match(/^(\d{1,3})\s*%/);
+            if (!match) return;
+
+            let node = el;
+            for (let i = 0; i < 8 && node; i++) {
+                node = node.parentElement;
+                if (!node || usedContainers.has(node)) continue;
+                const img = node.querySelector('img[alt]');
+                if (img && img.alt && img.alt.trim()) {
+                    usedContainers.add(node);
+                    result.push({ title: img.alt.trim(), percent: parseInt(match[1], 10) });
+                    break;
+                }
+            }
+        });
+
+        return result;
+    }
+
+    // 레진코믹스 전용 폴백 파서 (.hy__info 구조)
+    function parseFromLezhinHTML(rawHTML) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(rawHTML, 'text/html');
+        const items = doc.querySelectorAll('.hy__info');
+        const result = [];
+
+        items.forEach(item => {
+            const titleEl = item.querySelector('.hy__infoTitle');
+            let title = '';
+            if (titleEl) {
+                const clonedEl = titleEl.cloneNode(true);
+                clonedEl.querySelectorAll('span, i').forEach(b => b.remove());
+                title = clonedEl.textContent.trim();
             }
 
-            // 요구사항: 크게 보기 좋게, 번호 제거
-            filteredData.forEach(item => {
-                const colorClass = getPlatformColorClass(item.platform);
-                
-                const listItem = document.createElement('div');
-                // 호버 효과 및 패딩 증가 (p-5), 폰트 크기 증가 (text-xl)
-                listItem.className = 'flex flex-col sm:flex-row sm:justify-between sm:items-center p-5 border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors gap-2';
-                
-                listItem.innerHTML = `
-                    <div class="font-extrabold text-xl text-gray-800 truncate">
-                        ${item.title}
+            const progressSpan = item.querySelector('.hy__infoProgress span');
+            let percent = 0;
+            if (progressSpan) {
+                const m = progressSpan.textContent.match(/(\d+)%/);
+                if (m) percent = parseInt(m[1], 10);
+            }
+
+            if (title) result.push({ title, percent });
+        });
+
+        return result;
+    }
+
+    // 봄툰/리디 등 텍스트 줄단위 파싱 ("제목 | 소장률%")
+    function parseFromText(rawText) {
+        const lines = rawText.split('\n');
+        const result = [];
+
+        lines.forEach(line => {
+            const trimmed = line.trim();
+            if (!trimmed) return;
+            const match = trimmed.match(/^(.+?)\s*[\|:]\s*(\d+)\s*%?\s*$/);
+            if (match) {
+                const title = match[1].trim();
+                const percent = parseInt(match[2], 10);
+                if (title) result.push({ title, percent });
+            }
+        });
+
+        return result;
+    }
+
+    // ---------- 리스트 렌더링 ----------
+
+    function renderList() {
+        const container = document.getElementById('libraryList');
+        document.getElementById('totalCount').textContent = library.length;
+        container.innerHTML = '';
+
+        if (library.length === 0) {
+            container.innerHTML = `<div style="padding: 24px; text-align: center; color: var(--text-muted);">서재가 비어있습니다. 작품을 추가해주세요.</div>`;
+            return;
+        }
+
+        const sorted = [...library].sort((a, b) => b.percent - a.percent);
+
+        sorted.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'list-item';
+            const safeTitle = escapeHTML(item.title);
+            const safePlatform = escapeHTML(item.platform);
+
+            div.innerHTML = `
+                <div class="item-info">
+                    <div class="item-title">${safeTitle}</div>
+                    <div class="item-meta">
+                        <span class="badge">${safePlatform}</span>
+                        <span>소장률: <strong style="color: var(--primary);">${item.percent}%</strong></span>
                     </div>
-                    <div class="flex items-center gap-3 shrink-0">
-                        <span class="px-3 py-1 rounded-md text-sm font-bold shadow-sm ${colorClass}">
-                            ${item.platform}
-                        </span>
-                        <span class="text-gray-500 text-sm font-semibold whitespace-nowrap bg-gray-200 px-2 py-1 rounded-md">
-                            소장: ${item.percentage}%
-                        </span>
-                    </div>
-                `;
-                container.appendChild(listItem);
-            });
+                </div>
+                <button class="danger btn-small" onclick="deleteItem('${item.id}')">삭제</button>
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    function deleteItem(id) {
+        library = library.filter(item => item.id !== id);
+        saveToStorage();
+        renderList();
+    }
+
+    function clearAll() {
+        if (library.length === 0) return;
+        if (confirm('정말로 모든 작품을 삭제하시겠습니까?')) {
+            library = [];
+            saveToStorage();
+            renderList();
+            document.getElementById('rouletteResult').innerHTML = '<div style="color: var(--text-muted);">버튼을 눌러 운명의 작품을 뽑아보세요!</div>';
+        }
+    }
+
+    // ---------- 룰렛 ----------
+
+    function spinRoulette() {
+        const filter = document.getElementById('filterPlatform').value;
+        const resultBox = document.getElementById('rouletteResult');
+
+        let pool = library;
+        if (filter !== '전체') pool = library.filter(item => item.platform === filter);
+
+        if (pool.length === 0) {
+            resultBox.innerHTML = `<div style="color: var(--danger); font-weight: bold;">조건에 맞는 작품이 없습니다!</div>`;
+            return;
         }
 
-        // 랜덤 정주행 룰렛 함수
-        function spinRoulette() {
-            const filterValue = document.getElementById('rouletteFilter').value;
-            const resultBox = document.getElementById('rouletteResult');
-            
-            // 필터링된 후보군 설정
-            const candidates = filterValue === '전체' 
-                ? library 
-                : library.filter(item => item.platform === filterValue);
+        let count = 0;
+        const maxTicks = 15;
+        const speed = 80;
 
-            if (candidates.length === 0) {
-                resultBox.innerHTML = '<div class="text-gray-600 font-bold text-lg">해당 플랫폼에 추천할 웹툰이 없습니다!</div>';
-                return;
-            }
+        const interval = setInterval(() => {
+            const randomPick = pool[Math.floor(Math.random() * pool.length)];
+            resultBox.innerHTML = `
+                <div class="roulette-meta" style="color: #9ca3af;">고르는 중...</div>
+                <div class="roulette-title" style="color: #6b7280;">${escapeHTML(randomPick.title)}</div>
+            `;
 
-            // 룰렛 이펙트 시작
-            resultBox.innerHTML = '<div class="text-2xl font-black text-amber-600 animate-pulse">운명의 작품을 고르는 중... 🔮</div>';
-
-            setTimeout(() => {
-                // 랜덤 선택
-                const randomIndex = Math.floor(Math.random() * candidates.length);
-                const winner = candidates[randomIndex];
-                const colorClass = getPlatformColorClass(winner.platform);
-
-                // 결과 렌더링
+            count++;
+            if (count >= maxTicks) {
+                clearInterval(interval);
+                const finalPick = pool[Math.floor(Math.random() * pool.length)];
                 resultBox.innerHTML = `
-                    <div class="mb-3 inline-block px-4 py-1 rounded-full text-sm font-bold shadow-sm ${colorClass} animate-bounce">
-                        ${winner.platform}
-                    </div>
-                    <div class="text-4xl font-black text-amber-900 mb-3 break-keep w-full">
-                        ${winner.title}
-                    </div>
-                    <div class="text-lg font-bold text-amber-700 bg-white px-4 py-1 rounded-full border border-amber-300 shadow-sm">
-                        소장률: ${winner.percentage}%
+                    <div class="roulette-meta">오늘은 이 작품 어때요?</div>
+                    <div class="roulette-title">${escapeHTML(finalPick.title)}</div>
+                    <div class="roulette-meta">
+                        <span class="badge" style="background-color:#fef3c7; border: 1px solid #d97706;">${escapeHTML(finalPick.platform)}</span>
+                        소장률 ${finalPick.percent}%
                     </div>
                 `;
-            }, 800); // 0.8초 후 결과 표시
-        }
-
-        // 간단한 피드백 메시지 표시 (alert 대체)
-        function showFeedback(elementId, message) {
-            const el = document.getElementById(elementId);
-            if(el) {
-                el.innerText = message;
-                setTimeout(() => el.innerText = '', 3000);
             }
+        }, speed);
+    }
+
+    // ---------- GitHub Gist 클라우드 동기화 (수동) ----------
+
+    function initSyncSettings() {
+        const savedToken = localStorage.getItem('ghToken');
+        const savedGistId = localStorage.getItem('gistId');
+        if (savedToken) document.getElementById('ghToken').value = savedToken;
+        if (savedGistId) document.getElementById('gistId').value = savedGistId;
+    }
+
+    function saveSyncSettings() {
+        localStorage.setItem('ghToken', document.getElementById('ghToken').value.trim());
+        localStorage.setItem('gistId', document.getElementById('gistId').value.trim());
+    }
+
+    function setSyncStatus(msg, isError = false) {
+        const el = document.getElementById('syncStatus');
+        el.textContent = msg;
+        el.style.color = isError ? 'var(--danger)' : 'var(--success)';
+    }
+
+    async function createNewGist() {
+        const token = document.getElementById('ghToken').value.trim();
+        if (!token) { alert('먼저 GitHub 토큰을 입력해주세요.'); return; }
+
+        try {
+            const res = await fetch('https://api.github.com/gists', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `token ${token}`,
+                    'Accept': 'application/vnd.github+json'
+                },
+                body: JSON.stringify({
+                    description: '웹툰 서재 동기화 데이터 (비공개)',
+                    public: false,
+                    files: { [GH_FILENAME]: { content: JSON.stringify(library, null, 2) } }
+                })
+            });
+            if (!res.ok) throw new Error(`GitHub 오류: ${res.status}`);
+            const data = await res.json();
+            document.getElementById('gistId').value = data.id;
+            saveSyncSettings();
+            setSyncStatus(`생성 완료! Gist ID: ${data.id} — 이 ID와 토큰을 다른 기기에도 동일하게 입력하세요.`);
+        } catch (e) {
+            setSyncStatus('생성 실패: ' + e.message, true);
+        }
+    }
+
+    async function pushToCloud() {
+        saveSyncSettings();
+        const token = document.getElementById('ghToken').value.trim();
+        const gistId = document.getElementById('gistId').value.trim();
+        if (!token || !gistId) { alert('토큰과 Gist ID를 모두 입력해주세요.'); return; }
+
+        try {
+            const res = await fetch(`https://api.github.com/gists/${gistId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `token ${token}`,
+                    'Accept': 'application/vnd.github+json'
+                },
+                body: JSON.stringify({
+                    files: { [GH_FILENAME]: { content: JSON.stringify(library, null, 2) } }
+                })
+            });
+            if (!res.ok) throw new Error(`GitHub 오류: ${res.status}`);
+            setSyncStatus(`업로드 완료! (${library.length}개 작품, ${new Date().toLocaleTimeString()})`);
+        } catch (e) {
+            setSyncStatus('업로드 실패: ' + e.message, true);
+        }
+    }
+
+    async function pullFromCloud() {
+        saveSyncSettings();
+        const token = document.getElementById('ghToken').value.trim();
+        const gistId = document.getElementById('gistId').value.trim();
+        if (!token || !gistId) { alert('토큰과 Gist ID를 모두 입력해주세요.'); return; }
+
+        try {
+            const res = await fetch(`https://api.github.com/gists/${gistId}`, {
+                headers: {
+                    'Authorization': `token ${token}`,
+                    'Accept': 'application/vnd.github+json'
+                }
+            });
+            if (!res.ok) throw new Error(`GitHub 오류: ${res.status}`);
+            const data = await res.json();
+            const file = data.files[GH_FILENAME];
+            if (!file) throw new Error('클라우드에 저장된 데이터가 없습니다.');
+            const cloudLibrary = JSON.parse(file.content);
+
+            if (!confirm(`클라우드 데이터(${cloudLibrary.length}개)로 이 기기의 서재(${library.length}개)를 덮어씁니다. 계속할까요?`)) return;
+
+            library = cloudLibrary;
+            saveToStorage();
+            renderList();
+            setSyncStatus(`가져오기 완료! (${library.length}개 작품)`);
+        } catch (e) {
+            setSyncStatus('가져오기 실패: ' + e.message, true);
+        }
+    }
+
+    // ---------- 로컬 텍스트 백업/복원 (보조 수단) ----------
+
+    function exportData() {
+        const json = JSON.stringify(library, null, 2);
+        const textarea = document.getElementById('backupData');
+        textarea.value = json;
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(json).then(() => {
+                alert('클립보드에 복사되었습니다!');
+            }).catch(() => {
+                textarea.focus();
+                textarea.select();
+                alert('자동 복사에 실패했습니다. 아래 텍스트 박스에서 직접 복사해주세요.');
+            });
+        } else {
+            textarea.focus();
+            textarea.select();
+            alert('아래 텍스트 박스에서 직접 복사해주세요.');
+        }
+    }
+
+    function importDataMerge() {
+        const raw = document.getElementById('backupData').value.trim();
+        if (!raw) { alert('가져올 JSON 데이터를 붙여넣어주세요.'); return; }
+
+        let incoming;
+        try {
+            incoming = JSON.parse(raw);
+            if (!Array.isArray(incoming)) throw new Error('배열이 아닙니다.');
+        } catch (e) {
+            alert('올바른 JSON 형식이 아닙니다.');
+            return;
         }
 
-        // 앱 초기화: 렌더링
-        window.onload = function() {
-            renderLibrary();
-        };
-    </script>
+        let added = 0, skipped = 0;
+        incoming.forEach(item => {
+            if (!item || !item.title || !item.platform) { skipped++; return; }
+            const exists = library.some(w => w.title === item.title && w.platform === item.platform);
+            if (!exists) {
+                library.push({
+                    id: item.id || (Date.now().toString() + Math.random().toString(36).substr(2)),
+                    title: item.title,
+                    platform: item.platform,
+                    percent: typeof item.percent === 'number' ? item.percent : (parseInt(item.percent, 10) || 0)
+                });
+                added++;
+            } else {
+                skipped++;
+            }
+        });
+
+        saveToStorage();
+        renderList();
+        alert(`병합 완료! ${added}개 추가, ${skipped}개는 중복/형식오류로 제외되었습니다.`);
+    }
+
+    function importDataOverwrite() {
+        const raw = document.getElementById('backupData').value.trim();
+        if (!raw) { alert('가져올 JSON 데이터를 붙여넣어주세요.'); return; }
+
+        let incoming;
+        try {
+            incoming = JSON.parse(raw);
+            if (!Array.isArray(incoming)) throw new Error('배열이 아닙니다.');
+        } catch (e) {
+            alert('올바른 JSON 형식이 아닙니다.');
+            return;
+        }
+
+        if (!confirm(`현재 서재 데이터(${library.length}개)를 모두 지우고, 붙여넣은 데이터(${incoming.length}개)로 덮어씁니다. 계속할까요?`)) return;
+
+        library = incoming.map(item => ({
+            id: item.id || (Date.now().toString() + Math.random().toString(36).substr(2)),
+            title: item.title || '제목 없음',
+            platform: item.platform || '기타',
+            percent: typeof item.percent === 'number' ? item.percent : (parseInt(item.percent, 10) || 0)
+        }));
+
+        saveToStorage();
+        renderList();
+        alert('덮어쓰기가 완료되었습니다.');
+    }
+
+    function escapeHTML(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    window.addEventListener('DOMContentLoaded', init);
+</script>
 </body>
 </html>

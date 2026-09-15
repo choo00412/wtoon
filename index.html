@@ -1,259 +1,449 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>웹툰 서재 & 랜덤 룰렛</title>
-    <style>
-        :root {
-            --primary: #4f46e5;
-            --primary-hover: #4338ca;
-            --danger: #ef4444;
-            --danger-hover: #dc2626;
-            --success: #10b981;
-            --success-hover: #059669;
-            --bg-color: #f3f4f6;
-            --surface: #ffffff;
-            --text-main: #1f2937;
-            --text-muted: #6b7280;
-            --border: #e5e7eb;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>웹툰 서재 & 랜덤 룰렛</title>
+<style>
+    :root {
+        --primary: #4f46e5;
+        --primary-hover: #4338ca;
+        --danger: #ef4444;
+        --danger-hover: #dc2626;
+        --success: #10b981;
+        --success-hover: #059669;
+        --bg-color: #f3f4f6;
+        --surface: #ffffff;
+        --text-main: #1f2937;
+        --text-muted: #6b7280;
+        --border: #e5e7eb;
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        --lezhin: #ef4444;
+        --lezhin-bg: #fee2e2;
+        --bomtoon: #ec4899;
+        --bomtoon-bg: #fce7f3;
+        --ridi: #0ea5e9;
+        --ridi-bg: #e0f2fe;
+        --naver: #22c55e;
+        --naver-bg: #dcfce7;
+    }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            line-height: 1.5;
-            padding: 20px;
-        }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        .container { max-width: 800px; margin: 0 auto; }
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-main);
+        line-height: 1.5;
+        padding: 20px;
+    }
 
-        .card {
-            background-color: var(--surface);
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 24px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            border: 1px solid var(--border);
-        }
+    .container { max-width: 900px; margin: 0 auto; }
 
-        h1, h2 { margin-bottom: 16px; color: var(--text-main); }
-        h1 { font-size: 1.5rem; text-align: center; border-bottom: 2px solid var(--border); padding-bottom: 16px; }
-        h2 { font-size: 1.25rem; display: flex; justify-content: space-between; align-items: center; }
+    h1 {
+        font-size: 1.6rem; text-align: center; margin-bottom: 20px;
+    }
 
-        .form-group { margin-bottom: 16px; }
+    /* ---------- 탭 메뉴 ---------- */
+    .tabs {
+        display: flex; gap: 8px; margin-bottom: 20px; background: var(--surface);
+        padding: 6px; border-radius: 12px; border: 1px solid var(--border);
+    }
+    .tab-btn {
+        flex: 1; background: transparent; color: var(--text-muted); border: none;
+        padding: 10px 8px; border-radius: 8px; font-weight: 700; font-size: 0.95rem; cursor: pointer;
+    }
+    .tab-btn:hover { background: #f3f4f6; }
+    .tab-btn.active { background: var(--primary); color: #fff; }
 
-        label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem; }
+    .page { display: none; }
+    .page.active { display: block; }
 
-        .hint { font-size: 0.8rem; color: var(--text-muted); margin-top: -12px; margin-bottom: 16px; }
+    .card {
+        background-color: var(--surface);
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 24px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        border: 1px solid var(--border);
+    }
 
-        input[type="number"], input[type="text"], input[type="password"], select, textarea {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            font-size: 1rem;
-            font-family: inherit;
-        }
+    h2 { margin-bottom: 16px; color: var(--text-main); font-size: 1.25rem; display: flex; justify-content: space-between; align-items: center; }
 
-        textarea {
-            min-height: 120px;
-            resize: vertical;
-            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-            font-size: 0.85rem;
-        }
+    .form-group { margin-bottom: 16px; }
 
-        .row { display: flex; gap: 16px; flex-wrap: wrap; }
-        .row > .form-group { flex: 1; min-width: 200px; }
-        .row > button { flex: 1; min-width: 160px; }
+    label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem; }
 
-        button {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 10px 16px;
-            border-radius: 6px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        button:hover { background-color: var(--primary-hover); }
+    .hint { font-size: 0.8rem; color: var(--text-muted); margin-top: -12px; margin-bottom: 16px; }
 
-        button.danger { background-color: var(--danger); }
-        button.danger:hover { background-color: var(--danger-hover); }
-        button.success { background-color: var(--success); }
-        button.success:hover { background-color: var(--success-hover); }
-        button.btn-small { padding: 6px 12px; font-size: 0.875rem; }
+    input[type="number"], input[type="text"], input[type="password"], select, textarea {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        font-size: 1rem;
+        font-family: inherit;
+    }
 
-        .list-container {
-            max-height: 400px;
-            overflow-y: auto;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-        }
+    textarea {
+        min-height: 120px;
+        resize: vertical;
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+        font-size: 0.85rem;
+    }
 
-        .list-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px;
-            border-bottom: 1px solid var(--border);
-        }
-        .list-item:last-child { border-bottom: none; }
-        .list-item:nth-child(even) { background-color: #f9fafb; }
+    .row { display: flex; gap: 16px; flex-wrap: wrap; }
+    .row > .form-group { flex: 1; min-width: 200px; }
+    .row > button { flex: 1; min-width: 160px; }
 
-        .item-info { display: flex; flex-direction: column; gap: 4px; }
-        .item-title { font-weight: bold; font-size: 1.1rem; }
-        .item-meta { font-size: 0.875rem; color: var(--text-muted); display: flex; gap: 8px; align-items: center; }
+    button {
+        background-color: var(--primary);
+        color: white;
+        border: none;
+        padding: 10px 16px;
+        border-radius: 6px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    button:hover { background-color: var(--primary-hover); }
 
-        .badge {
-            background-color: #e5e7eb;
-            padding: 2px 8px;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: #374151;
-        }
+    button.danger { background-color: var(--danger); }
+    button.danger:hover { background-color: var(--danger-hover); }
+    button.success { background-color: var(--success); }
+    button.success:hover { background-color: var(--success-hover); }
+    button.btn-small { padding: 6px 12px; font-size: 0.875rem; }
+    button.secondary { background-color: #6b7280; }
+    button.secondary:hover { background-color: #4b5563; }
 
-        .roulette-box {
-            background-color: #fef3c7;
-            border: 2px dashed #f59e0b;
-            border-radius: 12px;
-            padding: 40px 20px;
-            text-align: center;
-            margin-top: 16px;
-            min-height: 160px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-        .roulette-title { font-size: 1.75rem; font-weight: bold; color: #d97706; margin: 8px 0; }
-        .roulette-meta { font-size: 1.1rem; color: #92400e; }
+    /* ---------- 필터 칩 ---------- */
+    .filter-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .chip {
+        padding: 7px 16px; border-radius: 9999px; border: 1px solid var(--border);
+        background: #fff; cursor: pointer; font-size: 0.875rem; font-weight: 700; color: var(--text-muted);
+    }
+    .chip.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .chip[data-platform="레진코믹스"].active { background: var(--lezhin); border-color: var(--lezhin); }
+    .chip[data-platform="봄툰"].active { background: var(--bomtoon); border-color: var(--bomtoon); }
+    .chip[data-platform="리디"].active { background: var(--ridi); border-color: var(--ridi); }
+    .chip[data-platform="네이버웹툰"].active { background: var(--naver); border-color: var(--naver); }
 
-        #syncStatus { min-height: 1.2em; }
-    </style>
+    .group-section { border-top: 1px dashed var(--border); padding-top: 16px; margin-bottom: 8px; }
+    .group-chip {
+        display: inline-flex; align-items: center; gap: 8px; padding: 7px 8px 7px 16px;
+        border-radius: 9999px; border: 1px solid var(--border); background: #fff; cursor: pointer;
+        font-size: 0.875rem; font-weight: 700; color: var(--text-muted);
+    }
+    .group-chip.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .group-chip .del-x {
+        background: rgba(0,0,0,0.08); color: inherit; border-radius: 50%; width: 20px; height: 20px;
+        display: inline-flex; align-items: center; justify-content: center; font-size: 0.7rem; padding: 0;
+    }
+    .group-chip.active .del-x { background: rgba(255,255,255,0.25); }
+    .group-empty-hint { font-size: 0.85rem; color: var(--text-muted); }
+
+    /* ---------- 서재 리스트 (크게) ---------- */
+    .list-container {
+        max-height: 640px;
+        overflow-y: auto;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+    }
+
+    .list-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        padding: 20px;
+        border-bottom: 1px solid var(--border);
+    }
+    .list-item:last-child { border-bottom: none; }
+    .list-item:nth-child(even) { background-color: #f9fafb; }
+
+    .item-main { flex: 1; min-width: 0; cursor: pointer; }
+    .item-top-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+    .item-title { font-weight: 800; font-size: 1.3rem; }
+    .item-meta-row { display: flex; align-items: center; gap: 16px; font-size: 1rem; color: var(--text-muted); margin-bottom: 6px; }
+    .item-actions { display: flex; flex-direction: column; gap: 8px; }
+
+    .badge {
+        padding: 4px 12px;
+        border-radius: 9999px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        background-color: #e5e7eb;
+        color: #374151;
+        border: 1px solid transparent;
+    }
+    .badge[data-platform="레진코믹스"] { background: var(--lezhin-bg); color: var(--lezhin); border-color: var(--lezhin); }
+    .badge[data-platform="봄툰"] { background: var(--bomtoon-bg); color: var(--bomtoon); border-color: var(--bomtoon); }
+    .badge[data-platform="리디"] { background: var(--ridi-bg); color: var(--ridi); border-color: var(--ridi); }
+    .badge[data-platform="네이버웹툰"] { background: var(--naver-bg); color: var(--naver); border-color: var(--naver); }
+
+    .stars-display { color: #f59e0b; letter-spacing: 1px; }
+    .keyword-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+    .keyword-tag {
+        display: inline-block; background: #eef2ff; color: #4338ca;
+        padding: 3px 10px; border-radius: 9999px; font-size: 0.78rem; font-weight: 600;
+    }
+    .group-tag {
+        display: inline-block; background: #f3e8ff; color: #7e22ce;
+        padding: 3px 10px; border-radius: 9999px; font-size: 0.78rem; font-weight: 600;
+    }
+
+    .roulette-box {
+        background-color: #fef3c7;
+        border: 2px dashed #f59e0b;
+        border-radius: 12px;
+        padding: 40px 20px;
+        text-align: center;
+        margin-top: 16px;
+        min-height: 160px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+    .roulette-title { font-size: 1.75rem; font-weight: bold; color: #d97706; margin: 8px 0; }
+    .roulette-meta { font-size: 1.1rem; color: #92400e; }
+
+    #syncStatus { min-height: 1.2em; }
+
+    /* ---------- 상세 모달 ---------- */
+    .modal-overlay {
+        display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+        align-items: center; justify-content: center; z-index: 1000; padding: 20px;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal {
+        background: #fff; border-radius: 14px; padding: 28px; max-width: 480px; width: 100%;
+        max-height: 90vh; overflow-y: auto;
+    }
+    .modal h2 { margin-bottom: 4px; }
+    .modal .modal-sub { color: var(--text-muted); margin-bottom: 20px; font-size: 0.9rem; }
+    .star-rating { font-size: 2.2rem; letter-spacing: 4px; user-select: none; }
+    .star-rating span { color: #d1d5db; cursor: pointer; }
+    .star-rating span.filled { color: #f59e0b; }
+    .group-checkbox-list { display: flex; flex-direction: column; gap: 8px; max-height: 160px; overflow-y: auto; }
+    .group-checkbox-list label { display: flex; align-items: center; gap: 8px; font-weight: 500; }
+    .group-checkbox-list input { width: auto; }
+</style>
 </head>
 <body>
 
 <div class="container">
     <h1>📚 내 웹툰 서재 & 랜덤 추천기</h1>
 
-    <div class="card">
-        <h2>1. 웹툰 불러오기</h2>
-        <div class="row">
-            <div class="form-group">
-                <label for="platform">플랫폼 선택</label>
-                <select id="platform">
-                    <option value="레진코믹스">레진코믹스</option>
-                    <option value="봄툰">봄툰</option>
-                    <option value="리디">리디</option>
-                    <option value="네이버웹툰">네이버웹툰</option>
-                </select>
+    <div class="tabs">
+        <button class="tab-btn active" id="tabBtn-page-main" onclick="showPage('page-main')">🏠 메인</button>
+        <button class="tab-btn" id="tabBtn-page-import" onclick="showPage('page-import')">➕ 웹툰 불러오기</button>
+        <button class="tab-btn" id="tabBtn-page-sync" onclick="showPage('page-sync')">☁️ 동기화 / 백업</button>
+    </div>
+
+    <!-- ================= 메인 페이지 ================= -->
+    <div id="page-main" class="page active">
+
+        <div class="card">
+            <h2>랜덤 정주행 룰렛 🎲</h2>
+            <div class="row" style="align-items: flex-end;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="filterPlatform">추천 범위</label>
+                    <select id="filterPlatform">
+                        <option value="all">전체 플랫폼</option>
+                        <option value="platform:레진코믹스">레진코믹스</option>
+                        <option value="platform:봄툰">봄툰</option>
+                        <option value="platform:리디">리디</option>
+                        <option value="platform:네이버웹툰">네이버웹툰</option>
+                        <optgroup id="rouletteGroupOptions" label="내 그룹"></optgroup>
+                    </select>
+                </div>
+                <button onclick="spinRoulette()" style="background-color: #8b5cf6;">랜덤 픽!</button>
+            </div>
+            <div id="rouletteResult" class="roulette-box">
+                <div style="color: var(--text-muted);">버튼을 눌러 운명의 작품을 뽑아보세요!</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>
+                <span>내 서재 리스트 (<span id="totalCount">0</span>)</span>
+                <button class="danger btn-small" onclick="clearAll()">전체 초기화</button>
+            </h2>
+
+            <div class="filter-chips" id="platformChips">
+                <button class="chip active" data-platform="all" onclick="setPlatformFilter('all')">전체</button>
+                <button class="chip" data-platform="레진코믹스" onclick="setPlatformFilter('레진코믹스')">레진코믹스</button>
+                <button class="chip" data-platform="봄툰" onclick="setPlatformFilter('봄툰')">봄툰</button>
+                <button class="chip" data-platform="리디" onclick="setPlatformFilter('리디')">리디</button>
+                <button class="chip" data-platform="네이버웹툰" onclick="setPlatformFilter('네이버웹툰')">네이버웹툰</button>
+            </div>
+
+            <div class="group-section">
+                <div class="row" style="align-items: flex-end; margin-bottom: 12px;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="newGroupName">그룹 만들기</label>
+                        <input type="text" id="newGroupName" placeholder="예) 최애 모음, 완결작만 등">
+                    </div>
+                    <button class="btn-small" style="flex: none;" onclick="createGroup()">그룹 추가</button>
+                </div>
+                <div class="filter-chips" id="groupChipList"></div>
+            </div>
+
+            <div class="list-container" id="libraryList"></div>
+        </div>
+    </div>
+
+    <!-- ================= 웹툰 불러오기 페이지 ================= -->
+    <div id="page-import" class="page">
+        <div class="card">
+            <h2>웹툰 불러오기</h2>
+            <div class="row">
+                <div class="form-group">
+                    <label for="platform">플랫폼 선택</label>
+                    <select id="platform">
+                        <option value="레진코믹스">레진코믹스</option>
+                        <option value="봄툰">봄툰</option>
+                        <option value="리디">리디</option>
+                        <option value="네이버웹툰">네이버웹툰</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="inputType">입력 방식</label>
+                    <select id="inputType" onchange="updatePlaceholder()">
+                        <option value="html">HTML 코드 (개발자 도구 복사)</option>
+                        <option value="text">텍스트 목록 (제목 | 소장률%)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="minPercent">소장률 기준 (%)</label>
+                    <input type="number" id="minPercent" value="0" min="0" max="100">
+                </div>
             </div>
             <div class="form-group">
-                <label for="inputType">입력 방식</label>
-                <select id="inputType" onchange="updatePlaceholder()">
-                    <option value="html">HTML 코드 (개발자 도구 복사)</option>
-                    <option value="text">텍스트 목록 (제목 | 소장률%)</option>
-                </select>
+                <label for="htmlData">내용 붙여넣기</label>
+                <textarea id="htmlData" placeholder="HTML 모드: 개발자 도구에서 복사한 HTML 코드를 붙여넣으세요.&#10;텍스트 모드: 한 줄에 하나씩 '제목 | 소장률%' 형식으로 붙여넣으세요.&#10;예) 여신강림 | 98%"></textarea>
+            </div>
+            <div class="hint" id="inputHint">현재 모드: HTML 코드 (범용 파싱 → 실패 시 레진 전용 파싱으로 자동 폴백)</div>
+            <button onclick="parseData()">서재에 추가하기</button>
+        </div>
+    </div>
+
+    <!-- ================= 동기화/백업 페이지 ================= -->
+    <div id="page-sync" class="page">
+        <div class="card">
+            <h2>☁️ 클라우드 동기화 (GitHub Gist)</h2>
+            <div class="hint">최초 1회 PC에서 "새 동기화 시작"으로 Gist를 만든 뒤, 같은 토큰과 Gist ID를 폰에도 입력하면 됩니다. 자동이 아닌 수동 업로드/다운로드 방식이라 실수로 덮어써질 위험이 없습니다. (키워드/별점/그룹 정보도 함께 동기화됩니다)</div>
+            <div class="form-group">
+                <label for="ghToken">GitHub Personal Access Token (gist 권한만)</label>
+                <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxx">
             </div>
             <div class="form-group">
-                <label for="minPercent">소장률 기준 (%)</label>
-                <input type="number" id="minPercent" value="0" min="0" max="100">
+                <label for="gistId">Gist ID</label>
+                <input type="text" id="gistId" placeholder="처음엔 비워두고 아래 버튼으로 생성 → 표시된 ID를 다른 기기에도 동일하게 입력">
+            </div>
+            <div class="row">
+                <button onclick="createNewGist()">🆕 새 동기화 시작하기 (최초 1회)</button>
+            </div>
+            <div class="row" style="margin-top: 12px;">
+                <button class="success" onclick="pushToCloud()">⬆️ 이 기기 → 클라우드로 업로드</button>
+                <button class="danger" onclick="pullFromCloud()">⬇️ 클라우드 → 이 기기로 가져오기</button>
+            </div>
+            <div id="syncStatus" class="hint" style="margin-top: 12px;"></div>
+        </div>
+
+        <div class="card">
+            <h2>로컬 백업 (텍스트, 보조 수단)</h2>
+            <div class="form-group">
+                <label for="backupData">내 서재 데이터 (JSON)</label>
+                <textarea id="backupData" placeholder="[내보내기]를 누르면 여기에 표시됩니다. 다른 기기에서는 이 값을 복사해 붙여넣고 [가져오기]를 누르세요."></textarea>
+            </div>
+            <div class="row">
+                <button onclick="exportData()">📤 텍스트로 내보내기 (복사)</button>
+                <button class="success" onclick="importDataMerge()">📥 텍스트에서 병합</button>
+                <button class="danger" onclick="importDataOverwrite()">⚠️ 텍스트로 전체 덮어쓰기</button>
             </div>
         </div>
-        <div class="form-group">
-            <label for="htmlData">내용 붙여넣기</label>
-            <textarea id="htmlData" placeholder="HTML 모드: 개발자 도구에서 복사한 HTML 코드를 붙여넣으세요.&#10;텍스트 모드: 한 줄에 하나씩 '제목 | 소장률%' 형식으로 붙여넣으세요.&#10;예) 여신강림 | 98%"></textarea>
-        </div>
-        <div class="hint" id="inputHint">현재 모드: HTML 코드 (범용 파싱 → 실패 시 레진 전용 파싱으로 자동 폴백)</div>
-        <button onclick="parseData()">서재에 추가하기</button>
     </div>
+</div>
 
-    <div class="card">
-        <h2>2. 랜덤 정주행 룰렛 🎲</h2>
-        <div class="row" style="align-items: flex-end;">
-            <div class="form-group" style="margin-bottom: 0;">
-                <label for="filterPlatform">추천받을 플랫폼</label>
-                <select id="filterPlatform">
-                    <option value="전체">전체 플랫폼</option>
-                    <option value="레진코믹스">레진코믹스</option>
-                    <option value="봄툰">봄툰</option>
-                    <option value="리디">리디</option>
-                    <option value="네이버웹툰">네이버웹툰</option>
-                </select>
-            </div>
-            <button onclick="spinRoulette()" style="background-color: #8b5cf6;">랜덤 픽!</button>
-        </div>
-        <div id="rouletteResult" class="roulette-box">
-            <div style="color: var(--text-muted);">버튼을 눌러 운명의 작품을 뽑아보세요!</div>
-        </div>
-    </div>
+<!-- ================= 상세 모달 ================= -->
+<div id="detailModal" class="modal-overlay" onclick="closeModalOverlay(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+        <h2 id="modalTitle">제목</h2>
+        <div class="modal-sub" id="modalSub"></div>
 
-    <div class="card">
-        <h2>
-            <span>3. 내 서재 리스트 (<span id="totalCount">0</span>)</span>
-            <button class="danger btn-small" onclick="clearAll()">전체 초기화</button>
-        </h2>
-        <div class="list-container" id="libraryList"></div>
-    </div>
-
-    <div class="card">
-        <h2>4. ☁️ 클라우드 동기화 (GitHub Gist)</h2>
-        <div class="hint">최초 1회 PC에서 "새 동기화 시작"으로 Gist를 만든 뒤, 같은 토큰과 Gist ID를 폰에도 입력하면 됩니다. 자동이 아닌 수동 업로드/다운로드 방식이라 실수로 덮어써질 위험이 없습니다.</div>
         <div class="form-group">
-            <label for="ghToken">GitHub Personal Access Token (gist 권한만)</label>
-            <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxx">
+            <label>별점</label>
+            <div class="star-rating" id="starRating"></div>
         </div>
+
         <div class="form-group">
-            <label for="gistId">Gist ID</label>
-            <input type="text" id="gistId" placeholder="처음엔 비워두고 아래 버튼으로 생성 → 표시된 ID를 다른 기기에도 동일하게 입력">
+            <label for="modalKeywords">키워드 (쉼표로 구분)</label>
+            <input type="text" id="modalKeywords" placeholder="예) 로판, 힐링, 먼치킨">
         </div>
+
+        <div class="form-group">
+            <label>그룹에 담기</label>
+            <div class="group-checkbox-list" id="modalGroupCheckboxes"></div>
+        </div>
+
         <div class="row">
-            <button onclick="createNewGist()">🆕 새 동기화 시작하기 (최초 1회)</button>
-        </div>
-        <div class="row" style="margin-top: 12px;">
-            <button class="success" onclick="pushToCloud()">⬆️ 이 기기 → 클라우드로 업로드</button>
-            <button class="danger" onclick="pullFromCloud()">⬇️ 클라우드 → 이 기기로 가져오기</button>
-        </div>
-        <div id="syncStatus" class="hint" style="margin-top: 12px;"></div>
-    </div>
-
-    <div class="card">
-        <h2>5. 로컬 백업 (텍스트, 보조 수단)</h2>
-        <div class="form-group">
-            <label for="backupData">내 서재 데이터 (JSON)</label>
-            <textarea id="backupData" placeholder="[내보내기]를 누르면 여기에 표시됩니다. 다른 기기에서는 이 값을 복사해 붙여넣고 [가져오기]를 누르세요."></textarea>
-        </div>
-        <div class="row">
-            <button onclick="exportData()">📤 텍스트로 내보내기 (복사)</button>
-            <button class="success" onclick="importDataMerge()">📥 텍스트에서 병합</button>
-            <button class="danger" onclick="importDataOverwrite()">⚠️ 텍스트로 전체 덮어쓰기</button>
+            <button onclick="saveModal()">저장</button>
+            <button class="secondary" onclick="closeModal()">닫기</button>
         </div>
     </div>
 </div>
 
 <script>
     let library = [];
+    let groups = [];
+    let currentEditId = null;
+    let currentEditRating = 0;
+    let libraryFilter = { type: 'all' };
     const GH_FILENAME = 'webtoon_library.json';
 
+    function genId() {
+        return Date.now().toString() + Math.random().toString(36).substr(2);
+    }
+
     function init() {
-        const stored = localStorage.getItem('webtoonLib');
-        if (stored) {
-            try { library = JSON.parse(stored); } catch (e) { library = []; }
+        const storedLib = localStorage.getItem('webtoonLib');
+        if (storedLib) {
+            try { library = JSON.parse(storedLib); } catch (e) { library = []; }
         }
+        const storedGroups = localStorage.getItem('webtoonGroups');
+        if (storedGroups) {
+            try { groups = JSON.parse(storedGroups); } catch (e) { groups = []; }
+        }
+        library.forEach(normalizeItem);
+
         renderList();
+        renderGroupChips();
+        renderGroupSelectOptions();
         updatePlaceholder();
         initSyncSettings();
     }
 
+    function normalizeItem(item) {
+        if (!Array.isArray(item.keywords)) item.keywords = [];
+        if (typeof item.rating !== 'number') item.rating = 0;
+        if (!Array.isArray(item.groupIds)) item.groupIds = [];
+        return item;
+    }
+
     function saveToStorage() {
         localStorage.setItem('webtoonLib', JSON.stringify(library));
+        localStorage.setItem('webtoonGroups', JSON.stringify(groups));
+    }
+
+    // ---------- 탭 전환 ----------
+    function showPage(pageId) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(pageId).classList.add('active');
+        document.getElementById('tabBtn-' + pageId).classList.add('active');
     }
 
     function updatePlaceholder() {
@@ -297,8 +487,9 @@
                 const exists = library.some(w => w.title === title && w.platform === platform);
                 if (!exists) {
                     library.push({
-                        id: Date.now().toString() + Math.random().toString(36).substr(2),
-                        title, platform, percent
+                        id: genId(),
+                        title, platform, percent,
+                        keywords: [], rating: 0, groupIds: []
                     });
                     added++;
                 } else {
@@ -398,6 +589,103 @@
         return result;
     }
 
+    // ---------- 플랫폼/그룹 필터 ----------
+
+    function setPlatformFilter(platform) {
+        libraryFilter = platform === 'all' ? { type: 'all' } : { type: 'platform', value: platform };
+        updateFilterChipsUI();
+        renderList();
+    }
+
+    function setGroupFilterView(groupId) {
+        libraryFilter = { type: 'group', value: groupId };
+        updateFilterChipsUI();
+        renderList();
+    }
+
+    function updateFilterChipsUI() {
+        document.querySelectorAll('#platformChips .chip').forEach(chip => {
+            const p = chip.getAttribute('data-platform');
+            const isActive = (libraryFilter.type === 'all' && p === 'all') ||
+                              (libraryFilter.type === 'platform' && libraryFilter.value === p);
+            chip.classList.toggle('active', isActive);
+        });
+        document.querySelectorAll('#groupChipList .group-chip').forEach(chip => {
+            const gid = chip.getAttribute('data-group-id');
+            chip.classList.toggle('active', libraryFilter.type === 'group' && libraryFilter.value === gid);
+        });
+    }
+
+    function itemMatchesFilter(item) {
+        if (libraryFilter.type === 'all') return true;
+        if (libraryFilter.type === 'platform') return item.platform === libraryFilter.value;
+        if (libraryFilter.type === 'group') return item.groupIds.includes(libraryFilter.value);
+        return true;
+    }
+
+    // ---------- 그룹 관리 ----------
+
+    function createGroup() {
+        const input = document.getElementById('newGroupName');
+        const name = input.value.trim();
+        if (!name) { alert('그룹 이름을 입력해주세요.'); return; }
+        if (groups.some(g => g.name === name)) { alert('이미 같은 이름의 그룹이 있습니다.'); return; }
+
+        groups.push({ id: genId(), name });
+        saveToStorage();
+        input.value = '';
+        renderGroupChips();
+        renderGroupSelectOptions();
+    }
+
+    function deleteGroup(groupId, event) {
+        event.stopPropagation();
+        const group = groups.find(g => g.id === groupId);
+        if (!group) return;
+        if (!confirm(`"${group.name}" 그룹을 삭제할까요? (작품 자체는 삭제되지 않습니다)`)) return;
+
+        groups = groups.filter(g => g.id !== groupId);
+        library.forEach(item => {
+            item.groupIds = item.groupIds.filter(id => id !== groupId);
+        });
+        if (libraryFilter.type === 'group' && libraryFilter.value === groupId) {
+            libraryFilter = { type: 'all' };
+        }
+        saveToStorage();
+        renderGroupChips();
+        renderGroupSelectOptions();
+        renderList();
+    }
+
+    function renderGroupChips() {
+        const container = document.getElementById('groupChipList');
+        if (groups.length === 0) {
+            container.innerHTML = `<span class="group-empty-hint">아직 만든 그룹이 없습니다. 위에서 그룹을 추가해보세요.</span>`;
+            return;
+        }
+        container.innerHTML = groups.map(g => {
+            const count = library.filter(item => item.groupIds.includes(g.id)).length;
+            return `
+                <span class="group-chip" data-group-id="${g.id}" onclick="setGroupFilterView('${g.id}')">
+                    ${escapeHTML(g.name)} (${count})
+                    <button type="button" class="del-x" onclick="deleteGroup('${g.id}', event)">✕</button>
+                </span>
+            `;
+        }).join('');
+        updateFilterChipsUI();
+    }
+
+    function renderGroupSelectOptions() {
+        const optgroup = document.getElementById('rouletteGroupOptions');
+        if (groups.length === 0) {
+            optgroup.innerHTML = '';
+            optgroup.style.display = 'none';
+            return;
+        }
+        optgroup.style.display = '';
+        optgroup.innerHTML = groups.map(g => `<option value="group:${g.id}">${escapeHTML(g.name)}</option>`).join('');
+    }
+
     // ---------- 리스트 렌더링 ----------
 
     function renderList() {
@@ -410,55 +698,161 @@
             return;
         }
 
-        const sorted = [...library].sort((a, b) => b.percent - a.percent);
+        const filtered = library.filter(itemMatchesFilter);
+        const sorted = [...filtered].sort((a, b) => b.percent - a.percent);
+
+        if (sorted.length === 0) {
+            container.innerHTML = `<div style="padding: 24px; text-align: center; color: var(--text-muted);">조건에 맞는 작품이 없습니다.</div>`;
+            return;
+        }
 
         sorted.forEach(item => {
             const div = document.createElement('div');
             div.className = 'list-item';
             const safeTitle = escapeHTML(item.title);
             const safePlatform = escapeHTML(item.platform);
+            const starsHTML = renderStarsDisplay(item.rating);
+            const keywordsHTML = item.keywords.map(k => `<span class="keyword-tag">#${escapeHTML(k)}</span>`).join('');
+            const groupNames = item.groupIds
+                .map(gid => groups.find(g => g.id === gid))
+                .filter(Boolean)
+                .map(g => `<span class="group-tag">${escapeHTML(g.name)}</span>`).join('');
 
             div.innerHTML = `
-                <div class="item-info">
-                    <div class="item-title">${safeTitle}</div>
-                    <div class="item-meta">
-                        <span class="badge">${safePlatform}</span>
-                        <span>소장률: <strong style="color: var(--primary);">${item.percent}%</strong></span>
+                <div class="item-main" onclick="openDetail('${item.id}')">
+                    <div class="item-top-row">
+                        <span class="item-title">${safeTitle}</span>
+                        <span class="badge" data-platform="${safePlatform}">${safePlatform}</span>
                     </div>
+                    <div class="item-meta-row">
+                        <span>소장률 <strong style="color: var(--primary);">${item.percent}%</strong></span>
+                        <span class="stars-display">${starsHTML}</span>
+                    </div>
+                    ${(keywordsHTML || groupNames) ? `<div class="keyword-row">${keywordsHTML}${groupNames}</div>` : ''}
                 </div>
-                <button class="danger btn-small" onclick="deleteItem('${item.id}')">삭제</button>
+                <div class="item-actions">
+                    <button class="btn-small" onclick="openDetail('${item.id}')">상세</button>
+                    <button class="danger btn-small" onclick="deleteItem('${item.id}')">삭제</button>
+                </div>
             `;
             container.appendChild(div);
         });
     }
 
+    function renderStarsDisplay(rating) {
+        let out = '';
+        for (let i = 1; i <= 5; i++) out += i <= rating ? '★' : '☆';
+        return out;
+    }
+
     function deleteItem(id) {
         library = library.filter(item => item.id !== id);
         saveToStorage();
+        renderGroupChips();
         renderList();
     }
 
     function clearAll() {
         if (library.length === 0) return;
-        if (confirm('정말로 모든 작품을 삭제하시겠습니까?')) {
+        if (confirm('정말로 모든 작품을 삭제하시겠습니까? (그룹은 유지됩니다)')) {
             library = [];
             saveToStorage();
+            renderGroupChips();
             renderList();
             document.getElementById('rouletteResult').innerHTML = '<div style="color: var(--text-muted);">버튼을 눌러 운명의 작품을 뽑아보세요!</div>';
         }
     }
 
+    // ---------- 상세 모달 (키워드 / 별점 / 그룹) ----------
+
+    function openDetail(id) {
+        const item = library.find(w => w.id === id);
+        if (!item) return;
+        currentEditId = id;
+        currentEditRating = item.rating || 0;
+
+        document.getElementById('modalTitle').textContent = item.title;
+        document.getElementById('modalSub').innerHTML =
+            `<span class="badge" data-platform="${escapeHTML(item.platform)}">${escapeHTML(item.platform)}</span> 소장률 ${item.percent}%`;
+        document.getElementById('modalKeywords').value = item.keywords.join(', ');
+
+        renderStarPicker();
+
+        const groupBox = document.getElementById('modalGroupCheckboxes');
+        if (groups.length === 0) {
+            groupBox.innerHTML = `<span class="group-empty-hint">메인 화면의 "그룹 만들기"에서 먼저 그룹을 만들어주세요.</span>`;
+        } else {
+            groupBox.innerHTML = groups.map(g => `
+                <label>
+                    <input type="checkbox" value="${g.id}" ${item.groupIds.includes(g.id) ? 'checked' : ''}>
+                    ${escapeHTML(g.name)}
+                </label>
+            `).join('');
+        }
+
+        document.getElementById('detailModal').classList.add('show');
+    }
+
+    function renderStarPicker() {
+        const box = document.getElementById('starRating');
+        box.innerHTML = '';
+        for (let i = 1; i <= 5; i++) {
+            const span = document.createElement('span');
+            span.textContent = i <= currentEditRating ? '★' : '☆';
+            span.className = i <= currentEditRating ? 'filled' : '';
+            span.onclick = () => { currentEditRating = i; renderStarPicker(); };
+            box.appendChild(span);
+        }
+    }
+
+    function closeModal() {
+        document.getElementById('detailModal').classList.remove('show');
+        currentEditId = null;
+    }
+
+    function closeModalOverlay(event) {
+        if (event.target.id === 'detailModal') closeModal();
+    }
+
+    function saveModal() {
+        const item = library.find(w => w.id === currentEditId);
+        if (!item) { closeModal(); return; }
+
+        item.rating = currentEditRating;
+
+        const rawKeywords = document.getElementById('modalKeywords').value;
+        item.keywords = rawKeywords.split(',').map(k => k.trim()).filter(Boolean);
+
+        const checked = Array.from(document.querySelectorAll('#modalGroupCheckboxes input[type="checkbox"]:checked'));
+        item.groupIds = checked.map(cb => cb.value);
+
+        saveToStorage();
+        renderGroupChips();
+        renderList();
+        closeModal();
+    }
+
     // ---------- 룰렛 ----------
 
     function spinRoulette() {
-        const filter = document.getElementById('filterPlatform').value;
+        const filterValue = document.getElementById('filterPlatform').value;
         const resultBox = document.getElementById('rouletteResult');
 
         let pool = library;
-        if (filter !== '전체') pool = library.filter(item => item.platform === filter);
+        let poolLabel = '전체 플랫폼';
+        if (filterValue.startsWith('platform:')) {
+            const platform = filterValue.slice('platform:'.length);
+            pool = library.filter(item => item.platform === platform);
+            poolLabel = platform;
+        } else if (filterValue.startsWith('group:')) {
+            const groupId = filterValue.slice('group:'.length);
+            const group = groups.find(g => g.id === groupId);
+            pool = library.filter(item => item.groupIds.includes(groupId));
+            poolLabel = group ? group.name + ' 그룹' : '그룹';
+        }
 
         if (pool.length === 0) {
-            resultBox.innerHTML = `<div style="color: var(--danger); font-weight: bold;">조건에 맞는 작품이 없습니다!</div>`;
+            resultBox.innerHTML = `<div style="color: var(--danger); font-weight: bold;">"${escapeHTML(poolLabel)}" 조건에 맞는 작품이 없습니다!</div>`;
             return;
         }
 
@@ -481,7 +875,7 @@
                     <div class="roulette-meta">오늘은 이 작품 어때요?</div>
                     <div class="roulette-title">${escapeHTML(finalPick.title)}</div>
                     <div class="roulette-meta">
-                        <span class="badge" style="background-color:#fef3c7; border: 1px solid #d97706;">${escapeHTML(finalPick.platform)}</span>
+                        <span class="badge" data-platform="${escapeHTML(finalPick.platform)}">${escapeHTML(finalPick.platform)}</span>
                         소장률 ${finalPick.percent}%
                     </div>
                 `;
@@ -490,6 +884,20 @@
     }
 
     // ---------- GitHub Gist 클라우드 동기화 (수동) ----------
+
+    function buildBackupPayload() {
+        return { library, groups };
+    }
+
+    function applyBackupPayload(payload) {
+        if (Array.isArray(payload)) {
+            // 이전 버전 형식(배열만 있는 경우)
+            library = payload.map(item => normalizeItem({ ...item }));
+        } else {
+            library = Array.isArray(payload.library) ? payload.library.map(item => normalizeItem({ ...item })) : [];
+            groups = Array.isArray(payload.groups) ? payload.groups : [];
+        }
+    }
 
     function initSyncSettings() {
         const savedToken = localStorage.getItem('ghToken');
@@ -523,7 +931,7 @@
                 body: JSON.stringify({
                     description: '웹툰 서재 동기화 데이터 (비공개)',
                     public: false,
-                    files: { [GH_FILENAME]: { content: JSON.stringify(library, null, 2) } }
+                    files: { [GH_FILENAME]: { content: JSON.stringify(buildBackupPayload(), null, 2) } }
                 })
             });
             if (!res.ok) throw new Error(`GitHub 오류: ${res.status}`);
@@ -550,11 +958,11 @@
                     'Accept': 'application/vnd.github+json'
                 },
                 body: JSON.stringify({
-                    files: { [GH_FILENAME]: { content: JSON.stringify(library, null, 2) } }
+                    files: { [GH_FILENAME]: { content: JSON.stringify(buildBackupPayload(), null, 2) } }
                 })
             });
             if (!res.ok) throw new Error(`GitHub 오류: ${res.status}`);
-            setSyncStatus(`업로드 완료! (${library.length}개 작품, ${new Date().toLocaleTimeString()})`);
+            setSyncStatus(`업로드 완료! (${library.length}개 작품, ${groups.length}개 그룹, ${new Date().toLocaleTimeString()})`);
         } catch (e) {
             setSyncStatus('업로드 실패: ' + e.message, true);
         }
@@ -577,14 +985,17 @@
             const data = await res.json();
             const file = data.files[GH_FILENAME];
             if (!file) throw new Error('클라우드에 저장된 데이터가 없습니다.');
-            const cloudLibrary = JSON.parse(file.content);
+            const cloudPayload = JSON.parse(file.content);
+            const cloudCount = Array.isArray(cloudPayload) ? cloudPayload.length : (cloudPayload.library || []).length;
 
-            if (!confirm(`클라우드 데이터(${cloudLibrary.length}개)로 이 기기의 서재(${library.length}개)를 덮어씁니다. 계속할까요?`)) return;
+            if (!confirm(`클라우드 데이터(${cloudCount}개)로 이 기기의 서재(${library.length}개)를 덮어씁니다. 계속할까요?`)) return;
 
-            library = cloudLibrary;
+            applyBackupPayload(cloudPayload);
             saveToStorage();
+            renderGroupChips();
+            renderGroupSelectOptions();
             renderList();
-            setSyncStatus(`가져오기 완료! (${library.length}개 작품)`);
+            setSyncStatus(`가져오기 완료! (${library.length}개 작품, ${groups.length}개 그룹)`);
         } catch (e) {
             setSyncStatus('가져오기 실패: ' + e.message, true);
         }
@@ -593,7 +1004,7 @@
     // ---------- 로컬 텍스트 백업/복원 (보조 수단) ----------
 
     function exportData() {
-        const json = JSON.stringify(library, null, 2);
+        const json = JSON.stringify(buildBackupPayload(), null, 2);
         const textarea = document.getElementById('backupData');
         textarea.value = json;
 
@@ -619,23 +1030,45 @@
         let incoming;
         try {
             incoming = JSON.parse(raw);
-            if (!Array.isArray(incoming)) throw new Error('배열이 아닙니다.');
         } catch (e) {
             alert('올바른 JSON 형식이 아닙니다.');
             return;
         }
 
+        const incomingLibrary = Array.isArray(incoming) ? incoming : incoming.library;
+        const incomingGroups = Array.isArray(incoming) ? [] : (incoming.groups || []);
+        if (!Array.isArray(incomingLibrary)) { alert('올바른 JSON 형식이 아닙니다.'); return; }
+
+        // 그룹 병합 (이름 기준, id는 새로 생성해 충돌 방지)
+        const groupIdMap = {};
+        incomingGroups.forEach(g => {
+            const existing = groups.find(eg => eg.name === g.name);
+            if (existing) {
+                groupIdMap[g.id] = existing.id;
+            } else {
+                const newId = genId();
+                groups.push({ id: newId, name: g.name });
+                groupIdMap[g.id] = newId;
+            }
+        });
+
         let added = 0, skipped = 0;
-        incoming.forEach(item => {
+        incomingLibrary.forEach(item => {
             if (!item || !item.title || !item.platform) { skipped++; return; }
             const exists = library.some(w => w.title === item.title && w.platform === item.platform);
             if (!exists) {
-                library.push({
-                    id: item.id || (Date.now().toString() + Math.random().toString(36).substr(2)),
+                const remappedGroupIds = Array.isArray(item.groupIds)
+                    ? item.groupIds.map(gid => groupIdMap[gid]).filter(Boolean)
+                    : [];
+                library.push(normalizeItem({
+                    id: genId(),
                     title: item.title,
                     platform: item.platform,
-                    percent: typeof item.percent === 'number' ? item.percent : (parseInt(item.percent, 10) || 0)
-                });
+                    percent: typeof item.percent === 'number' ? item.percent : (parseInt(item.percent, 10) || 0),
+                    keywords: Array.isArray(item.keywords) ? item.keywords : [],
+                    rating: typeof item.rating === 'number' ? item.rating : 0,
+                    groupIds: remappedGroupIds
+                }));
                 added++;
             } else {
                 skipped++;
@@ -643,6 +1076,8 @@
         });
 
         saveToStorage();
+        renderGroupChips();
+        renderGroupSelectOptions();
         renderList();
         alert(`병합 완료! ${added}개 추가, ${skipped}개는 중복/형식오류로 제외되었습니다.`);
     }
@@ -654,22 +1089,21 @@
         let incoming;
         try {
             incoming = JSON.parse(raw);
-            if (!Array.isArray(incoming)) throw new Error('배열이 아닙니다.');
         } catch (e) {
             alert('올바른 JSON 형식이 아닙니다.');
             return;
         }
 
-        if (!confirm(`현재 서재 데이터(${library.length}개)를 모두 지우고, 붙여넣은 데이터(${incoming.length}개)로 덮어씁니다. 계속할까요?`)) return;
+        const incomingLibrary = Array.isArray(incoming) ? incoming : incoming.library;
+        if (!Array.isArray(incomingLibrary)) { alert('올바른 JSON 형식이 아닙니다.'); return; }
 
-        library = incoming.map(item => ({
-            id: item.id || (Date.now().toString() + Math.random().toString(36).substr(2)),
-            title: item.title || '제목 없음',
-            platform: item.platform || '기타',
-            percent: typeof item.percent === 'number' ? item.percent : (parseInt(item.percent, 10) || 0)
-        }));
+        if (!confirm(`현재 서재 데이터(${library.length}개)를 모두 지우고, 붙여넣은 데이터(${incomingLibrary.length}개)로 덮어씁니다. 계속할까요?`)) return;
 
+        applyBackupPayload(incoming);
+        libraryFilter = { type: 'all' };
         saveToStorage();
+        renderGroupChips();
+        renderGroupSelectOptions();
         renderList();
         alert('덮어쓰기가 완료되었습니다.');
     }

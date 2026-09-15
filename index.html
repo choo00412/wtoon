@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>오늘 뭐 보지?</title>
+<title>웹툰 서재 & 랜덤 룰렛</title>
 <style>
     :root {
         --primary: #4f46e5;
@@ -192,6 +192,27 @@
         display: inline-block; background: #f3e8ff; color: #7e22ce;
         padding: 3px 10px; border-radius: 9999px; font-size: 0.78rem; font-weight: 600;
     }
+    .watch-badge {
+        display: inline-block; background: #ecfdf5; color: #047857;
+        padding: 3px 10px; border-radius: 9999px; font-size: 0.78rem; font-weight: 600;
+    }
+
+    /* ---------- 별점(0.5 단위) 표시 ---------- */
+    .star-wrap { position: relative; display: inline-block; font-size: 1.1rem; line-height: 1; letter-spacing: 2px; }
+    .star-wrap .stars-bg { color: #d1d5db; white-space: nowrap; }
+    .star-wrap .stars-fg { position: absolute; top: 0; left: 0; overflow: hidden; color: #f59e0b; white-space: nowrap; }
+    .star-wrap.large { font-size: 1.8rem; letter-spacing: 4px; }
+    .rating-label { font-weight: 700; color: #d97706; margin-left: 8px; }
+
+    /* ---------- 서재 선택 모드 ---------- */
+    .item-select-checkbox { width: auto; margin-right: 14px; transform: scale(1.3); flex: none; }
+    .selection-bar {
+        display: none; align-items: flex-end; gap: 10px; flex-wrap: wrap;
+        background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 10px; padding: 14px; margin-bottom: 16px;
+    }
+    .selection-bar.show { display: flex; }
+    .selection-bar .form-group { margin-bottom: 0; min-width: 160px; }
+    .selection-count { font-weight: 700; font-size: 0.9rem; color: var(--primary); margin-right: auto; }
 
     .roulette-box {
         background-color: #fef3c7;
@@ -259,6 +280,22 @@
                         <optgroup id="rouletteGroupOptions" label="내 그룹"></optgroup>
                     </select>
                 </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="filterRating">최소 별점</label>
+                    <select id="filterRating">
+                        <option value="0">전체 별점</option>
+                        <option value="0.5">★0.5</option>
+                        <option value="1">★1</option>
+                        <option value="1.5">★1.5</option>
+                        <option value="2">★2</option>
+                        <option value="2.5">★2.5</option>
+                        <option value="3">★3</option>
+                        <option value="3.5">★3.5</option>
+                        <option value="4">★4</option>
+                        <option value="4.5">★4.5</option>
+                        <option value="5">★5</option>
+                    </select>
+                </div>
                 <button onclick="spinRoulette()" style="background-color: #8b5cf6;">랜덤 픽!</button>
             </div>
             <div id="rouletteResult" class="roulette-box">
@@ -269,7 +306,10 @@
         <div class="card">
             <h2>
                 <span>내 서재 리스트 (<span id="totalCount">0</span>)</span>
-                <button class="danger btn-small" onclick="clearAll()">전체 초기화</button>
+                <span style="display:flex; gap:8px;">
+                    <button class="secondary btn-small" id="selectModeBtn" onclick="toggleSelectionMode()">선택</button>
+                    <button class="danger btn-small" onclick="clearAll()">전체 초기화</button>
+                </span>
             </h2>
 
             <div class="filter-chips" id="platformChips">
@@ -284,11 +324,27 @@
                 <div class="row" style="align-items: flex-end; margin-bottom: 12px;">
                     <div class="form-group" style="margin-bottom: 0;">
                         <label for="newGroupName">그룹 만들기</label>
-                        <input type="text" id="newGroupName" placeholder="^3^">
+                        <input type="text" id="newGroupName" placeholder="^_^">
                     </div>
                     <button class="btn-small" style="flex: none;" onclick="createGroup()">그룹 추가</button>
                 </div>
                 <div class="filter-chips" id="groupChipList"></div>
+            </div>
+
+            <div class="selection-bar" id="selectionBar">
+                <span class="selection-count" id="selectionCount">0개 선택됨</span>
+                <div class="form-group">
+                    <label for="bulkGroupSelect">기존 그룹에 추가</label>
+                    <select id="bulkGroupSelect">
+                        <option value="">그룹 선택...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="bulkNewGroupName">또는 새 그룹 이름</label>
+                    <input type="text" id="bulkNewGroupName" placeholder="^3^">
+                </div>
+                <button class="btn-small" onclick="addSelectedToGroup()">선택한 작품 그룹에 추가</button>
+                <button class="secondary btn-small" onclick="clearSelection()">선택 해제</button>
             </div>
 
             <div class="list-container" id="libraryList"></div>
@@ -375,13 +431,23 @@
         <div class="modal-sub" id="modalSub"></div>
 
         <div class="form-group">
-            <label>별점</label>
-            <div class="star-rating" id="starRating"></div>
+            <label>별점 (0.5점 단위)</label>
+            <div class="star-wrap large" id="starPreview">
+                <span class="stars-bg">★★★★★</span>
+                <span class="stars-fg" id="starPreviewFg">★★★★★</span>
+            </div>
+            <span class="rating-label" id="ratingLabel">0</span>
+            <input type="range" id="ratingSlider" min="0" max="5" step="0.5" value="0" oninput="onRatingSliderChange()" style="margin-top: 8px;">
         </div>
 
         <div class="form-group">
             <label for="modalKeywords">키워드 (쉼표로 구분)</label>
             <input type="text" id="modalKeywords" placeholder="예) 로판, 힐링, 먼치킨">
+        </div>
+
+        <div class="form-group">
+            <label for="modalMemo">내 평가 / 메모 (자세히 보기에서만 표시됨)</label>
+            <textarea id="modalMemo" style="min-height: 80px;" placeholder="이 작품에 대한 내 생각, 감상평 등을 자유롭게 적어보세요."></textarea>
         </div>
 
         <div class="form-group">
@@ -430,7 +496,24 @@
         if (!Array.isArray(item.keywords)) item.keywords = [];
         if (typeof item.rating !== 'number') item.rating = 0;
         if (!Array.isArray(item.groupIds)) item.groupIds = [];
+        if (typeof item.memo !== 'string') item.memo = '';
+        if (!Array.isArray(item.watchLog)) item.watchLog = [];
         return item;
+    }
+
+    function todayStr() {
+        const d = new Date();
+        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+
+    function starOverlayHTML(rating, large) {
+        const pct = Math.max(0, Math.min(100, (rating / 5) * 100));
+        return `
+            <span class="star-wrap${large ? ' large' : ''}">
+                <span class="stars-bg">★★★★★</span>
+                <span class="stars-fg" style="width:${pct}%;">★★★★★</span>
+            </span>
+        `;
     }
 
     function saveToStorage() {
@@ -489,7 +572,8 @@
                     library.push({
                         id: genId(),
                         title, platform, percent,
-                        keywords: [], rating: 0, groupIds: []
+                        keywords: [], rating: 0, groupIds: [],
+                        memo: '', watchLog: []
                     });
                     added++;
                 } else {
@@ -684,6 +768,86 @@
         }
         optgroup.style.display = '';
         optgroup.innerHTML = groups.map(g => `<option value="group:${g.id}">${escapeHTML(g.name)}</option>`).join('');
+
+        renderBulkGroupSelect();
+    }
+
+    function renderBulkGroupSelect() {
+        const select = document.getElementById('bulkGroupSelect');
+        if (!select) return;
+        const current = select.value;
+        select.innerHTML = '<option value="">그룹 선택...</option>' +
+            groups.map(g => `<option value="${g.id}">${escapeHTML(g.name)}</option>`).join('');
+        if (groups.some(g => g.id === current)) select.value = current;
+    }
+
+    // ---------- 서재 선택 모드 (여러 작품 골라서 그룹에 담기) ----------
+
+    let selectionMode = false;
+    let selectedIds = new Set();
+
+    function toggleSelectionMode() {
+        selectionMode = !selectionMode;
+        if (!selectionMode) selectedIds.clear();
+        document.getElementById('selectModeBtn').textContent = selectionMode ? '✅ 선택 완료' : '☑️ 선택';
+        document.getElementById('selectionBar').classList.toggle('show', selectionMode);
+        updateSelectionCount();
+        renderList();
+    }
+
+    function toggleSelectItem(id, checked) {
+        if (checked) selectedIds.add(id); else selectedIds.delete(id);
+        updateSelectionCount();
+    }
+
+    function updateSelectionCount() {
+        document.getElementById('selectionCount').textContent = `${selectedIds.size}개 선택됨`;
+    }
+
+    function clearSelection() {
+        selectedIds.clear();
+        updateSelectionCount();
+        renderList();
+    }
+
+    function addSelectedToGroup() {
+        if (selectedIds.size === 0) { alert('먼저 서재 목록에서 작품을 체크해주세요.'); return; }
+
+        const select = document.getElementById('bulkGroupSelect');
+        const newNameInput = document.getElementById('bulkNewGroupName');
+        const newName = newNameInput.value.trim();
+
+        let targetGroupId = select.value;
+
+        if (newName) {
+            const existing = groups.find(g => g.name === newName);
+            if (existing) {
+                targetGroupId = existing.id;
+            } else {
+                targetGroupId = genId();
+                groups.push({ id: targetGroupId, name: newName });
+            }
+        }
+
+        if (!targetGroupId) { alert('추가할 그룹을 선택하거나 새 그룹 이름을 입력해주세요.'); return; }
+
+        let count = 0;
+        library.forEach(item => {
+            if (selectedIds.has(item.id) && !item.groupIds.includes(targetGroupId)) {
+                item.groupIds.push(targetGroupId);
+                count++;
+            }
+        });
+
+        saveToStorage();
+        newNameInput.value = '';
+        select.value = '';
+        selectedIds.clear();
+        updateSelectionCount();
+        renderGroupChips();
+        renderGroupSelectOptions();
+        renderList();
+        alert(`${count}개 작품을 그룹에 추가했습니다.`);
     }
 
     // ---------- 리스트 렌더링 ----------
@@ -711,24 +875,30 @@
             div.className = 'list-item';
             const safeTitle = escapeHTML(item.title);
             const safePlatform = escapeHTML(item.platform);
-            const starsHTML = renderStarsDisplay(item.rating);
+            const starsHTML = starOverlayHTML(item.rating, false);
             const keywordsHTML = item.keywords.map(k => `<span class="keyword-tag">#${escapeHTML(k)}</span>`).join('');
             const groupNames = item.groupIds
                 .map(gid => groups.find(g => g.id === gid))
                 .filter(Boolean)
                 .map(g => `<span class="group-tag">${escapeHTML(g.name)}</span>`).join('');
+            const lastWatched = item.watchLog.length > 0 ? item.watchLog[item.watchLog.length - 1] : null;
+            const watchHTML = lastWatched ? `<span class="watch-badge">✔ 정주행 ${lastWatched}${item.watchLog.length > 1 ? ` 외 ${item.watchLog.length - 1}회` : ''}</span>` : '';
+            const checkboxHTML = selectionMode
+                ? `<input type="checkbox" class="item-select-checkbox" onclick="event.stopPropagation()" onchange="toggleSelectItem('${item.id}', this.checked)" ${selectedIds.has(item.id) ? 'checked' : ''}>`
+                : '';
 
             div.innerHTML = `
-                <div class="item-main" onclick="openDetail('${item.id}')">
+                ${checkboxHTML}
+                <div class="item-main" onclick="${selectionMode ? '' : `openDetail('${item.id}')`}">
                     <div class="item-top-row">
                         <span class="item-title">${safeTitle}</span>
                         <span class="badge" data-platform="${safePlatform}">${safePlatform}</span>
                     </div>
                     <div class="item-meta-row">
                         <span>소장률 <strong style="color: var(--primary);">${item.percent}%</strong></span>
-                        <span class="stars-display">${starsHTML}</span>
+                        <span>${starsHTML}<span class="rating-label">${item.rating}</span></span>
                     </div>
-                    ${(keywordsHTML || groupNames) ? `<div class="keyword-row">${keywordsHTML}${groupNames}</div>` : ''}
+                    ${(keywordsHTML || groupNames || watchHTML) ? `<div class="keyword-row">${keywordsHTML}${groupNames}${watchHTML}</div>` : ''}
                 </div>
                 <div class="item-actions">
                     <button class="btn-small" onclick="openDetail('${item.id}')">상세</button>
@@ -737,12 +907,6 @@
             `;
             container.appendChild(div);
         });
-    }
-
-    function renderStarsDisplay(rating) {
-        let out = '';
-        for (let i = 1; i <= 5; i++) out += i <= rating ? '★' : '☆';
-        return out;
     }
 
     function deleteItem(id) {
@@ -775,8 +939,10 @@
         document.getElementById('modalSub').innerHTML =
             `<span class="badge" data-platform="${escapeHTML(item.platform)}">${escapeHTML(item.platform)}</span> 소장률 ${item.percent}%`;
         document.getElementById('modalKeywords').value = item.keywords.join(', ');
+        document.getElementById('modalMemo').value = item.memo || '';
 
-        renderStarPicker();
+        document.getElementById('ratingSlider').value = currentEditRating;
+        onRatingSliderChange();
 
         const groupBox = document.getElementById('modalGroupCheckboxes');
         if (groups.length === 0) {
@@ -793,16 +959,12 @@
         document.getElementById('detailModal').classList.add('show');
     }
 
-    function renderStarPicker() {
-        const box = document.getElementById('starRating');
-        box.innerHTML = '';
-        for (let i = 1; i <= 5; i++) {
-            const span = document.createElement('span');
-            span.textContent = i <= currentEditRating ? '★' : '☆';
-            span.className = i <= currentEditRating ? 'filled' : '';
-            span.onclick = () => { currentEditRating = i; renderStarPicker(); };
-            box.appendChild(span);
-        }
+    function onRatingSliderChange() {
+        const value = parseFloat(document.getElementById('ratingSlider').value);
+        currentEditRating = value;
+        const pct = Math.max(0, Math.min(100, (value / 5) * 100));
+        document.getElementById('starPreviewFg').style.width = pct + '%';
+        document.getElementById('ratingLabel').textContent = value;
     }
 
     function closeModal() {
@@ -818,7 +980,8 @@
         const item = library.find(w => w.id === currentEditId);
         if (!item) { closeModal(); return; }
 
-        item.rating = currentEditRating;
+        item.rating = parseFloat(document.getElementById('ratingSlider').value) || 0;
+        item.memo = document.getElementById('modalMemo').value;
 
         const rawKeywords = document.getElementById('modalKeywords').value;
         item.keywords = rawKeywords.split(',').map(k => k.trim()).filter(Boolean);
@@ -851,6 +1014,12 @@
             poolLabel = group ? group.name + ' 그룹' : '그룹';
         }
 
+        const minRating = parseFloat(document.getElementById('filterRating').value) || 0;
+        if (minRating > 0) {
+            pool = pool.filter(item => item.rating >= minRating);
+            poolLabel += ` (★${minRating} 이상)`;
+        }
+
         if (pool.length === 0) {
             resultBox.innerHTML = `<div style="color: var(--danger); font-weight: bold;">"${escapeHTML(poolLabel)}" 조건에 맞는 작품이 없습니다!</div>`;
             return;
@@ -871,6 +1040,8 @@
             if (count >= maxTicks) {
                 clearInterval(interval);
                 const finalPick = pool[Math.floor(Math.random() * pool.length)];
+                const today = todayStr();
+                const alreadyWatchedToday = finalPick.watchLog.includes(today);
                 resultBox.innerHTML = `
                     <div class="roulette-meta">오늘은 이 작품 어때요?</div>
                     <div class="roulette-title">${escapeHTML(finalPick.title)}</div>
@@ -878,9 +1049,27 @@
                         <span class="badge" data-platform="${escapeHTML(finalPick.platform)}">${escapeHTML(finalPick.platform)}</span>
                         소장률 ${finalPick.percent}%
                     </div>
+                    <label style="margin-top: 12px; display: flex; align-items: center; gap: 8px; font-size: 0.95rem; color: #92400e; cursor: pointer;">
+                        <input type="checkbox" id="watchedCheck" style="width: auto; transform: scale(1.2);"
+                               onchange="toggleWatchedToday('${finalPick.id}', this.checked)" ${alreadyWatchedToday ? 'checked' : ''}>
+                        오늘(${today}) 정주행 완료로 기록
+                    </label>
                 `;
             }
         }, speed);
+    }
+
+    function toggleWatchedToday(itemId, checked) {
+        const item = library.find(w => w.id === itemId);
+        if (!item) return;
+        const today = todayStr();
+        if (checked) {
+            if (!item.watchLog.includes(today)) item.watchLog.push(today);
+        } else {
+            item.watchLog = item.watchLog.filter(d => d !== today);
+        }
+        saveToStorage();
+        renderList();
     }
 
     // ---------- GitHub Gist 클라우드 동기화 (수동) ----------
@@ -1067,7 +1256,9 @@
                     percent: typeof item.percent === 'number' ? item.percent : (parseInt(item.percent, 10) || 0),
                     keywords: Array.isArray(item.keywords) ? item.keywords : [],
                     rating: typeof item.rating === 'number' ? item.rating : 0,
-                    groupIds: remappedGroupIds
+                    groupIds: remappedGroupIds,
+                    memo: typeof item.memo === 'string' ? item.memo : '',
+                    watchLog: Array.isArray(item.watchLog) ? item.watchLog : []
                 }));
                 added++;
             } else {

@@ -38,7 +38,8 @@
         padding: 20px;
     }
 
-    .container { max-width: 900px; margin: 0 auto; }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .narrow-wrap { max-width: 700px; margin: 0 auto; }
 
     h1 {
         font-size: 1.6rem; text-align: center; margin-bottom: 20px;
@@ -47,10 +48,10 @@
     /* ---------- 탭 메뉴 ---------- */
     .tabs {
         display: flex; gap: 8px; margin-bottom: 20px; background: var(--surface);
-        padding: 6px; border-radius: 12px; border: 1px solid var(--border);
+        padding: 6px; border-radius: 12px; border: 1px solid var(--border); flex-wrap: wrap;
     }
     .tab-btn {
-        flex: 1; background: transparent; color: var(--text-muted); border: none;
+        flex: 1; min-width: 110px; background: transparent; color: var(--text-muted); border: none;
         padding: 10px 8px; border-radius: 8px; font-weight: 700; font-size: 0.95rem; cursor: pointer;
     }
     .tab-btn:hover { background: #f3f4f6; }
@@ -68,7 +69,7 @@
         border: 1px solid var(--border);
     }
 
-    h2 { margin-bottom: 16px; color: var(--text-main); font-size: 1.25rem; display: flex; justify-content: space-between; align-items: center; }
+    h2 { margin-bottom: 16px; color: var(--text-main); font-size: 1.25rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
 
     .form-group { margin-bottom: 16px; }
 
@@ -96,7 +97,7 @@
         font-family: inherit;
         font-size: 1.05rem;
         line-height: 1.7;
-        min-height: 120px;
+        min-height: 140px;
     }
 
     .row { display: flex; gap: 16px; flex-wrap: wrap; }
@@ -137,6 +138,13 @@
     .chip[data-platform="네이버웹툰"].active { background: var(--naver); border-color: var(--naver); }
 
     .group-section { border-top: 1px dashed var(--border); padding-top: 16px; margin-bottom: 8px; }
+    .group-toggle-header {
+        cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+        font-weight: 700; margin-bottom: 12px; color: var(--text-main); user-select: none;
+    }
+    .group-toggle-header:hover { color: var(--primary); }
+    .group-create-panel { display: none; margin-bottom: 14px; }
+    .group-create-panel.show { display: block; }
     .group-chip {
         display: inline-flex; align-items: center; gap: 8px; padding: 7px 8px 7px 16px;
         border-radius: 9999px; border: 1px solid var(--border); background: #fff; cursor: pointer;
@@ -152,7 +160,7 @@
 
     /* ---------- 서재 리스트 (크게) ---------- */
     .list-container {
-        max-height: 640px;
+        max-height: 760px;
         overflow-y: auto;
         border: 1px solid var(--border);
         border-radius: 8px;
@@ -163,7 +171,7 @@
         justify-content: space-between;
         align-items: center;
         gap: 16px;
-        padding: 20px;
+        padding: 22px 24px;
         border-bottom: 1px solid var(--border);
     }
     .list-item:last-child { border-bottom: none; }
@@ -171,8 +179,9 @@
 
     .item-main { flex: 1; min-width: 0; cursor: pointer; }
     .item-top-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
-    .item-title { font-weight: 800; font-size: 1.3rem; }
-    .item-meta-row { display: flex; align-items: center; gap: 16px; font-size: 1rem; color: var(--text-muted); margin-bottom: 6px; }
+    .item-title { font-weight: 800; font-size: 1.4rem; }
+    .item-title:hover { color: var(--primary); text-decoration: underline; }
+    .item-meta-row { display: flex; align-items: center; gap: 16px; font-size: 1.05rem; color: var(--text-muted); margin-bottom: 6px; }
     .item-actions { display: flex; flex-direction: column; gap: 8px; }
 
     .badge {
@@ -210,7 +219,7 @@
     .star-wrap .stars-fg { position: absolute; top: 0; left: 0; overflow: hidden; color: #f59e0b; white-space: nowrap; }
     .star-wrap.large { font-size: 1.8rem; letter-spacing: 4px; }
     .star-wrap.picker {
-        font-size: 3rem; letter-spacing: 10px; cursor: pointer; user-select: none;
+        font-size: 3.2rem; letter-spacing: 10px; cursor: pointer; user-select: none;
         touch-action: manipulation; display: block; width: fit-content;
     }
     .rating-label { font-weight: 700; color: #d97706; margin-left: 8px; }
@@ -243,24 +252,31 @@
 
     #syncStatus { min-height: 1.2em; }
 
-    /* ---------- 상세 모달 ---------- */
+    /* ---------- 상세 모달 (크게) ---------- */
     .modal-overlay {
         display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
         align-items: center; justify-content: center; z-index: 1000; padding: 20px;
     }
     .modal-overlay.show { display: flex; }
     .modal {
-        background: #fff; border-radius: 14px; padding: 28px; max-width: 480px; width: 100%;
-        max-height: 90vh; overflow-y: auto;
+        background: #fff; border-radius: 16px; padding: 36px; max-width: 680px; width: 100%;
+        max-height: 92vh; overflow-y: auto;
     }
-    .modal h2 { margin-bottom: 4px; }
-    .modal .modal-sub { color: var(--text-muted); margin-bottom: 20px; font-size: 0.9rem; }
+    .modal h2 { margin-bottom: 4px; font-size: 1.5rem; }
+    .modal .modal-sub { color: var(--text-muted); margin-bottom: 24px; font-size: 1rem; }
+    .modal label { font-size: 1rem; }
     .star-rating { font-size: 2.2rem; letter-spacing: 4px; user-select: none; }
     .star-rating span { color: #d1d5db; cursor: pointer; }
     .star-rating span.filled { color: #f59e0b; }
-    .group-checkbox-list { display: flex; flex-direction: column; gap: 8px; max-height: 160px; overflow-y: auto; }
+    .group-checkbox-list { display: flex; flex-direction: column; gap: 8px; max-height: 180px; overflow-y: auto; }
     .group-checkbox-list label { display: flex; align-items: center; gap: 8px; font-weight: 500; }
     .group-checkbox-list input { width: auto; }
+
+    /* ---------- 위시리스트 ---------- */
+    .wishlist-item { cursor: default; }
+    .wishlist-check-label { display: flex; align-items: center; gap: 14px; flex: 1; cursor: pointer; min-width: 0; }
+    .wishlist-title { font-size: 1.1rem; font-weight: 600; word-break: break-word; }
+    .wishlist-title.checked { text-decoration: line-through; color: var(--text-muted); font-weight: 400; }
 </style>
 </head>
 <body>
@@ -270,58 +286,85 @@
 
     <div class="tabs">
         <button class="tab-btn active" id="tabBtn-page-main" onclick="showPage('page-main')">🏠 메인</button>
+        <button class="tab-btn" id="tabBtn-page-library" onclick="showPage('page-library')">📚 서재</button>
+        <button class="tab-btn" id="tabBtn-page-wishlist" onclick="showPage('page-wishlist')">📝 위시리스트</button>
         <button class="tab-btn" id="tabBtn-page-import" onclick="showPage('page-import')">➕ 웹툰 불러오기</button>
         <button class="tab-btn" id="tabBtn-page-sync" onclick="showPage('page-sync')">☁️ 동기화 / 백업</button>
     </div>
 
-    <!-- ================= 메인 페이지 ================= -->
+    <!-- ================= 메인 페이지 (룰렛만) ================= -->
     <div id="page-main" class="page active">
-
-        <div class="card">
-            <h2>랜덤 정주행 룰렛 🎲</h2>
-            <div class="row" style="align-items: flex-end;">
-                <div class="form-group" style="margin-bottom: 0;">
-                    <label for="filterPlatform">추천 범위</label>
-                    <select id="filterPlatform">
-                        <option value="all">전체 플랫폼</option>
-                        <option value="platform:레진코믹스">레진코믹스</option>
-                        <option value="platform:봄툰">봄툰</option>
-                        <option value="platform:리디">리디</option>
-                        <option value="platform:네이버웹툰">네이버웹툰</option>
-                        <optgroup id="rouletteGroupOptions" label="내 그룹"></optgroup>
-                    </select>
+        <div class="narrow-wrap">
+            <div class="card">
+                <h2>랜덤 정주행 룰렛 🎲</h2>
+                <div class="row" style="align-items: flex-end;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="filterPlatform">추천 범위</label>
+                        <select id="filterPlatform">
+                            <option value="all">전체 플랫폼</option>
+                            <option value="platform:레진코믹스">레진코믹스</option>
+                            <option value="platform:봄툰">봄툰</option>
+                            <option value="platform:리디">리디</option>
+                            <option value="platform:네이버웹툰">네이버웹툰</option>
+                            <optgroup id="rouletteGroupOptions" label="내 그룹"></optgroup>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="filterRating">최소 별점</label>
+                        <select id="filterRating">
+                            <option value="0">전체 별점</option>
+                            <option value="0.5">★0.5 이상</option>
+                            <option value="1">★1 이상</option>
+                            <option value="1.5">★1.5 이상</option>
+                            <option value="2">★2 이상</option>
+                            <option value="2.5">★2.5 이상</option>
+                            <option value="3">★3 이상</option>
+                            <option value="3.5">★3.5 이상</option>
+                            <option value="4">★4 이상</option>
+                            <option value="4.5">★4.5 이상</option>
+                            <option value="5">★5 (만점만)</option>
+                        </select>
+                    </div>
+                    <button onclick="spinRoulette()" style="background-color: #8b5cf6;">랜덤 픽!</button>
                 </div>
-                <div class="form-group" style="margin-bottom: 0;">
-                    <label for="filterRating">최소 별점</label>
-                    <select id="filterRating">
-                        <option value="0">전체 별점</option>
-                        <option value="0.5">★0.5 이상</option>
-                        <option value="1">★1 이상</option>
-                        <option value="1.5">★1.5 이상</option>
-                        <option value="2">★2 이상</option>
-                        <option value="2.5">★2.5 이상</option>
-                        <option value="3">★3 이상</option>
-                        <option value="3.5">★3.5 이상</option>
-                        <option value="4">★4 이상</option>
-                        <option value="4.5">★4.5 이상</option>
-                        <option value="5">★5 (만점만)</option>
-                    </select>
+                <div id="rouletteResult" class="roulette-box">
+                    <div style="color: var(--text-muted);">버튼을 눌러 운명의 작품을 뽑아보세요!</div>
                 </div>
-                <button onclick="spinRoulette()" style="background-color: #8b5cf6;">랜덤 픽!</button>
-            </div>
-            <div id="rouletteResult" class="roulette-box">
-                <div style="color: var(--text-muted);">버튼을 눌러 운명의 작품을 뽑아보세요!</div>
             </div>
         </div>
+    </div>
 
+    <!-- ================= 서재 페이지 (크게) ================= -->
+    <div id="page-library" class="page">
         <div class="card">
             <h2>
                 <span>내 서재 리스트 (<span id="totalCount">0</span>)</span>
-                <span style="display:flex; gap:8px;">
+                <span style="display:flex; gap:8px; flex-wrap: wrap;">
                     <button class="secondary btn-small" id="selectModeBtn" onclick="toggleSelectionMode()">☑️ 선택</button>
                     <button class="danger btn-small" onclick="clearAll()">전체 초기화</button>
                 </span>
             </h2>
+
+            <div class="row" style="margin-bottom: 16px;">
+                <button class="success" onclick="pushToCloud()">⬆️ 업로드</button>
+                <button class="danger" onclick="pullFromCloud()">⬇️ 불러오기</button>
+            </div>
+
+            <div class="row">
+                <div class="form-group" style="flex: 2; min-width: 240px;">
+                    <label for="librarySearch">🔍 작품 검색</label>
+                    <input type="text" id="librarySearch" placeholder="제목으로 검색..." oninput="setSearchQuery(this.value)">
+                </div>
+                <div class="form-group" style="flex: 1; min-width: 180px;">
+                    <label for="librarySort">정렬</label>
+                    <select id="librarySort" onchange="setSortMode(this.value)">
+                        <option value="percent">소장률 높은순</option>
+                        <option value="title">ㄱㄴㄷ순</option>
+                        <option value="rating-asc">별점 오름차순</option>
+                        <option value="rating-desc">별점 내림차순</option>
+                    </select>
+                </div>
+            </div>
 
             <div class="filter-chips" id="platformChips">
                 <button class="chip active" data-platform="all" onclick="setPlatformFilter('all')">전체</button>
@@ -332,12 +375,17 @@
             </div>
 
             <div class="group-section">
-                <div class="row" style="align-items: flex-end; margin-bottom: 12px;">
-                    <div class="form-group" style="margin-bottom: 0;">
-                        <label for="newGroupName">그룹 만들기</label>
-                        <input type="text" id="newGroupName" placeholder="예) 최애 모음, 완결작만 등">
+                <div class="group-toggle-header" onclick="toggleGroupCreatePanel()">
+                    <span id="groupToggleIcon">▶</span> <span>그룹 만들기</span>
+                </div>
+                <div class="group-create-panel" id="groupCreatePanel">
+                    <div class="row" style="align-items: flex-end; margin-bottom: 0;">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label for="newGroupName">새 그룹 이름</label>
+                            <input type="text" id="newGroupName" placeholder="예) 최애 모음, 완결작만 등">
+                        </div>
+                        <button class="btn-small" style="flex: none;" onclick="createGroup()">그룹 추가</button>
                     </div>
-                    <button class="btn-small" style="flex: none;" onclick="createGroup()">그룹 추가</button>
                 </div>
                 <div class="filter-chips" id="groupChipList"></div>
             </div>
@@ -362,78 +410,96 @@
         </div>
     </div>
 
+    <!-- ================= 위시리스트 페이지 ================= -->
+    <div id="page-wishlist" class="page">
+        <div class="narrow-wrap">
+            <div class="card">
+                <h2>📝 위시리스트</h2>
+                <div class="hint">보고 싶은 웹툰 제목을 적어두세요. 다 보면 체크박스를 눌러 표시할 수 있어요 (체크하면 줄이 그어집니다).</div>
+                <div class="row" style="align-items: flex-end;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="wishlistInput">작품 제목</label>
+                        <input type="text" id="wishlistInput" placeholder="예) 화산귀환" onkeydown="if(event.key==='Enter'){addWishlistItem();}">
+                    </div>
+                    <button style="flex: none;" onclick="addWishlistItem()">추가</button>
+                </div>
+                <div class="list-container" id="wishlistContainer" style="margin-top: 16px; max-height: 520px;"></div>
+            </div>
+        </div>
+    </div>
+
     <!-- ================= 웹툰 불러오기 페이지 ================= -->
     <div id="page-import" class="page">
-        <div class="card">
-            <h2>웹툰 불러오기</h2>
-            <div class="row">
-                <div class="form-group">
-                    <label for="platform">플랫폼 선택</label>
-                    <select id="platform">
-                        <option value="레진코믹스">레진코믹스</option>
-                        <option value="봄툰">봄툰</option>
-                        <option value="리디">리디</option>
-                        <option value="네이버웹툰">네이버웹툰</option>
-                    </select>
+        <div class="narrow-wrap">
+            <div class="card">
+                <h2>웹툰 불러오기</h2>
+                <div class="row">
+                    <div class="form-group">
+                        <label for="platform">플랫폼 선택</label>
+                        <select id="platform">
+                            <option value="레진코믹스">레진코믹스</option>
+                            <option value="봄툰">봄툰</option>
+                            <option value="리디">리디</option>
+                            <option value="네이버웹툰">네이버웹툰</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputType">입력 방식</label>
+                        <select id="inputType" onchange="updatePlaceholder()">
+                            <option value="html">HTML 코드 (개발자 도구 복사)</option>
+                            <option value="text">텍스트 목록 (제목 | 소장률%)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="minPercent">소장률 기준 (%)</label>
+                        <input type="number" id="minPercent" value="0" min="0" max="100">
+                    </div>
                 </div>
                 <div class="form-group">
-                    <label for="inputType">입력 방식</label>
-                    <select id="inputType" onchange="updatePlaceholder()">
-                        <option value="html">HTML 코드 (개발자 도구 복사)</option>
-                        <option value="text">텍스트 목록 (제목 | 소장률%)</option>
-                    </select>
+                    <label for="htmlData">내용 붙여넣기</label>
+                    <textarea id="htmlData" placeholder="HTML 모드: 개발자 도구에서 복사한 HTML 코드를 붙여넣으세요.&#10;텍스트 모드: 한 줄에 하나씩 '제목 | 소장률%' 형식으로 붙여넣으세요.&#10;예) 여신강림 | 98%"></textarea>
                 </div>
-                <div class="form-group">
-                    <label for="minPercent">소장률 기준 (%)</label>
-                    <input type="number" id="minPercent" value="0" min="0" max="100">
-                </div>
+                <div class="hint" id="inputHint">현재 모드: HTML 코드 (범용 파싱 → 실패 시 레진 전용 파싱으로 자동 폴백)</div>
+                <button onclick="parseData()">서재에 추가하기</button>
             </div>
-            <div class="form-group">
-                <label for="htmlData">내용 붙여넣기</label>
-                <textarea id="htmlData" placeholder="HTML 모드: 개발자 도구에서 복사한 HTML 코드를 붙여넣으세요.&#10;텍스트 모드: 한 줄에 하나씩 '제목 | 소장률%' 형식으로 붙여넣으세요.&#10;예) 여신강림 | 98%"></textarea>
-            </div>
-            <div class="hint" id="inputHint">현재 모드: HTML 코드 (범용 파싱 → 실패 시 레진 전용 파싱으로 자동 폴백)</div>
-            <button onclick="parseData()">서재에 추가하기</button>
         </div>
     </div>
 
     <!-- ================= 동기화/백업 페이지 ================= -->
     <div id="page-sync" class="page">
-        <div class="card">
-            <h2>☁️ 클라우드 동기화 (GitHub Gist)</h2>
-            <div class="hint">최초 1회 PC에서 "새 동기화 시작"으로 Gist를 만든 뒤, 같은 토큰과 Gist ID를 폰에도 입력하면 됩니다. 자동이 아닌 수동 업로드/다운로드 방식이라 실수로 덮어써질 위험이 없습니다. (키워드/별점/그룹 정보도 함께 동기화됩니다)</div>
-            <div class="form-group">
-                <label for="ghToken">GitHub Personal Access Token (gist 권한만)</label>
-                <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxx">
+        <div class="narrow-wrap">
+            <div class="card">
+                <h2>☁️ 클라우드 동기화 (GitHub Gist)</h2>
+                <div class="hint">최초 1회 PC에서 "새 동기화 시작"으로 Gist를 만든 뒤, 같은 토큰과 Gist ID를 폰에도 입력하면 됩니다. 업로드/불러오기 버튼은 "서재" 탭 상단으로 이동했습니다. (키워드/별점/그룹/위시리스트 정보도 함께 동기화됩니다)</div>
+                <div class="form-group">
+                    <label for="ghToken">GitHub Personal Access Token (gist 권한만)</label>
+                    <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxx">
+                </div>
+                <div class="form-group">
+                    <label for="gistId">Gist ID</label>
+                    <input type="text" id="gistId" placeholder="처음엔 비워두고 아래 버튼으로 생성 → 표시된 ID를 다른 기기에도 동일하게 입력">
+                </div>
+                <div class="row">
+                    <button onclick="createNewGist()">🆕 새 동기화 시작하기 (최초 1회)</button>
+                </div>
+                <div class="row" style="margin-top: 12px;">
+                    <button style="background-color: #0891b2;" onclick="pullFromCloudMerge()">🔀 클라우드 → 이 기기에 병합 (덮어쓰지 않음)</button>
+                </div>
+                <div class="hint" style="margin-top: 12px; margin-bottom: 0;">두 기기에서 각자 다른 작품을 정리했다면 "불러오기(덮어쓰기)" 대신 "병합"을 사용하세요. 신규 작품은 추가되고, 같은 작품은 별점(더 높은 값)·키워드·메모·그룹·정주행 기록이 합쳐집니다.</div>
+                <div id="syncStatus" class="hint" style="margin-top: 12px;"></div>
             </div>
-            <div class="form-group">
-                <label for="gistId">Gist ID</label>
-                <input type="text" id="gistId" placeholder="처음엔 비워두고 아래 버튼으로 생성 → 표시된 ID를 다른 기기에도 동일하게 입력">
-            </div>
-            <div class="row">
-                <button onclick="createNewGist()">🆕 새 동기화 시작하기 (최초 1회)</button>
-            </div>
-            <div class="row" style="margin-top: 12px;">
-                <button class="success" onclick="pushToCloud()">⬆️ 이 기기 → 클라우드로 업로드</button>
-                <button class="danger" onclick="pullFromCloud()">⬇️ 클라우드 → 이 기기로 가져오기 (덮어쓰기)</button>
-            </div>
-            <div class="row" style="margin-top: 12px;">
-                <button style="background-color: #0891b2;" onclick="pullFromCloudMerge()">🔀 클라우드 → 이 기기에 병합 (덮어쓰지 않음)</button>
-            </div>
-            <div class="hint" style="margin-top: 12px; margin-bottom: 0;">두 기기에서 각자 다른 작품을 정리했다면 "덮어쓰기" 대신 "병합"을 사용하세요. 신규 작품은 추가되고, 같은 작품은 별점(더 높은 값)·키워드·메모·그룹·정주행 기록이 합쳐집니다.</div>
-            <div id="syncStatus" class="hint" style="margin-top: 12px;"></div>
-        </div>
 
-        <div class="card">
-            <h2>로컬 백업 (텍스트, 보조 수단)</h2>
-            <div class="form-group">
-                <label for="backupData">내 서재 데이터 (JSON)</label>
-                <textarea id="backupData" placeholder="[내보내기]를 누르면 여기에 표시됩니다. 다른 기기에서는 이 값을 복사해 붙여넣고 [가져오기]를 누르세요."></textarea>
-            </div>
-            <div class="row">
-                <button onclick="exportData()">📤 텍스트로 내보내기 (복사)</button>
-                <button class="success" onclick="importDataMerge()">📥 텍스트에서 병합</button>
-                <button class="danger" onclick="importDataOverwrite()">⚠️ 텍스트로 전체 덮어쓰기</button>
+            <div class="card">
+                <h2>로컬 백업 (텍스트, 보조 수단)</h2>
+                <div class="form-group">
+                    <label for="backupData">내 서재 데이터 (JSON)</label>
+                    <textarea id="backupData" placeholder="[내보내기]를 누르면 여기에 표시됩니다. 다른 기기에서는 이 값을 복사해 붙여넣고 [가져오기]를 누르세요."></textarea>
+                </div>
+                <div class="row">
+                    <button onclick="exportData()">📤 텍스트로 내보내기 (복사)</button>
+                    <button class="success" onclick="importDataMerge()">📥 텍스트에서 병합</button>
+                    <button class="danger" onclick="importDataOverwrite()">⚠️ 텍스트로 전체 덮어쓰기</button>
+                </div>
             </div>
         </div>
     </div>
@@ -482,9 +548,14 @@
 <script>
     let library = [];
     let groups = [];
+    let wishlist = [];
     let currentEditId = null;
     let currentEditRating = 0;
     let libraryFilter = { type: 'all' };
+    let librarySearchQuery = '';
+    let librarySortMode = 'percent';
+    let selectionMode = false;
+    let selectedIds = new Set();
     const GH_FILENAME = 'webtoon_library.json';
 
     function genId() {
@@ -500,11 +571,16 @@
         if (storedGroups) {
             try { groups = JSON.parse(storedGroups); } catch (e) { groups = []; }
         }
+        const storedWishlist = localStorage.getItem('webtoonWishlist');
+        if (storedWishlist) {
+            try { wishlist = JSON.parse(storedWishlist); } catch (e) { wishlist = []; }
+        }
         library.forEach(normalizeItem);
 
         renderList();
         renderGroupChips();
         renderGroupSelectOptions();
+        renderWishlist();
         updatePlaceholder();
         initSyncSettings();
     }
@@ -536,6 +612,7 @@
     function saveToStorage() {
         localStorage.setItem('webtoonLib', JSON.stringify(library));
         localStorage.setItem('webtoonGroups', JSON.stringify(groups));
+        localStorage.setItem('webtoonWishlist', JSON.stringify(wishlist));
     }
 
     // ---------- 탭 전환 ----------
@@ -724,7 +801,44 @@
         return true;
     }
 
+    // ---------- 검색 / 정렬 ----------
+
+    function setSearchQuery(value) {
+        librarySearchQuery = value.trim();
+        renderList();
+    }
+
+    function setSortMode(value) {
+        librarySortMode = value;
+        renderList();
+    }
+
+    function sortItems(items) {
+        const arr = [...items];
+        switch (librarySortMode) {
+            case 'title':
+                arr.sort((a, b) => a.title.localeCompare(b.title, 'ko'));
+                break;
+            case 'rating-asc':
+                arr.sort((a, b) => a.rating - b.rating);
+                break;
+            case 'rating-desc':
+                arr.sort((a, b) => b.rating - a.rating);
+                break;
+            default:
+                arr.sort((a, b) => b.percent - a.percent);
+        }
+        return arr;
+    }
+
     // ---------- 그룹 관리 ----------
+
+    function toggleGroupCreatePanel() {
+        const panel = document.getElementById('groupCreatePanel');
+        const icon = document.getElementById('groupToggleIcon');
+        const show = panel.classList.toggle('show');
+        icon.textContent = show ? '▼' : '▶';
+    }
 
     function createGroup() {
         const input = document.getElementById('newGroupName');
@@ -799,9 +913,6 @@
     }
 
     // ---------- 서재 선택 모드 (여러 작품 골라서 그룹에 담기) ----------
-
-    let selectionMode = false;
-    let selectedIds = new Set();
 
     function toggleSelectionMode() {
         selectionMode = !selectionMode;
@@ -879,8 +990,14 @@
             return;
         }
 
-        const filtered = library.filter(itemMatchesFilter);
-        const sorted = [...filtered].sort((a, b) => b.percent - a.percent);
+        let filtered = library.filter(itemMatchesFilter);
+
+        if (librarySearchQuery) {
+            const q = librarySearchQuery.toLowerCase();
+            filtered = filtered.filter(item => item.title.toLowerCase().includes(q));
+        }
+
+        const sorted = sortItems(filtered);
 
         if (sorted.length === 0) {
             container.innerHTML = `<div style="padding: 24px; text-align: center; color: var(--text-muted);">조건에 맞는 작품이 없습니다.</div>`;
@@ -918,7 +1035,6 @@
                     ${(keywordsHTML || groupNames || watchHTML) ? `<div class="keyword-row">${keywordsHTML}${groupNames}${watchHTML}</div>` : ''}
                 </div>
                 <div class="item-actions">
-                    <button class="btn-small" onclick="openDetail('${item.id}')">상세</button>
                     <button class="danger btn-small" onclick="deleteItem('${item.id}')">삭제</button>
                 </div>
             `;
@@ -962,7 +1078,7 @@
 
         const groupBox = document.getElementById('modalGroupCheckboxes');
         if (groups.length === 0) {
-            groupBox.innerHTML = `<span class="group-empty-hint">메인 화면의 "그룹 만들기"에서 먼저 그룹을 만들어주세요.</span>`;
+            groupBox.innerHTML = `<span class="group-empty-hint">서재 화면의 "그룹 만들기"에서 먼저 그룹을 만들어주세요.</span>`;
         } else {
             groupBox.innerHTML = groups.map(g => `
                 <label>
@@ -1106,10 +1222,58 @@
         renderList();
     }
 
+    // ---------- 위시리스트 ----------
+
+    function renderWishlist() {
+        const container = document.getElementById('wishlistContainer');
+        if (!container) return;
+
+        if (wishlist.length === 0) {
+            container.innerHTML = `<div style="padding: 24px; text-align: center; color: var(--text-muted);">위시리스트가 비어있습니다. 보고 싶은 작품을 추가해보세요.</div>`;
+            return;
+        }
+
+        container.innerHTML = wishlist.map(w => `
+            <div class="list-item wishlist-item">
+                <label class="wishlist-check-label">
+                    <input type="checkbox" class="item-select-checkbox" style="margin-right:0;" ${w.checked ? 'checked' : ''} onchange="toggleWishlistItem('${w.id}', this.checked)">
+                    <span class="wishlist-title${w.checked ? ' checked' : ''}">${escapeHTML(w.title)}</span>
+                </label>
+                <div class="item-actions">
+                    <button class="danger btn-small" onclick="deleteWishlistItem('${w.id}')">삭제</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function addWishlistItem() {
+        const input = document.getElementById('wishlistInput');
+        const title = input.value.trim();
+        if (!title) { alert('작품 제목을 입력해주세요.'); return; }
+        wishlist.push({ id: genId(), title, checked: false });
+        input.value = '';
+        saveToStorage();
+        renderWishlist();
+    }
+
+    function toggleWishlistItem(id, checked) {
+        const w = wishlist.find(x => x.id === id);
+        if (!w) return;
+        w.checked = checked;
+        saveToStorage();
+        renderWishlist();
+    }
+
+    function deleteWishlistItem(id) {
+        wishlist = wishlist.filter(x => x.id !== id);
+        saveToStorage();
+        renderWishlist();
+    }
+
     // ---------- GitHub Gist 클라우드 동기화 (수동) ----------
 
     function buildBackupPayload() {
-        return { library, groups };
+        return { library, groups, wishlist };
     }
 
     function applyBackupPayload(payload) {
@@ -1119,6 +1283,7 @@
         } else {
             library = Array.isArray(payload.library) ? payload.library.map(item => normalizeItem({ ...item })) : [];
             groups = Array.isArray(payload.groups) ? payload.groups : [];
+            wishlist = Array.isArray(payload.wishlist) ? payload.wishlist : wishlist;
         }
     }
 
@@ -1171,7 +1336,7 @@
         saveSyncSettings();
         const token = document.getElementById('ghToken').value.trim();
         const gistId = document.getElementById('gistId').value.trim();
-        if (!token || !gistId) { alert('토큰과 Gist ID를 모두 입력해주세요.'); return; }
+        if (!token || !gistId) { alert('동기화/백업 탭에서 GitHub 토큰과 Gist ID를 먼저 입력해주세요.'); return; }
 
         try {
             const res = await fetch(`https://api.github.com/gists/${gistId}`, {
@@ -1227,7 +1392,7 @@
         saveSyncSettings();
         const token = document.getElementById('ghToken').value.trim();
         const gistId = document.getElementById('gistId').value.trim();
-        if (!token || !gistId) { alert('토큰과 Gist ID를 모두 입력해주세요.'); return; }
+        if (!token || !gistId) { alert('동기화/백업 탭에서 GitHub 토큰과 Gist ID를 먼저 입력해주세요.'); return; }
 
         try {
             const res = await fetch(`https://api.github.com/gists/${gistId}`, {
@@ -1250,6 +1415,7 @@
             renderGroupChips();
             renderGroupSelectOptions();
             renderList();
+            renderWishlist();
             setSyncStatus(`가져오기 완료! (${library.length}개 작품, ${groups.length}개 그룹)`);
         } catch (e) {
             setSyncStatus('가져오기 실패: ' + e.message, true);
@@ -1397,6 +1563,7 @@
         renderGroupChips();
         renderGroupSelectOptions();
         renderList();
+        renderWishlist();
         alert('덮어쓰기가 완료되었습니다.');
     }
 

@@ -6,8 +6,8 @@
 <title>웹툰 서재 & 랜덤 룰렛</title>
 <style>
     :root {
-        --primary: #4f46e5;
-        --primary-hover: #4338ca;
+        --primary: #47799b;
+        --primary-hover: #315d7a;
         --danger: #ef4444;
         --danger-hover: #dc2626;
         --success: #10b981;
@@ -282,21 +282,21 @@
 <body>
 
 <div class="container">
-    <h1>📚 내 웹툰 서재 & 랜덤 추천기</h1>
+    <h1>My Wtoon Library</h1>
 
     <div class="tabs">
         <button class="tab-btn active" id="tabBtn-page-main" onclick="showPage('page-main')">Main</button>
-        <button class="tab-btn" id="tabBtn-page-library" onclick="showPage('page-library')">📚 서재</button>
-        <button class="tab-btn" id="tabBtn-page-wishlist" onclick="showPage('page-wishlist')">📝 위시리스트</button>
-        <button class="tab-btn" id="tabBtn-page-import" onclick="showPage('page-import')">➕ 웹툰 불러오기</button>
-        <button class="tab-btn" id="tabBtn-page-sync" onclick="showPage('page-sync')">☁️ 동기화 / 백업</button>
+        <button class="tab-btn" id="tabBtn-page-library" onclick="showPage('page-library')">Library</button>
+        <button class="tab-btn" id="tabBtn-page-wishlist" onclick="showPage('page-wishlist')">Wishlist</button>
+        <button class="tab-btn" id="tabBtn-page-import" onclick="showPage('page-import')">Load</button>
+        <button class="tab-btn" id="tabBtn-page-sync" onclick="showPage('page-sync')">Sync / Backup</button>
     </div>
 
     <!-- ================= 메인 페이지 (룰렛만) ================= -->
     <div id="page-main" class="page active">
         <div class="narrow-wrap">
             <div class="card">
-                <h2>랜덤 정주행 룰렛 🎲</h2>
+                <h2>랜덤 정주행</h2>
                 <div class="row" style="align-items: flex-end;">
                     <div class="form-group" style="margin-bottom: 0;">
                         <label for="filterPlatform">추천 범위</label>
@@ -313,22 +313,22 @@
                         <label for="filterRating">최소 별점</label>
                         <select id="filterRating">
                             <option value="0">전체 별점</option>
-                            <option value="0.5">★0.5 이상</option>
-                            <option value="1">★1 이상</option>
-                            <option value="1.5">★1.5 이상</option>
-                            <option value="2">★2 이상</option>
-                            <option value="2.5">★2.5 이상</option>
-                            <option value="3">★3 이상</option>
-                            <option value="3.5">★3.5 이상</option>
-                            <option value="4">★4 이상</option>
-                            <option value="4.5">★4.5 이상</option>
-                            <option value="5">★5 (만점만)</option>
+                            <option value="0.5">★0.5</option>
+                            <option value="1">★1</option>
+                            <option value="1.5">★1.5</option>
+                            <option value="2">★2</option>
+                            <option value="2.5">★2.5</option>
+                            <option value="3">★3</option>
+                            <option value="3.5">★3.5</option>
+                            <option value="4">★4</option>
+                            <option value="4.5">★4.5/option>
+                            <option value="5">★5</option>
                         </select>
                     </div>
-                    <button onclick="spinRoulette()" style="background-color: #8b5cf6;">랜덤 픽!</button>
+                    <button onclick="spinRoulette()" style="background-color: #486cb9;">랜덤 픽!</button>
                 </div>
                 <div id="rouletteResult" class="roulette-box">
-                    <div style="color: var(--text-muted);">버튼을 눌러 운명의 작품을 뽑아보세요!</div>
+                    <div style="color: var(--text-muted);">오늘 정주행은?</div>
                 </div>
             </div>
         </div>

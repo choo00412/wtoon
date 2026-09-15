@@ -92,6 +92,13 @@
         font-size: 0.85rem;
     }
 
+    #modalMemo {
+        font-family: inherit;
+        font-size: 1.05rem;
+        line-height: 1.7;
+        min-height: 120px;
+    }
+
     .row { display: flex; gap: 16px; flex-wrap: wrap; }
     .row > .form-group { flex: 1; min-width: 200px; }
     .row > button { flex: 1; min-width: 160px; }
@@ -408,8 +415,12 @@
             </div>
             <div class="row" style="margin-top: 12px;">
                 <button class="success" onclick="pushToCloud()">⬆️ 이 기기 → 클라우드로 업로드</button>
-                <button class="danger" onclick="pullFromCloud()">⬇️ 클라우드 → 이 기기로 가져오기</button>
+                <button class="danger" onclick="pullFromCloud()">⬇️ 클라우드 → 이 기기로 가져오기 (덮어쓰기)</button>
             </div>
+            <div class="row" style="margin-top: 12px;">
+                <button style="background-color: #0891b2;" onclick="pullFromCloudMerge()">🔀 클라우드 → 이 기기에 병합 (덮어쓰지 않음)</button>
+            </div>
+            <div class="hint" style="margin-top: 12px; margin-bottom: 0;">두 기기에서 각자 다른 작품을 정리했다면 "덮어쓰기" 대신 "병합"을 사용하세요. 신규 작품은 추가되고, 같은 작품은 별점(더 높은 값)·키워드·메모·그룹·정주행 기록이 합쳐집니다.</div>
             <div id="syncStatus" class="hint" style="margin-top: 12px;"></div>
         </div>
 
@@ -453,7 +464,7 @@
 
         <div class="form-group">
             <label for="modalMemo">내 평가 / 메모 (자세히 보기에서만 표시됨)</label>
-            <textarea id="modalMemo" style="min-height: 80px;" placeholder="이 작품에 대한 내 생각, 감상평 등을 자유롭게 적어보세요."></textarea>
+            <textarea id="modalMemo" placeholder="이 작품에 대한 내 생각, 감상평 등을 자유롭게 적어보세요."></textarea>
         </div>
 
         <div class="form-group">
@@ -1180,6 +1191,38 @@
         }
     }
 
+    async function pullFromCloudMerge() {
+        saveSyncSettings();
+        const token = document.getElementById('ghToken').value.trim();
+        const gistId = document.getElementById('gistId').value.trim();
+        if (!token || !gistId) { alert('토큰과 Gist ID를 모두 입력해주세요.'); return; }
+
+        try {
+            const res = await fetch(`https://api.github.com/gists/${gistId}`, {
+                headers: {
+                    'Authorization': `token ${token}`,
+                    'Accept': 'application/vnd.github+json'
+                }
+            });
+            if (!res.ok) throw new Error(`GitHub 오류: ${res.status}`);
+            const data = await res.json();
+            const file = data.files[GH_FILENAME];
+            if (!file) throw new Error('클라우드에 저장된 데이터가 없습니다.');
+            const cloudPayload = JSON.parse(file.content);
+
+            const result = mergeLibraryPayload(cloudPayload);
+            if (!result) throw new Error('클라우드 데이터 형식을 읽을 수 없습니다.');
+
+            saveToStorage();
+            renderGroupChips();
+            renderGroupSelectOptions();
+            renderList();
+            setSyncStatus(`병합 완료! 신규 ${result.added}개, 기존 작품 ${result.updated}개에 별점/키워드/메모/그룹 반영 (덮어쓰지 않음)`);
+        } catch (e) {
+            setSyncStatus('병합 실패: ' + e.message, true);
+        }
+    }
+
     async function pullFromCloud() {
         saveSyncSettings();
         const token = document.getElementById('ghToken').value.trim();
@@ -1235,21 +1278,12 @@
         }
     }
 
-    function importDataMerge() {
-        const raw = document.getElementById('backupData').value.trim();
-        if (!raw) { alert('가져올 JSON 데이터를 붙여넣어주세요.'); return; }
-
-        let incoming;
-        try {
-            incoming = JSON.parse(raw);
-        } catch (e) {
-            alert('올바른 JSON 형식이 아닙니다.');
-            return;
-        }
-
+    // incoming: array(구버전) 또는 {library, groups} 형태. 제목+플랫폼이 같으면
+    // 새로 만들지 않고 별점(더 높은 값)/키워드/메모/그룹/정주행기록을 기존 작품에 합칩니다.
+    function mergeLibraryPayload(incoming) {
         const incomingLibrary = Array.isArray(incoming) ? incoming : incoming.library;
         const incomingGroups = Array.isArray(incoming) ? [] : (incoming.groups || []);
-        if (!Array.isArray(incomingLibrary)) { alert('올바른 JSON 형식이 아닙니다.'); return; }
+        if (!Array.isArray(incomingLibrary)) return null;
 
         // 그룹 병합 (이름 기준, id는 새로 생성해 충돌 방지)
         const groupIdMap = {};
@@ -1264,14 +1298,17 @@
             }
         });
 
-        let added = 0, skipped = 0;
+        let added = 0, updated = 0, skipped = 0;
         incomingLibrary.forEach(item => {
             if (!item || !item.title || !item.platform) { skipped++; return; }
-            const exists = library.some(w => w.title === item.title && w.platform === item.platform);
-            if (!exists) {
-                const remappedGroupIds = Array.isArray(item.groupIds)
-                    ? item.groupIds.map(gid => groupIdMap[gid]).filter(Boolean)
-                    : [];
+
+            const remappedGroupIds = Array.isArray(item.groupIds)
+                ? item.groupIds.map(gid => groupIdMap[gid]).filter(Boolean)
+                : [];
+
+            const existingItem = library.find(w => w.title === item.title && w.platform === item.platform);
+
+            if (!existingItem) {
                 library.push(normalizeItem({
                     id: genId(),
                     title: item.title,
@@ -1285,15 +1322,56 @@
                 }));
                 added++;
             } else {
-                skipped++;
+                const incomingRating = typeof item.rating === 'number' ? item.rating : 0;
+                if (incomingRating > existingItem.rating) existingItem.rating = incomingRating;
+
+                if (Array.isArray(item.keywords)) {
+                    existingItem.keywords = Array.from(new Set([...existingItem.keywords, ...item.keywords]));
+                }
+
+                if (typeof item.memo === 'string' && item.memo.trim()) {
+                    if (!existingItem.memo || !existingItem.memo.trim()) {
+                        existingItem.memo = item.memo;
+                    } else if (existingItem.memo.trim() !== item.memo.trim()) {
+                        existingItem.memo = existingItem.memo + '\n---\n' + item.memo;
+                    }
+                }
+
+                if (remappedGroupIds.length) {
+                    existingItem.groupIds = Array.from(new Set([...existingItem.groupIds, ...remappedGroupIds]));
+                }
+
+                if (Array.isArray(item.watchLog)) {
+                    existingItem.watchLog = Array.from(new Set([...existingItem.watchLog, ...item.watchLog])).sort();
+                }
+
+                updated++;
             }
         });
+
+        return { added, updated, skipped };
+    }
+
+    function importDataMerge() {
+        const raw = document.getElementById('backupData').value.trim();
+        if (!raw) { alert('가져올 JSON 데이터를 붙여넣어주세요.'); return; }
+
+        let incoming;
+        try {
+            incoming = JSON.parse(raw);
+        } catch (e) {
+            alert('올바른 JSON 형식이 아닙니다.');
+            return;
+        }
+
+        const result = mergeLibraryPayload(incoming);
+        if (!result) { alert('올바른 JSON 형식이 아닙니다.'); return; }
 
         saveToStorage();
         renderGroupChips();
         renderGroupSelectOptions();
         renderList();
-        alert(`병합 완료! ${added}개 추가, ${skipped}개는 중복/형식오류로 제외되었습니다.`);
+        alert(`병합 완료! ${result.added}개 신규 추가, ${result.updated}개는 기존 작품에 별점/키워드/메모/그룹 정보를 합쳤습니다. (형식오류 제외: ${result.skipped}개)`);
     }
 
     function importDataOverwrite() {

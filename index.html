@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>웹툰 서재 & 랜덤 룰렛</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
     :root {
         --primary: #47799b;
@@ -158,6 +159,46 @@
     .group-chip.active .del-x { background: rgba(255,255,255,0.25); }
     .group-empty-hint { font-size: 0.85rem; color: var(--text-muted); }
 
+    /* ---------- 시간표 ---------- */
+    .tt-scroll { overflow-x: auto; }
+    .tt-capture { min-width: 980px; padding: 4px; background: var(--surface); }
+    .tt-section-title { font-weight: 700; font-size: 1rem; margin: 4px 0 12px; color: var(--text-main); }
+    .tt-week-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-bottom: 28px; }
+    .tt-tendays-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+    .tt-day-col { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+    .tt-day-header { background: #f3f4f6; text-align: center; font-weight: 700; font-size: 0.85rem; padding: 10px 4px; border-bottom: 1px solid var(--border); }
+    .tt-day-body { padding: 10px; display: flex; flex-direction: column; gap: 8px; min-height: 130px; }
+    .tt-item {
+        display: flex; align-items: center; justify-content: space-between; gap: 6px;
+        padding: 8px 10px; border-radius: 6px; font-weight: 700; font-size: 0.82rem;
+        background: #e5e7eb; color: #374151;
+    }
+    .tt-item[data-platform="레진코믹스"] { background: var(--lezhin-bg); color: var(--lezhin); }
+    .tt-item[data-platform="봄툰"] { background: var(--bomtoon-bg); color: var(--bomtoon); }
+    .tt-item[data-platform="리디"] { background: var(--ridi-bg); color: var(--ridi); }
+    .tt-item[data-platform="네이버웹툰"] { background: var(--naver-bg); color: var(--naver); }
+    .tt-item-del { background: none; border: none; color: inherit; padding: 0; font-size: 0.75rem; opacity: 0.7; flex: none; }
+    .tt-item-del:hover { background: none; opacity: 1; }
+    .tt-toggle-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .tt-toggle-chip {
+        padding: 6px 14px; border-radius: 9999px; border: 1px solid var(--border);
+        background: #fff; cursor: pointer; font-size: 0.85rem; font-weight: 700; color: var(--text-muted);
+    }
+    .tt-toggle-chip.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+    /* ---------- 독서 기록장 ---------- */
+    .book-item { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 18px 20px; border-bottom: 1px solid var(--border); cursor: pointer; }
+    .book-item:last-child { border-bottom: none; }
+    .book-item:hover { background: #f9fafb; }
+    .book-title { font-weight: 800; font-size: 1.15rem; }
+    .book-count { font-size: 0.85rem; color: var(--text-muted); }
+    .reading-entry { padding: 16px 18px; border-bottom: 1px solid var(--border); }
+    .reading-entry:last-child { border-bottom: none; }
+    .reading-entry-date { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; font-weight: 700; }
+    .reading-entry img { max-width: 100%; border-radius: 8px; margin-bottom: 10px; display: block; }
+    .reading-entry-text { white-space: pre-wrap; line-height: 1.6; }
+    .reading-entry-del { margin-top: 10px; }
+
     /* ---------- 서재 리스트 (크게) ---------- */
     .list-container {
         max-height: 760px;
@@ -288,8 +329,9 @@
         <button class="tab-btn active" id="tabBtn-page-main" onclick="showPage('page-main')">Main</button>
         <button class="tab-btn" id="tabBtn-page-library" onclick="showPage('page-library')">Library</button>
         <button class="tab-btn" id="tabBtn-page-wishlist" onclick="showPage('page-wishlist')">Wishlist</button>
-        <button class="tab-btn" id="tabBtn-page-import" onclick="showPage('page-import')">Load</button>
-        <button class="tab-btn" id="tabBtn-page-sync" onclick="showPage('page-sync')">Sync / Backup</button>
+        <button class="tab-btn" id="tabBtn-page-timetable" onclick="showPage('page-timetable')">Timetable</button>
+        <button class="tab-btn" id="tabBtn-page-reading" onclick="showPage('page-reading')">Reading Log</button>
+        <button class="tab-btn" id="tabBtn-page-import" onclick="showPage('page-import')">Load / Sync</button>
     </div>
 
     <!-- ================= 메인 페이지 (룰렛만) ================= -->
@@ -321,7 +363,7 @@
                             <option value="3">★3</option>
                             <option value="3.5">★3.5</option>
                             <option value="4">★4</option>
-                            <option value="4.5">★4.5/option>
+                            <option value="4.5">★4.5</option>
                             <option value="5">★5</option>
                         </select>
                     </div>
@@ -428,7 +470,81 @@
         </div>
     </div>
 
-    <!-- ================= 웹툰 불러오기 페이지 ================= -->
+    <!-- ================= 시간표 페이지 ================= -->
+    <div id="page-timetable" class="page">
+        <div class="card">
+            <h2>
+                <span>나의 웹툰 연재 시간표</span>
+                <span style="display:flex; gap:8px; flex-wrap: wrap;">
+                    <button class="secondary btn-small" onclick="saveTimetableImage()">이미지로 저장</button>
+                    <button class="btn-small" onclick="openTimetableModal()">연재 일정 추가</button>
+                </span>
+            </h2>
+
+            <div class="tt-scroll">
+                <div class="tt-capture" id="timetableCaptureArea">
+                    <div class="tt-section-title">주간 연재 (요일별)</div>
+                    <div class="tt-week-grid">
+                        <div class="tt-day-col"><div class="tt-day-header">월</div><div class="tt-day-body" id="tt-mon"></div></div>
+                        <div class="tt-day-col"><div class="tt-day-header">화</div><div class="tt-day-body" id="tt-tue"></div></div>
+                        <div class="tt-day-col"><div class="tt-day-header">수</div><div class="tt-day-body" id="tt-wed"></div></div>
+                        <div class="tt-day-col"><div class="tt-day-header">목</div><div class="tt-day-body" id="tt-thu"></div></div>
+                        <div class="tt-day-col"><div class="tt-day-header">금</div><div class="tt-day-body" id="tt-fri"></div></div>
+                        <div class="tt-day-col"><div class="tt-day-header">토</div><div class="tt-day-body" id="tt-sat"></div></div>
+                        <div class="tt-day-col"><div class="tt-day-header">일</div><div class="tt-day-body" id="tt-sun"></div></div>
+                    </div>
+
+                    <div class="tt-section-title">10일 연재 (날짜별)</div>
+                    <div class="tt-tendays-grid">
+                        <div class="tt-day-col"><div class="tt-day-header">1일 / 11일 / 21일</div><div class="tt-day-body" id="tt-d1"></div></div>
+                        <div class="tt-day-col"><div class="tt-day-header">3일 / 13일 / 23일</div><div class="tt-day-body" id="tt-d3"></div></div>
+                        <div class="tt-day-col"><div class="tt-day-header">6일 / 16일 / 26일</div><div class="tt-day-body" id="tt-d6"></div></div>
+                        <div class="tt-day-col"><div class="tt-day-header">8일 / 18일 / 28일</div><div class="tt-day-body" id="tt-d8"></div></div>
+                        <div class="tt-day-col"><div class="tt-day-header">10일 / 20일 / 30일</div><div class="tt-day-body" id="tt-d10"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= 독서 기록장 페이지 ================= -->
+    <div id="page-reading" class="page">
+        <div class="narrow-wrap">
+            <div class="card" id="readingListView">
+                <h2>독서 기록장</h2>
+                <div class="row" style="align-items: flex-end;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="readingBookInput">책 제목</label>
+                        <input type="text" id="readingBookInput" placeholder="책 제목을 입력하세요" onkeydown="if(event.key==='Enter'){addReadingBook();}">
+                    </div>
+                    <button style="flex: none;" onclick="addReadingBook()">추가</button>
+                </div>
+                <div class="list-container" id="readingBookList" style="margin-top: 16px; max-height: 600px;"></div>
+            </div>
+
+            <div class="card" id="readingDetailView" style="display: none;">
+                <h2>
+                    <button class="secondary btn-small" onclick="closeBookDetail()">← 목록으로</button>
+                    <span id="readingDetailTitle" style="flex: 1;"></span>
+                    <button class="danger btn-small" onclick="deleteReadingBook()">이 책 삭제</button>
+                </h2>
+
+                <div class="form-group">
+                    <label for="readingEntryText">새 기록</label>
+                    <textarea id="readingEntryText" placeholder="읽으면서 든 생각을 적어보세요."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="readingEntryImage">이미지 첨부 (선택)</label>
+                    <input type="file" id="readingEntryImage" accept="image/*">
+                </div>
+                <button onclick="addReadingEntry()">기록 추가</button>
+
+                <div class="list-container" id="readingEntryList" style="margin-top: 20px; max-height: 600px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= 불러오기 & 동기화 페이지 ================= -->
     <div id="page-import" class="page">
         <div class="narrow-wrap">
             <div class="card">
@@ -462,14 +578,9 @@
                 <div class="hint" id="inputHint">현재 모드: HTML 코드 (범용 파싱 → 실패 시 레진 전용 파싱으로 자동 폴백)</div>
                 <button onclick="parseData()">서재에 추가하기</button>
             </div>
-        </div>
-    </div>
 
-    <!-- ================= 동기화/백업 페이지 ================= -->
-    <div id="page-sync" class="page">
-        <div class="narrow-wrap">
             <div class="card">
-                <h2>☁️ 클라우드 동기화 (GitHub Gist)</h2>
+                <h2>클라우드 동기화 (GitHub Gist)</h2>
                 <div class="hint">최초 1회 PC에서 "새 동기화 시작"으로 Gist를 만든 뒤, 같은 토큰과 Gist ID를 폰에도 입력하면 됩니다. </div>
                 <div class="form-group">
                     <label for="ghToken">GitHub Personal Access Token (gist 권한만)</label>
@@ -545,6 +656,57 @@
     </div>
 </div>
 
+<!-- ================= 시간표 일정 추가 모달 ================= -->
+<div id="timetableModal" class="modal-overlay" onclick="closeTimetableModalOverlay(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+        <h2>연재 일정 추가</h2>
+
+        <div class="form-group">
+            <label for="ttModalTitle">작품명</label>
+            <input type="text" id="ttModalTitle" placeholder="작품명을 입력하세요">
+        </div>
+
+        <div class="form-group">
+            <label>요일별 연재 (여러 요일 선택 가능)</label>
+            <div class="tt-toggle-row" id="ttWeekdayToggles">
+                <button type="button" class="tt-toggle-chip" data-day="mon" onclick="toggleTtDay('mon', this)">월</button>
+                <button type="button" class="tt-toggle-chip" data-day="tue" onclick="toggleTtDay('tue', this)">화</button>
+                <button type="button" class="tt-toggle-chip" data-day="wed" onclick="toggleTtDay('wed', this)">수</button>
+                <button type="button" class="tt-toggle-chip" data-day="thu" onclick="toggleTtDay('thu', this)">목</button>
+                <button type="button" class="tt-toggle-chip" data-day="fri" onclick="toggleTtDay('fri', this)">금</button>
+                <button type="button" class="tt-toggle-chip" data-day="sat" onclick="toggleTtDay('sat', this)">토</button>
+                <button type="button" class="tt-toggle-chip" data-day="sun" onclick="toggleTtDay('sun', this)">일</button>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>10일 연재 (날짜 뒷자리 기준, 여러 개 선택 가능)</label>
+            <div class="tt-toggle-row" id="ttTendaysToggles">
+                <button type="button" class="tt-toggle-chip" data-day="d1" onclick="toggleTtDay('d1', this)">1·11·21일</button>
+                <button type="button" class="tt-toggle-chip" data-day="d3" onclick="toggleTtDay('d3', this)">3·13·23일</button>
+                <button type="button" class="tt-toggle-chip" data-day="d6" onclick="toggleTtDay('d6', this)">6·16·26일</button>
+                <button type="button" class="tt-toggle-chip" data-day="d8" onclick="toggleTtDay('d8', this)">8·18·28일</button>
+                <button type="button" class="tt-toggle-chip" data-day="d10" onclick="toggleTtDay('d10', this)">10·20·30일</button>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="ttModalPlatform">연재처 (색상 지정)</label>
+            <select id="ttModalPlatform">
+                <option value="레진코믹스">레진코믹스</option>
+                <option value="봄툰">봄툰</option>
+                <option value="리디">리디</option>
+                <option value="네이버웹툰">네이버웹툰</option>
+            </select>
+        </div>
+
+        <div class="row">
+            <button onclick="saveTimetableItem()">저장</button>
+            <button class="secondary" onclick="closeTimetableModal()">닫기</button>
+        </div>
+    </div>
+</div>
+
 <script>
     let library = [];
     let groups = [];
@@ -556,6 +718,10 @@
     let librarySortMode = 'percent';
     let selectionMode = false;
     let selectedIds = new Set();
+    let timetableData = { weekly: { mon: [], tue: [], wed: [], thu: [], fri: [], sat: [], sun: [] }, tendays: { d1: [], d3: [], d6: [], d8: [], d10: [] } };
+    let ttSelectedDays = new Set();
+    let readingBooks = [];
+    let currentBookId = null;
     const GH_FILENAME = 'webtoon_library.json';
 
     function genId() {
@@ -575,12 +741,27 @@
         if (storedWishlist) {
             try { wishlist = JSON.parse(storedWishlist); } catch (e) { wishlist = []; }
         }
+        const storedTimetable = localStorage.getItem('webtoonTimetable');
+        if (storedTimetable) {
+            try { timetableData = JSON.parse(storedTimetable); } catch (e) { /* keep default */ }
+        }
+        if (!timetableData.weekly) timetableData.weekly = { mon: [], tue: [], wed: [], thu: [], fri: [], sat: [], sun: [] };
+        if (!timetableData.tendays) timetableData.tendays = { d1: [], d3: [], d6: [], d8: [], d10: [] };
+
+        const storedBooks = localStorage.getItem('webtoonReadingBooks');
+        if (storedBooks) {
+            try { readingBooks = JSON.parse(storedBooks); } catch (e) { readingBooks = []; }
+        }
+        readingBooks.forEach(b => { if (!Array.isArray(b.entries)) b.entries = []; });
+
         library.forEach(normalizeItem);
 
         renderList();
         renderGroupChips();
         renderGroupSelectOptions();
         renderWishlist();
+        renderTimetable();
+        renderReadingBookList();
         updatePlaceholder();
         initSyncSettings();
     }
@@ -613,6 +794,8 @@
         localStorage.setItem('webtoonLib', JSON.stringify(library));
         localStorage.setItem('webtoonGroups', JSON.stringify(groups));
         localStorage.setItem('webtoonWishlist', JSON.stringify(wishlist));
+        localStorage.setItem('webtoonTimetable', JSON.stringify(timetableData));
+        localStorage.setItem('webtoonReadingBooks', JSON.stringify(readingBooks));
     }
 
     // ---------- 탭 전환 ----------
@@ -1268,6 +1451,233 @@
         wishlist = wishlist.filter(x => x.id !== id);
         saveToStorage();
         renderWishlist();
+    }
+
+    // ---------- 시간표 ----------
+
+    const TT_WEEK_DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+    const TT_TENDAYS = ['d1', 'd3', 'd6', 'd8', 'd10'];
+
+    function renderTimetable() {
+        TT_WEEK_DAYS.forEach(day => {
+            const el = document.getElementById('tt-' + day);
+            if (!el) return;
+            el.innerHTML = (timetableData.weekly[day] || []).map(item => `
+                <div class="tt-item" data-platform="${escapeHTML(item.platform)}">
+                    <span>${escapeHTML(item.title)}</span>
+                    <button type="button" class="tt-item-del" onclick="deleteTimetableItem('weekly', '${day}', '${item.id}')">✕</button>
+                </div>
+            `).join('');
+        });
+
+        TT_TENDAYS.forEach(day => {
+            const el = document.getElementById('tt-' + day);
+            if (!el) return;
+            el.innerHTML = (timetableData.tendays[day] || []).map(item => `
+                <div class="tt-item" data-platform="${escapeHTML(item.platform)}">
+                    <span>${escapeHTML(item.title)}</span>
+                    <button type="button" class="tt-item-del" onclick="deleteTimetableItem('tendays', '${day}', '${item.id}')">✕</button>
+                </div>
+            `).join('');
+        });
+    }
+
+    function openTimetableModal() {
+        document.getElementById('ttModalTitle').value = '';
+        document.getElementById('ttModalPlatform').value = '레진코믹스';
+        ttSelectedDays.clear();
+        document.querySelectorAll('#ttWeekdayToggles .tt-toggle-chip, #ttTendaysToggles .tt-toggle-chip').forEach(btn => btn.classList.remove('active'));
+        document.getElementById('timetableModal').classList.add('show');
+    }
+
+    function closeTimetableModal() {
+        document.getElementById('timetableModal').classList.remove('show');
+    }
+
+    function closeTimetableModalOverlay(event) {
+        if (event.target.id === 'timetableModal') closeTimetableModal();
+    }
+
+    function toggleTtDay(day, btnEl) {
+        if (ttSelectedDays.has(day)) {
+            ttSelectedDays.delete(day);
+            btnEl.classList.remove('active');
+        } else {
+            ttSelectedDays.add(day);
+            btnEl.classList.add('active');
+        }
+    }
+
+    function saveTimetableItem() {
+        const title = document.getElementById('ttModalTitle').value.trim();
+        const platform = document.getElementById('ttModalPlatform').value;
+
+        if (!title) { alert('작품명을 입력해주세요.'); return; }
+        if (ttSelectedDays.size === 0) { alert('요일 또는 날짜를 하나 이상 선택해주세요.'); return; }
+
+        ttSelectedDays.forEach(day => {
+            const item = { id: genId(), title, platform };
+            if (TT_WEEK_DAYS.includes(day)) {
+                timetableData.weekly[day].push(item);
+            } else {
+                timetableData.tendays[day].push(item);
+            }
+        });
+
+        saveToStorage();
+        renderTimetable();
+        closeTimetableModal();
+    }
+
+    function deleteTimetableItem(type, day, id) {
+        if (!confirm('이 일정을 삭제할까요?')) return;
+        timetableData[type][day] = timetableData[type][day].filter(item => item.id !== id);
+        saveToStorage();
+        renderTimetable();
+    }
+
+    function saveTimetableImage() {
+        const target = document.getElementById('timetableCaptureArea');
+        if (typeof html2canvas === 'undefined') {
+            alert('이미지 저장 기능을 불러오지 못했습니다. 인터넷 연결을 확인하고 다시 시도해주세요.');
+            return;
+        }
+        html2canvas(target, {
+            backgroundColor: '#ffffff',
+            scale: 2,
+            useCORS: true,
+            width: target.scrollWidth,
+            height: target.scrollHeight,
+            windowWidth: target.scrollWidth,
+            windowHeight: target.scrollHeight
+        }).then(canvas => {
+            canvas.toBlob(blob => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'webtoon_timetable.png';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(url);
+            });
+        }).catch(err => {
+            alert('이미지 저장에 실패했습니다: ' + err.message);
+        });
+    }
+
+    // ---------- 독서 기록장 ----------
+
+    function renderReadingBookList() {
+        const container = document.getElementById('readingBookList');
+        if (readingBooks.length === 0) {
+            container.innerHTML = `<div style="padding: 24px; text-align: center; color: var(--text-muted);">아직 등록된 책이 없습니다.</div>`;
+            return;
+        }
+        container.innerHTML = readingBooks.map(book => `
+            <div class="book-item" onclick="openBookDetail('${book.id}')">
+                <span class="book-title">${escapeHTML(book.title)}</span>
+                <span class="book-count">${book.entries.length}개의 기록</span>
+            </div>
+        `).join('');
+    }
+
+    function addReadingBook() {
+        const input = document.getElementById('readingBookInput');
+        const title = input.value.trim();
+        if (!title) { alert('책 제목을 입력해주세요.'); return; }
+
+        readingBooks.push({ id: genId(), title, entries: [] });
+        saveToStorage();
+        input.value = '';
+        renderReadingBookList();
+    }
+
+    function openBookDetail(bookId) {
+        currentBookId = bookId;
+        const book = readingBooks.find(b => b.id === bookId);
+        if (!book) return;
+
+        document.getElementById('readingDetailTitle').textContent = book.title;
+        document.getElementById('readingListView').style.display = 'none';
+        document.getElementById('readingDetailView').style.display = 'block';
+        document.getElementById('readingEntryText').value = '';
+        document.getElementById('readingEntryImage').value = '';
+        renderReadingEntries();
+    }
+
+    function closeBookDetail() {
+        currentBookId = null;
+        document.getElementById('readingDetailView').style.display = 'none';
+        document.getElementById('readingListView').style.display = 'block';
+        renderReadingBookList();
+    }
+
+    function deleteReadingBook() {
+        if (!currentBookId) return;
+        if (!confirm('이 책의 기록장을 전부 삭제할까요?')) return;
+        readingBooks = readingBooks.filter(b => b.id !== currentBookId);
+        saveToStorage();
+        closeBookDetail();
+    }
+
+    function renderReadingEntries() {
+        const book = readingBooks.find(b => b.id === currentBookId);
+        const container = document.getElementById('readingEntryList');
+        if (!book) return;
+
+        if (book.entries.length === 0) {
+            container.innerHTML = `<div style="padding: 20px; text-align: center; color: var(--text-muted);">아직 기록이 없습니다.</div>`;
+            return;
+        }
+
+        const sorted = [...book.entries].reverse();
+        container.innerHTML = sorted.map(entry => `
+            <div class="reading-entry">
+                <div class="reading-entry-date">${escapeHTML(entry.date)}</div>
+                ${entry.image ? `<img src="${entry.image}" alt="">` : ''}
+                <div class="reading-entry-text">${escapeHTML(entry.text)}</div>
+                <button class="danger btn-small reading-entry-del" onclick="deleteReadingEntry('${entry.id}')">삭제</button>
+            </div>
+        `).join('');
+    }
+
+    function addReadingEntry() {
+        const book = readingBooks.find(b => b.id === currentBookId);
+        if (!book) return;
+
+        const text = document.getElementById('readingEntryText').value.trim();
+        const fileInput = document.getElementById('readingEntryImage');
+        const file = fileInput.files && fileInput.files[0];
+
+        if (!text && !file) { alert('글 또는 이미지를 입력해주세요.'); return; }
+
+        const finishEntry = (imageDataUrl) => {
+            book.entries.push({ id: genId(), text, image: imageDataUrl || null, date: todayStr() });
+            saveToStorage();
+            document.getElementById('readingEntryText').value = '';
+            fileInput.value = '';
+            renderReadingEntries();
+            renderReadingBookList();
+        };
+
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = () => finishEntry(reader.result);
+            reader.readAsDataURL(file);
+        } else {
+            finishEntry(null);
+        }
+    }
+
+    function deleteReadingEntry(entryId) {
+        const book = readingBooks.find(b => b.id === currentBookId);
+        if (!book) return;
+        if (!confirm('이 기록을 삭제할까요?')) return;
+        book.entries = book.entries.filter(e => e.id !== entryId);
+        saveToStorage();
+        renderReadingEntries();
+        renderReadingBookList();
     }
 
     // ---------- GitHub Gist 클라우드 동기화 (수동) ----------

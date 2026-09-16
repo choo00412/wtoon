@@ -559,13 +559,13 @@
     <div id="page-reading" class="page">
         <div class="narrow-wrap">
             <div class="card" id="readingListView">
-                <h2>독서 기록장</h2>
+                <h2>독후감</h2>
                 <div class="row" style="align-items: flex-end;">
                     <div class="form-group" style="margin-bottom: 0;">
-                        <label for="readingBookInput">책 제목</label>
-                        <input type="text" id="readingBookInput" placeholder="책 제목을 입력하세요" onkeydown="if(event.key==='Enter'){addReadingBook();}">
+                        <label for="readingBookInput">제목</label>
+                        <input type="text" id="readingBookInput" placeholder="제목을 입력하세요" onkeydown="if(event.key==='Enter'){addReadingBook();}">
                     </div>
-                    <button style="flex: none;" onclick="addReadingBook()">추가</button>
+                    <button style="flex: none;" onclick="addReadingBook()">Add</button>
                 </div>
                 <div class="list-container" id="readingBookList" style="margin-top: 16px; max-height: 600px;"></div>
             </div>

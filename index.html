@@ -430,38 +430,38 @@
             <h2>
                 <span>내 서재 리스트 (<span id="totalCount">0</span>)</span>
                 <span style="display:flex; gap:8px; flex-wrap: wrap;">
-                    <button class="secondary btn-small" id="selectModeBtn" onclick="toggleSelectionMode()">☑️ 선택</button>
+                    <button class="secondary btn-small" id="selectModeBtn" onclick="toggleSelectionMode()">선택</button>
                     <button class="danger btn-small" onclick="clearAll()">전체 초기화</button>
                 </span>
             </h2>
 
             <div style="display: flex; gap: 8px; margin-bottom: 16px;">
-                <button class="success btn-small" style="flex: none;" onclick="pushToCloud()">⬆️ 업로드</button>
-                <button class="danger btn-small" style="flex: none;" onclick="pullFromCloud()">⬇️ 불러오기</button>
+                <button class="success btn-small" style="flex: none;" onclick="pushToCloud()">Upload</button>
+                <button class="danger btn-small" style="flex: none;" onclick="pullFromCloud()">Load</button>
             </div>
 
             <div class="row">
                 <div class="form-group" style="flex: 2; min-width: 240px;">
                     <label for="librarySearch"> 작품 검색</label>
-                    <input type="text" id="librarySearch" placeholder="제목으로 검색..." oninput="setSearchQuery(this.value)">
+                    <input type="text" id="librarySearch" placeholder="" oninput="setSearchQuery(this.value)">
                 </div>
                 <div class="form-group" style="flex: 1; min-width: 180px;">
                     <label for="librarySort">정렬</label>
                     <select id="librarySort" onchange="setSortMode(this.value)">
-                        <option value="percent">소장률 높은순</option>
+                        <option value="percent">소장률</option>
                         <option value="title">ㄱㄴㄷ순</option>
-                        <option value="rating-asc">별점 오름차순</option>
-                        <option value="rating-desc">별점 내림차순</option>
+                        <option value="rating-asc">별점↑ </option>
+                        <option value="rating-desc">별점↓</option>
                     </select>
                 </div>
             </div>
 
             <div class="filter-chips" id="platformChips">
                 <button class="chip active" data-platform="all" onclick="setPlatformFilter('all')">전체</button>
-                <button class="chip" data-platform="레진코믹스" onclick="setPlatformFilter('레진코믹스')">레진코믹스</button>
+                <button class="chip" data-platform="레진" onclick="setPlatformFilter('레진코믹스')">레진코믹스</button>
                 <button class="chip" data-platform="봄툰" onclick="setPlatformFilter('봄툰')">봄툰</button>
                 <button class="chip" data-platform="리디" onclick="setPlatformFilter('리디')">리디</button>
-                <button class="chip" data-platform="네이버웹툰" onclick="setPlatformFilter('네이버웹툰')">네이버웹툰</button>
+                <button class="chip" data-platform="네웹" onclick="setPlatformFilter('네이버웹툰')">네이버웹툰</button>
             </div>
 
             <div class="group-section">
@@ -472,7 +472,7 @@
                     <div class="row" style="align-items: flex-end; margin-bottom: 0;">
                         <div class="form-group" style="margin-bottom: 0;">
                             <label for="newGroupName">새 그룹 이름</label>
-                            <input type="text" id="newGroupName" placeholder="예) 최애 모음, 완결작만 등">
+                            <input type="text" id="newGroupName" placeholder="">
                         </div>
                         <button class="btn-small" style="flex: none;" onclick="createGroup()">그룹 추가</button>
                     </div>
@@ -505,7 +505,7 @@
         <div class="narrow-wrap">
             <div class="card">
                 <h2> 위시리스트</h2>
-                <div class="hint">보고 싶은 웹툰 제목을 적어두세요. (체크하면 줄이 그어집니다).</div>
+                <div class="hint">보고 싶은 작품을 적어보세요.</div>
                 <div class="row" style="align-items: flex-end;">
                     <div class="form-group" style="margin-bottom: 0;">
                         <label for="wishlistInput">작품 제목</label>
@@ -522,10 +522,10 @@
     <div id="page-timetable" class="page">
         <div class="card">
             <h2>
-                <span>나의 웹툰 연재 시간표</span>
+                <span>시간표</span>
                 <span style="display:flex; gap:8px; flex-wrap: wrap;">
-                    <button class="secondary btn-small" onclick="saveTimetableImage()">이미지로 저장</button>
-                    <button class="btn-small" onclick="openTimetableModal()">연재 일정 추가</button>
+                    <button class="secondary btn-small" onclick="saveTimetableImage()">Save</button>
+                    <button class="btn-small" onclick="openTimetableModal()">Add</button>
                 </span>
             </h2>
 
@@ -572,20 +572,20 @@
 
             <div class="card" id="readingDetailView" style="display: none;">
                 <h2>
-                    <button class="secondary btn-small" onclick="closeBookDetail()">← 목록으로</button>
+                    <button class="secondary btn-small" onclick="closeBookDetail()">←</button>
                     <span id="readingDetailTitle" style="flex: 1;"></span>
-                    <button class="danger btn-small" onclick="deleteReadingBook()">이 책 삭제</button>
+                    <button class="danger btn-small" onclick="deleteReadingBook()">삭제</button>
                 </h2>
 
                 <div class="form-group">
-                    <label for="readingEntryText">새 기록</label>
-                    <textarea id="readingEntryText" placeholder="읽으면서 든 생각을 적어보세요."></textarea>
+                    <label for="readingEntryText">기록</label>
+                    <textarea id="readingEntryText" placeholder="^3^"></textarea>
                 </div>
                 <div class="reading-entry-toolbar">
-                    <label class="file-upload-btn" for="readingEntryImage">이미지 첨부</label>
+                    <label class="file-upload-btn" for="readingEntryImage">Image</label>
                     <input type="file" id="readingEntryImage" accept="image/*" style="display:none;" onchange="updateImageChosenLabel()">
                     <span class="file-chosen-label" id="readingImageChosenLabel"></span>
-                    <button onclick="addReadingEntry()">기록 추가</button>
+                    <button onclick="addReadingEntry()">Add</button>
                 </div>
 
                 <div class="list-container" id="readingEntryList" style="margin-top: 20px; max-height: 600px;"></div>
@@ -716,7 +716,7 @@
         </div>
 
         <div class="form-group">
-            <label>요일별 연재 (여러 요일 선택 가능)</label>
+            <label>요일별 연재</label>
             <div class="tt-toggle-row" id="ttWeekdayToggles">
                 <button type="button" class="tt-toggle-chip" data-day="mon" onclick="toggleTtDay('mon', this)">월</button>
                 <button type="button" class="tt-toggle-chip" data-day="tue" onclick="toggleTtDay('tue', this)">화</button>
@@ -729,7 +729,7 @@
         </div>
 
         <div class="form-group">
-            <label>10일 연재 (날짜 뒷자리 기준, 여러 개 선택 가능)</label>
+            <label>10일 연재</label>
             <div class="tt-toggle-row" id="ttTendaysToggles">
                 <button type="button" class="tt-toggle-chip" data-day="d1" onclick="toggleTtDay('d1', this)">1·11·21일</button>
                 <button type="button" class="tt-toggle-chip" data-day="d3" onclick="toggleTtDay('d3', this)">3·13·23일</button>
@@ -1107,7 +1107,7 @@
     function renderGroupChips() {
         const container = document.getElementById('groupChipList');
         if (groups.length === 0) {
-            container.innerHTML = `<span class="group-empty-hint">아직 만든 그룹이 없습니다. 위에서 그룹을 추가해보세요.</span>`;
+            container.innerHTML = `<span class="group-empty-hint"> 그룹이 없습니다.</span>`;
             return;
         }
         container.innerHTML = groups.map(g => {
@@ -1149,7 +1149,7 @@
     function toggleSelectionMode() {
         selectionMode = !selectionMode;
         if (!selectionMode) selectedIds.clear();
-        document.getElementById('selectModeBtn').textContent = selectionMode ? '✅ 선택 완료' : '☑️ 선택';
+        document.getElementById('selectModeBtn').textContent = selectionMode ? '선택 완료' : '선택';
         document.getElementById('selectionBar').classList.toggle('show', selectionMode);
         updateSelectionCount();
         renderList();

@@ -248,11 +248,12 @@
     }
 
     .list-item {
+        position: relative;
         display: flex;
         justify-content: space-between;
         align-items: center;
         gap: 16px;
-        padding: 22px 24px;
+        padding: 22px 46px 22px 24px;
         border-bottom: 1px solid var(--border);
     }
     .list-item:last-child { border-bottom: none; }
@@ -264,6 +265,13 @@
     .item-title:hover { color: var(--primary); text-decoration: underline; }
     .item-meta-row { display: flex; align-items: center; gap: 16px; font-size: 1.05rem; color: var(--text-muted); margin-bottom: 6px; }
     .item-actions { display: flex; flex-direction: column; gap: 8px; }
+
+    .corner-x-delete {
+        position: absolute; top: 14px; right: 14px; width: 26px; height: 26px; line-height: 26px;
+        background: rgba(0,0,0,0.06); border: none; border-radius: 50%; color: var(--text-muted);
+        padding: 0; font-size: 0.85rem;
+    }
+    .corner-x-delete:hover { background: rgba(0,0,0,0.14); color: var(--danger); }
 
     .badge {
         padding: 4px 12px;
@@ -427,9 +435,9 @@
                 </span>
             </h2>
 
-            <div class="row" style="margin-bottom: 16px;">
-                <button class="success" onclick="pushToCloud()">⬆️ 업로드</button>
-                <button class="danger" onclick="pullFromCloud()">⬇️ 불러오기</button>
+            <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+                <button class="success btn-small" style="flex: none;" onclick="pushToCloud()">⬆️ 업로드</button>
+                <button class="danger btn-small" style="flex: none;" onclick="pullFromCloud()">⬇️ 불러오기</button>
             </div>
 
             <div class="row">
@@ -1258,9 +1266,7 @@
                     </div>
                     ${(keywordsHTML || groupNames || watchHTML) ? `<div class="keyword-row">${keywordsHTML}${groupNames}${watchHTML}</div>` : ''}
                 </div>
-                <div class="item-actions">
-                    <button class="danger btn-small" onclick="deleteItem('${item.id}')">삭제</button>
-                </div>
+                <button type="button" class="corner-x-delete" onclick="deleteItem('${item.id}')">✕</button>
             `;
             container.appendChild(div);
         });
@@ -1463,9 +1469,7 @@
                     <input type="checkbox" class="item-select-checkbox" style="margin-right:0;" ${w.checked ? 'checked' : ''} onchange="toggleWishlistItem('${w.id}', this.checked)">
                     <span class="wishlist-title${w.checked ? ' checked' : ''}">${escapeHTML(w.title)}</span>
                 </label>
-                <div class="item-actions">
-                    <button class="danger btn-small" onclick="deleteWishlistItem('${w.id}')">삭제</button>
-                </div>
+                <button type="button" class="corner-x-delete" onclick="deleteWishlistItem('${w.id}')">✕</button>
             </div>
         `).join('');
     }
@@ -1733,7 +1737,7 @@
     // ---------- GitHub Gist 클라우드 동기화 (수동) ----------
 
     function buildBackupPayload() {
-        return { library, groups, wishlist };
+        return { library, groups, wishlist, timetableData, readingBooks };
     }
 
     function applyBackupPayload(payload) {
@@ -1744,6 +1748,17 @@
             library = Array.isArray(payload.library) ? payload.library.map(item => normalizeItem({ ...item })) : [];
             groups = Array.isArray(payload.groups) ? payload.groups : [];
             wishlist = Array.isArray(payload.wishlist) ? payload.wishlist : wishlist;
+
+            if (payload.timetableData && typeof payload.timetableData === 'object') {
+                timetableData = payload.timetableData;
+                if (!timetableData.weekly) timetableData.weekly = { mon: [], tue: [], wed: [], thu: [], fri: [], sat: [], sun: [] };
+                if (!timetableData.tendays) timetableData.tendays = { d1: [], d3: [], d6: [], d8: [], d10: [] };
+            }
+
+            if (Array.isArray(payload.readingBooks)) {
+                readingBooks = payload.readingBooks;
+                readingBooks.forEach(b => { if (!Array.isArray(b.entries)) b.entries = []; });
+            }
         }
     }
 
@@ -1842,7 +1857,10 @@
             renderGroupChips();
             renderGroupSelectOptions();
             renderList();
-            setSyncStatus(`병합 완료! 신규 ${result.added}개, 기존 작품 ${result.updated}개에 별점/키워드/메모/그룹 반영 (덮어쓰지 않음)`);
+            renderWishlist();
+            renderTimetable();
+            renderReadingBookList();
+            setSyncStatus(`병합 완료! 신규 ${result.added}개, 기존 작품 ${result.updated}개 반영 (위시리스트/시간표/독서기록장도 함께 합쳤어요, 덮어쓰지 않음)`);
         } catch (e) {
             setSyncStatus('병합 실패: ' + e.message, true);
         }
@@ -1876,7 +1894,9 @@
             renderGroupSelectOptions();
             renderList();
             renderWishlist();
-            setSyncStatus(`가져오기 완료! (${library.length}개 작품, ${groups.length}개 그룹)`);
+            renderTimetable();
+            renderReadingBookList();
+            setSyncStatus(`가져오기 완료! (${library.length}개 작품, ${groups.length}개 그룹, 위시리스트/시간표/독서기록장 포함)`);
         } catch (e) {
             setSyncStatus('가져오기 실패: ' + e.message, true);
         }
@@ -1975,6 +1995,54 @@
             }
         });
 
+        // 위시리스트 병합: 제목 기준으로 합치고, 둘 중 하나라도 체크되어 있으면 체크 상태 유지
+        if (Array.isArray(incoming.wishlist)) {
+            incoming.wishlist.forEach(w => {
+                if (!w || !w.title) return;
+                const existingW = wishlist.find(x => x.title === w.title);
+                if (existingW) {
+                    if (w.checked) existingW.checked = true;
+                } else {
+                    wishlist.push({ id: genId(), title: w.title, checked: !!w.checked });
+                }
+            });
+        }
+
+        // 시간표 병합: 같은 칸(요일/날짜)에 같은 작품명+연재처가 이미 있으면 건너뜀
+        if (incoming.timetableData && typeof incoming.timetableData === 'object') {
+            ['weekly', 'tendays'].forEach(type => {
+                const incomingGroup = incoming.timetableData[type];
+                if (!incomingGroup) return;
+                Object.keys(incomingGroup).forEach(dayKey => {
+                    if (!timetableData[type][dayKey]) timetableData[type][dayKey] = [];
+                    (incomingGroup[dayKey] || []).forEach(item => {
+                        if (!item || !item.title || !item.platform) return;
+                        const exists = timetableData[type][dayKey].some(x => x.title === item.title && x.platform === item.platform);
+                        if (!exists) {
+                            timetableData[type][dayKey].push({ id: genId(), title: item.title, platform: item.platform });
+                        }
+                    });
+                });
+            });
+        }
+
+        // 독서 기록장 병합: 책 제목이 같으면 기록을 합치고(같은 id는 중복 제외), 없으면 책을 새로 추가
+        if (Array.isArray(incoming.readingBooks)) {
+            incoming.readingBooks.forEach(b => {
+                if (!b || !b.title) return;
+                const existingBook = readingBooks.find(x => x.title === b.title);
+                const incomingEntries = Array.isArray(b.entries) ? b.entries : [];
+                if (existingBook) {
+                    const existingIds = new Set(existingBook.entries.map(e => e.id));
+                    incomingEntries.forEach(e => {
+                        if (!existingIds.has(e.id)) existingBook.entries.push(e);
+                    });
+                } else {
+                    readingBooks.push({ id: genId(), title: b.title, entries: incomingEntries });
+                }
+            });
+        }
+
         return { added, updated, skipped };
     }
 
@@ -1997,7 +2065,10 @@
         renderGroupChips();
         renderGroupSelectOptions();
         renderList();
-        alert(`병합 완료! ${result.added}개 신규 추가, ${result.updated}개는 기존 작품에 별점/키워드/메모/그룹 정보를 합쳤습니다. (형식오류 제외: ${result.skipped}개)`);
+        renderWishlist();
+        renderTimetable();
+        renderReadingBookList();
+        alert(`병합 완료! ${result.added}개 신규 추가, ${result.updated}개는 기존 작품에 별점/키워드/메모/그룹 정보를 합쳤습니다. 위시리스트/시간표/독서기록장도 함께 병합됐어요. (형식오류 제외: ${result.skipped}개)`);
     }
 
     function importDataOverwrite() {
@@ -2024,6 +2095,8 @@
         renderGroupSelectOptions();
         renderList();
         renderWishlist();
+        renderTimetable();
+        renderReadingBookList();
         alert('덮어쓰기가 완료되었습니다.');
     }
 

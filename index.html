@@ -101,6 +101,13 @@
         min-height: 140px;
     }
 
+    #readingEntryText {
+        font-family: inherit;
+        font-size: 1.08rem;
+        line-height: 1.7;
+        min-height: 130px;
+    }
+
     .row { display: flex; gap: 16px; flex-wrap: wrap; }
     .row > .form-group { flex: 1; min-width: 200px; }
     .row > button { flex: 1; min-width: 160px; }
@@ -169,16 +176,21 @@
     .tt-day-header { background: #f3f4f6; text-align: center; font-weight: 700; font-size: 0.85rem; padding: 10px 4px; border-bottom: 1px solid var(--border); }
     .tt-day-body { padding: 10px; display: flex; flex-direction: column; gap: 8px; min-height: 130px; }
     .tt-item {
-        display: flex; align-items: center; justify-content: space-between; gap: 6px;
-        padding: 8px 10px; border-radius: 6px; font-weight: 700; font-size: 0.82rem;
-        background: #e5e7eb; color: #374151;
+        position: relative;
+        display: flex; align-items: center; justify-content: center;
+        padding: 10px 22px 10px 10px; border-radius: 6px; font-weight: 700; font-size: 0.82rem;
+        text-align: center; background: #e5e7eb; color: #374151;
     }
     .tt-item[data-platform="레진코믹스"] { background: var(--lezhin-bg); color: var(--lezhin); }
     .tt-item[data-platform="봄툰"] { background: var(--bomtoon-bg); color: var(--bomtoon); }
     .tt-item[data-platform="리디"] { background: var(--ridi-bg); color: var(--ridi); }
     .tt-item[data-platform="네이버웹툰"] { background: var(--naver-bg); color: var(--naver); }
-    .tt-item-del { background: none; border: none; color: inherit; padding: 0; font-size: 0.75rem; opacity: 0.7; flex: none; }
-    .tt-item-del:hover { background: none; opacity: 1; }
+    .tt-item-del {
+        position: absolute; top: 3px; right: 3px; width: 16px; height: 16px; line-height: 16px;
+        background: rgba(0,0,0,0.08); border: none; border-radius: 50%; color: inherit;
+        padding: 0; font-size: 0.62rem; opacity: 0.6;
+    }
+    .tt-item-del:hover { background: rgba(0,0,0,0.18); opacity: 1; }
     .tt-toggle-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
     .tt-toggle-chip {
         padding: 6px 14px; border-radius: 9999px; border: 1px solid var(--border);
@@ -187,17 +199,45 @@
     .tt-toggle-chip.active { background: var(--primary); color: #fff; border-color: var(--primary); }
 
     /* ---------- 독서 기록장 ---------- */
-    .book-item { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 18px 20px; border-bottom: 1px solid var(--border); cursor: pointer; }
-    .book-item:last-child { border-bottom: none; }
-    .book-item:hover { background: #f9fafb; }
-    .book-title { font-weight: 800; font-size: 1.15rem; }
-    .book-count { font-size: 0.85rem; color: var(--text-muted); }
-    .reading-entry { padding: 16px 18px; border-bottom: 1px solid var(--border); }
+    .book-item {
+        position: relative;
+        display: flex; flex-direction: column; justify-content: center;
+        padding: 20px 22px;
+        margin: 14px 4px;
+        border-radius: 4px 10px 10px 4px;
+        background: linear-gradient(135deg, #ffffff, #f3f4f6);
+        border: 1px solid var(--border);
+        border-left: 8px solid var(--primary);
+        box-shadow: 2px 3px 8px rgba(0,0,0,0.08);
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .book-item:hover { transform: translateY(-4px); box-shadow: 4px 10px 16px rgba(0,0,0,0.16); }
+    .book-item:active { transform: translateY(-1px); }
+    .book-title { font-weight: 800; font-size: 1.2rem; }
+    .book-count { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; }
+
+    .reading-entry-toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+    .reading-entry-toolbar button { flex: none; margin-left: auto; }
+    .file-upload-btn {
+        display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px; border-radius: 8px;
+        background: #f3f4f6; color: var(--text-main); border: 1px solid var(--border);
+        cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: background 0.15s ease;
+    }
+    .file-upload-btn:hover { background: #e5e7eb; }
+    .file-chosen-label { font-size: 0.8rem; color: var(--text-muted); }
+
+    .reading-entry { position: relative; padding: 18px 42px 18px 18px; border-bottom: 1px solid var(--border); }
     .reading-entry:last-child { border-bottom: none; }
     .reading-entry-date { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; font-weight: 700; }
     .reading-entry img { max-width: 100%; border-radius: 8px; margin-bottom: 10px; display: block; }
-    .reading-entry-text { white-space: pre-wrap; line-height: 1.6; }
-    .reading-entry-del { margin-top: 10px; }
+    .reading-entry-text { font-size: 1.08rem; line-height: 1.75; white-space: pre-wrap; }
+    .reading-entry-del {
+        position: absolute; top: 14px; right: 14px; width: 24px; height: 24px; line-height: 24px;
+        background: rgba(0,0,0,0.06); border: none; border-radius: 50%; color: var(--text-muted);
+        padding: 0; font-size: 0.8rem;
+    }
+    .reading-entry-del:hover { background: rgba(0,0,0,0.14); color: var(--danger); }
 
     /* ---------- 서재 리스트 (크게) ---------- */
     .list-container {
@@ -533,11 +573,12 @@
                     <label for="readingEntryText">새 기록</label>
                     <textarea id="readingEntryText" placeholder="읽으면서 든 생각을 적어보세요."></textarea>
                 </div>
-                <div class="form-group">
-                    <label for="readingEntryImage">이미지 첨부 (선택)</label>
-                    <input type="file" id="readingEntryImage" accept="image/*">
+                <div class="reading-entry-toolbar">
+                    <label class="file-upload-btn" for="readingEntryImage">이미지 첨부</label>
+                    <input type="file" id="readingEntryImage" accept="image/*" style="display:none;" onchange="updateImageChosenLabel()">
+                    <span class="file-chosen-label" id="readingImageChosenLabel"></span>
+                    <button onclick="addReadingEntry()">기록 추가</button>
                 </div>
-                <button onclick="addReadingEntry()">기록 추가</button>
 
                 <div class="list-container" id="readingEntryList" style="margin-top: 20px; max-height: 600px;"></div>
             </div>
@@ -1603,6 +1644,7 @@
         document.getElementById('readingDetailView').style.display = 'block';
         document.getElementById('readingEntryText').value = '';
         document.getElementById('readingEntryImage').value = '';
+        document.getElementById('readingImageChosenLabel').textContent = '';
         renderReadingEntries();
     }
 
@@ -1637,9 +1679,16 @@
                 <div class="reading-entry-date">${escapeHTML(entry.date)}</div>
                 ${entry.image ? `<img src="${entry.image}" alt="">` : ''}
                 <div class="reading-entry-text">${escapeHTML(entry.text)}</div>
-                <button class="danger btn-small reading-entry-del" onclick="deleteReadingEntry('${entry.id}')">삭제</button>
+                <button type="button" class="reading-entry-del" onclick="deleteReadingEntry('${entry.id}')">✕</button>
             </div>
         `).join('');
+    }
+
+    function updateImageChosenLabel() {
+        const fileInput = document.getElementById('readingEntryImage');
+        const label = document.getElementById('readingImageChosenLabel');
+        const file = fileInput.files && fileInput.files[0];
+        label.textContent = file ? file.name : '';
     }
 
     function addReadingEntry() {
@@ -1657,6 +1706,7 @@
             saveToStorage();
             document.getElementById('readingEntryText').value = '';
             fileInput.value = '';
+            document.getElementById('readingImageChosenLabel').textContent = '';
             renderReadingEntries();
             renderReadingBookList();
         };

@@ -304,24 +304,63 @@
     }
     .tt-toggle-chip.active { background: var(--primary); color: #fff; border-color: var(--primary); }
 
-    /* ---------- 독서 기록장 ---------- */
-    .book-item {
-        position: relative;
-        display: flex; flex-direction: column; justify-content: center;
-        padding: 20px 22px;
-        margin: 14px 4px;
-        border-radius: 4px 10px 10px 4px;
-        background: linear-gradient(135deg, #ffffff, #f3f4f6);
-        border: 1px solid var(--border);
-        border-left: 8px solid var(--primary);
-        box-shadow: 2px 3px 8px rgba(0,0,0,0.08);
-        cursor: pointer;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    /* ---------- 독서 기록장: 책 느낌 UI ---------- */
+    .reading-page-wrap {
+        font-family: "Noto Serif KR", "Nanum Myeongjo", "Batang", serif;
     }
-    .book-item:hover { transform: translateY(-4px); box-shadow: 4px 10px 16px rgba(0,0,0,0.16); }
-    .book-item:active { transform: translateY(-1px); }
-    .book-title { font-weight: 800; font-size: 1.2rem; }
-    .book-count { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; }
+    .reading-page-title {
+        font-family: inherit; text-align: center; font-size: 1.3rem; letter-spacing: 0.02em;
+    }
+    .reading-add-row {
+        display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap;
+        border: 1px dashed var(--border); border-radius: 10px; padding: 14px; background: #fbf8f1;
+    }
+
+    /* 책장 */
+    .bookshelf {
+        display: grid; grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: 16px;
+        align-items: end;
+        padding: 24px 18px 0;
+        background: linear-gradient(180deg, #f8f4ea 0%, #f8f4ea calc(100% - 22px), #c9a876 calc(100% - 22px), #a9824f 100%);
+        border: 1px solid var(--border); border-radius: 10px;
+        min-height: 210px;
+    }
+    .bookshelf-empty {
+        grid-column: 1 / -1; text-align: center; padding: 40px 16px; color: var(--text-muted);
+        font-size: 0.9rem; align-self: center;
+    }
+    .book-spine {
+        position: relative; height: 172px; margin-bottom: 22px;
+        border-radius: 5px 5px 2px 2px;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer; color: #fff;
+        box-shadow: inset -5px 0 10px rgba(0,0,0,0.22), inset 3px 0 5px rgba(255,255,255,0.22),
+                    2px 5px 10px rgba(0,0,0,0.28);
+        transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+    .book-spine:hover { transform: translateY(-8px); box-shadow: inset -5px 0 10px rgba(0,0,0,0.22), inset 3px 0 5px rgba(255,255,255,0.22), 4px 12px 18px rgba(0,0,0,0.32); }
+    .book-spine:active { transform: translateY(-3px); }
+    .book-spine::before, .book-spine::after {
+        content: ''; position: absolute; left: 5px; right: 5px; height: 2px; background: rgba(255,255,255,0.4);
+    }
+    .book-spine::before { top: 13px; }
+    .book-spine::after { bottom: 13px; }
+    .book-spine-title {
+        writing-mode: vertical-rl; text-orientation: mixed;
+        font-weight: 800; font-size: 0.92rem; letter-spacing: 0.04em;
+        max-height: 122px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.3); padding: 0 2px;
+    }
+    .book-spine-count {
+        position: absolute; bottom: 5px; left: 0; right: 0; text-align: center;
+        font-size: 0.62rem; font-weight: 700; color: rgba(255,255,255,0.9);
+    }
+
+    .reading-detail-header { display: flex; align-items: center; gap: 10px; }
+    .reading-detail-title { flex: 1; font-family: inherit; font-size: 1.2rem; }
+    .reading-detail-rule {
+        height: 1px; margin: 4px 0 20px; border-top: 2px double var(--border);
+    }
 
     .reading-entry-toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
     .reading-entry-toolbar button { flex: none; margin-left: auto; }
@@ -333,13 +372,29 @@
     .file-upload-btn:hover { background: #e5e7eb; }
     .file-chosen-label { font-size: 0.8rem; color: var(--text-muted); }
 
-    .reading-entry { position: relative; padding: 18px 42px 18px 18px; border-bottom: 1px solid var(--border); }
+    /* 일기장(줄노트) 느낌의 기록 목록 */
+    .reading-journal {
+        background-image: repeating-linear-gradient(#fffdf7, #fffdf7 37px, #ecdfc0 38px);
+        background-color: #fffdf7;
+        border: 1px solid #e3d6b3;
+    }
+    .reading-entry {
+        position: relative; padding: 20px 44px 22px 26px; border-bottom: 1px dashed #d8c493;
+        font-family: "Noto Serif KR", "Nanum Myeongjo", "Batang", serif;
+    }
     .reading-entry:last-child { border-bottom: none; }
-    .reading-entry-date { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; font-weight: 700; }
-    .reading-entry img { max-width: 100%; border-radius: 8px; margin-bottom: 10px; display: block; }
-    .reading-entry-text { font-size: 1.08rem; line-height: 1.75; white-space: pre-wrap; }
+    .reading-entry::before {
+        content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: #c0392b; opacity: 0.32;
+    }
+    .reading-entry-date {
+        display: inline-block; font-family: "Courier New", monospace; font-size: 0.72rem; font-weight: 700;
+        color: #8a6d3b; background: #fdf0cf; border: 1px solid #e0c98a; border-radius: 3px;
+        padding: 3px 9px; transform: rotate(-1.2deg); margin-bottom: 10px;
+    }
+    .reading-entry img { max-width: 100%; border-radius: 6px; margin-bottom: 10px; display: block; box-shadow: 0 2px 6px rgba(0,0,0,0.12); }
+    .reading-entry-text { font-size: 1.08rem; line-height: 1.9; white-space: pre-wrap; }
     .reading-entry-del {
-        position: absolute; top: 14px; right: 14px; width: 24px; height: 24px; line-height: 24px;
+        position: absolute; top: 16px; right: 14px; width: 24px; height: 24px; line-height: 24px;
         background: rgba(0,0,0,0.06); border: none; border-radius: 50%; color: var(--text-muted);
         padding: 0; font-size: 0.8rem;
     }
@@ -708,40 +763,43 @@
     <!-- ================= 독서 기록장 페이지 ================= -->
     <div id="page-reading" class="page">
         <div class="narrow-wrap">
-            <div class="card" id="readingListView">
-                <h2>독후감</h2>
-                <div class="row" style="align-items: flex-end;">
-                    <div class="form-group" style="margin-bottom: 0;">
-                        <label for="readingBookInput">제목</label>
-                        <input type="text" id="readingBookInput" placeholder="제목을 입력하세요" onkeydown="if(event.key==='Enter'){addReadingBook();}">
+            <div class="card reading-page-wrap" id="readingListView">
+                <h2 class="reading-page-title">📚 나의 책장</h2>
+
+                <div class="reading-add-row">
+                    <div class="form-group" style="margin-bottom: 0; flex: 1;">
+                        <label for="readingBookInput">새 책 제목</label>
+                        <input type="text" id="readingBookInput" placeholder="책장에 꽂을 책 제목을 입력하세요" onkeydown="if(event.key==='Enter'){addReadingBook();}">
                     </div>
-                    <button style="flex: none;" onclick="addReadingBook()">Add</button>
+                    <button style="flex: none;" onclick="addReadingBook()">책장에 꽂기</button>
                 </div>
-                <div class="list-container" id="readingBookList" style="margin-top: 16px; max-height: 600px;"></div>
+                <div class="bookshelf" id="readingBookList" style="margin-top: 18px;"></div>
             </div>
 
-            <div class="card" id="readingDetailView" style="display: none;">
-                <h2>
+            <div class="card reading-page-wrap" id="readingDetailView" style="display: none;">
+                <h2 class="reading-detail-header">
                     <button class="secondary btn-small" onclick="closeBookDetail()">←</button>
-                    <span id="readingDetailTitle" style="flex: 1;"></span>
+                    <span id="readingDetailTitle" class="reading-detail-title"></span>
                     <button class="danger btn-small" onclick="deleteReadingBook()">삭제</button>
                 </h2>
+                <div class="reading-detail-rule"></div>
 
                 <div class="form-group">
-                    <label for="readingEntryText">기록</label>
-                    <textarea id="readingEntryText" placeholder="^3^"></textarea>
+                    <label for="readingEntryText">✒ 오늘의 기록</label>
+                    <textarea id="readingEntryText" placeholder="이 책을 읽으며 떠오른 생각을 적어보세요."></textarea>
                 </div>
                 <div class="reading-entry-toolbar">
-                    <label class="file-upload-btn" for="readingEntryImage">Image</label>
+                    <label class="file-upload-btn" for="readingEntryImage">🖼 사진 첨부</label>
                     <input type="file" id="readingEntryImage" accept="image/*" style="display:none;" onchange="updateImageChosenLabel()">
                     <span class="file-chosen-label" id="readingImageChosenLabel"></span>
-                    <button onclick="addReadingEntry()">Add</button>
+                    <button onclick="addReadingEntry()">기록 남기기</button>
                 </div>
 
-                <div class="list-container" id="readingEntryList" style="margin-top: 20px; max-height: 600px;"></div>
+                <div class="list-container reading-journal" id="readingEntryList" style="margin-top: 20px; max-height: 600px;"></div>
             </div>
         </div>
     </div>
+
 
     <!-- ================= My 페이지 ================= -->
     <div id="page-my" class="page">
@@ -931,13 +989,13 @@
                 <div class="kw-divider"></div>
 
                 <div class="kw-section">
-                    <div class="kw-section-label">카테고리</div>
-                    <div class="filter-chips" id="modalKeywordCategoryTabs" style="margin-bottom: 0;"></div>
+                    <div class="kw-section-label">🔍 키워드 검색</div>
+                    <input type="text" id="modalKeywordSearch" placeholder="키워드 검색..." oninput="setModalKeywordSearch(this.value)">
                 </div>
 
                 <div class="kw-section">
-                    <div class="kw-section-label">🔍 키워드 검색</div>
-                    <input type="text" id="modalKeywordSearch" placeholder="키워드 검색..." oninput="setModalKeywordSearch(this.value)">
+                    <div class="kw-section-label">카테고리</div>
+                    <div class="filter-chips" id="modalKeywordCategoryTabs" style="margin-bottom: 0;"></div>
                 </div>
 
                 <div class="kw-section" style="margin-bottom: 0;">
@@ -2330,16 +2388,24 @@
 
     // ---------- 독서 기록장 ----------
 
+    const BOOK_SPINE_COLORS = ['#8B5E3C', '#6B4A7A', '#3E6E63', '#A6452C', '#4A5F7A', '#7A5C40', '#5C7A45', '#7A3E52', '#4A6B7A', '#8A6D1E'];
+
+    function bookSpineColor(title) {
+        let hash = 0;
+        for (let i = 0; i < title.length; i++) hash = (hash * 31 + title.charCodeAt(i)) >>> 0;
+        return BOOK_SPINE_COLORS[hash % BOOK_SPINE_COLORS.length];
+    }
+
     function renderReadingBookList() {
         const container = document.getElementById('readingBookList');
         if (readingBooks.length === 0) {
-            container.innerHTML = `<div style="padding: 24px; text-align: center; color: var(--text-muted);">아직 등록된 책이 없습니다.</div>`;
+            container.innerHTML = `<div class="bookshelf-empty">아직 책장이 비어있어요. 위에서 책을 추가해 꽂아보세요 📖</div>`;
             return;
         }
         container.innerHTML = readingBooks.map(book => `
-            <div class="book-item" onclick="openBookDetail('${book.id}')">
-                <span class="book-title">${escapeHTML(book.title)}</span>
-                <span class="book-count">${book.entries.length}개의 기록</span>
+            <div class="book-spine" style="background: ${bookSpineColor(book.title)};" onclick="openBookDetail('${book.id}')" title="${escapeHTML(book.title)}">
+                <span class="book-spine-title">${escapeHTML(book.title)}</span>
+                <span class="book-spine-count">${book.entries.length}개</span>
             </div>
         `).join('');
     }
@@ -2390,7 +2456,7 @@
         if (!book) return;
 
         if (book.entries.length === 0) {
-            container.innerHTML = `<div style="padding: 20px; text-align: center; color: var(--text-muted);">아직 기록이 없습니다.</div>`;
+            container.innerHTML = `<div style="padding: 30px 20px; text-align: center; color: var(--text-muted); font-family: 'Noto Serif KR','Nanum Myeongjo',serif;">아직 쓰여진 기록이 없어요. 첫 페이지를 채워보세요 ✒</div>`;
             return;
         }
 

@@ -125,6 +125,23 @@
 
     h2 { margin-bottom: 16px; color: var(--text-main); font-size: 1.25rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
 
+    /* ---------- 서재 헤더 (모바일 한 줄 정리) ---------- */
+    .lib-header-row { flex-wrap: nowrap; gap: 10px; }
+    .lib-title { display: flex; align-items: center; gap: 8px; white-space: nowrap; flex: none; }
+    .lib-count-badge {
+        display: inline-block; background: #eef2f6; color: var(--primary); font-weight: 800;
+        font-size: 0.8rem; padding: 3px 9px; border-radius: 9999px;
+    }
+    .lib-header-actions { display: flex; gap: 6px; flex: none; }
+    .lib-header-actions .btn-small { padding: 6px 10px; font-size: 0.8rem; white-space: nowrap; }
+    @media (max-width: 400px) {
+        .lib-title { font-size: 1.05rem; }
+        .lib-header-actions .btn-small { padding: 5px 8px; font-size: 0.74rem; }
+    }
+    .lib-search-sort-row { flex-wrap: nowrap; gap: 10px; }
+    .lib-search-sort-row .form-group { min-width: 0; }
+    .lib-search-sort-row input, .lib-search-sort-row select { padding: 10px 8px; }
+
     .form-group { margin-bottom: 16px; }
 
     label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem; }
@@ -622,20 +639,20 @@
     <!-- ================= 서재 페이지 (크게) ================= -->
     <div id="page-library" class="page">
         <div class="card">
-            <h2>
-                <span>내 서재 리스트 (<span id="totalCount">0</span>)</span>
-                <span style="display:flex; gap:8px; flex-wrap: wrap;">
+            <h2 class="lib-header-row">
+                <span class="lib-title">서재 <span class="lib-count-badge" id="totalCount">0</span></span>
+                <span class="lib-header-actions">
                     <button class="secondary btn-small" id="selectModeBtn" onclick="toggleSelectionMode()">선택</button>
-                    <button class="danger btn-small" onclick="clearAll()">전체 초기화</button>
+                    <button class="danger btn-small" onclick="clearAll()">초기화</button>
                 </span>
             </h2>
 
-            <div class="row">
-                <div class="form-group" style="flex: 2; min-width: 240px;">
+            <div class="row lib-search-sort-row">
+                <div class="form-group" style="flex: 3; min-width: 0;">
                     <label for="librarySearch"> 작품 검색</label>
                     <input type="text" id="librarySearch" placeholder="" oninput="setSearchQuery(this.value)">
                 </div>
-                <div class="form-group" style="flex: 1; min-width: 180px;">
+                <div class="form-group" style="flex: 2; min-width: 0;">
                     <label for="librarySort">정렬</label>
                     <select id="librarySort" onchange="setSortMode(this.value)">
                         <option value="percent">소장률</option>
@@ -648,10 +665,19 @@
 
             <div class="filter-chips" id="platformChips">
                 <button class="chip active" data-platform="all" onclick="setPlatformFilter('all')">전체</button>
-                <button class="chip" data-platform="레진" onclick="setPlatformFilter('레진코믹스')">레진코믹스</button>
+                <button class="chip" data-platform="레진" onclick="setPlatformFilter('레진코믹스')">레진</button>
                 <button class="chip" data-platform="봄툰" onclick="setPlatformFilter('봄툰')">봄툰</button>
                 <button class="chip" data-platform="리디" onclick="setPlatformFilter('리디')">리디</button>
-                <button class="chip" data-platform="네웹" onclick="setPlatformFilter('네이버웹툰')">네이버웹툰</button>
+                <button class="chip" data-platform="네웹" onclick="setPlatformFilter('네이버웹툰')">네웹</button>
+            </div>
+
+            <div class="group-section">
+                <div class="group-toggle-header" onclick="toggleKeywordPanel()">
+                    <span id="keywordToggleIcon">▶</span> <span>키워드로 보기</span>
+                </div>
+                <div class="group-create-panel" id="keywordPanel">
+                    <div class="filter-chips" id="keywordChipList"></div>
+                </div>
             </div>
 
             <div class="group-section">
@@ -668,15 +694,6 @@
                     </div>
                 </div>
                 <div class="filter-chips" id="groupChipList"></div>
-            </div>
-
-            <div class="group-section">
-                <div class="group-toggle-header" onclick="toggleKeywordPanel()">
-                    <span id="keywordToggleIcon">▶</span> <span>키워드로 보기</span>
-                </div>
-                <div class="group-create-panel" id="keywordPanel">
-                    <div class="filter-chips" id="keywordChipList"></div>
-                </div>
             </div>
 
             <div class="selection-bar" id="selectionBar">

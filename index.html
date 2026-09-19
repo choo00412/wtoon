@@ -304,6 +304,13 @@
     }
     .reading-entry-del:hover { background: rgba(0,0,0,0.14); color: var(--danger); }
 
+    /* ---------- 정주행 기록 히스토리 ---------- */
+    .watch-history-date {
+        font-weight: 800; font-size: 0.85rem; color: var(--text-muted);
+        padding: 12px 24px 6px; background: #f9fafb; border-bottom: 1px solid var(--border);
+    }
+    .watch-history-date:first-child { border-top: none; }
+
     /* ---------- 서재 리스트 (크게) ---------- */
     .list-container {
         max-height: 760px;
@@ -488,6 +495,7 @@
                             <option value="platform:리디">리디</option>
                             <option value="platform:네이버웹툰">네이버웹툰</option>
                             <optgroup id="rouletteGroupOptions" label="내 그룹"></optgroup>
+                            <optgroup id="rouletteKeywordOptions" label="내 키워드"></optgroup>
                         </select>
                     </div>
                     <div class="form-group" style="margin-bottom: 0;">
@@ -564,6 +572,15 @@
                     </div>
                 </div>
                 <div class="filter-chips" id="groupChipList"></div>
+            </div>
+
+            <div class="group-section">
+                <div class="group-toggle-header" onclick="toggleKeywordPanel()">
+                    <span id="keywordToggleIcon">▶</span> <span>키워드로 보기</span>
+                </div>
+                <div class="group-create-panel" id="keywordPanel">
+                    <div class="filter-chips" id="keywordChipList"></div>
+                </div>
             </div>
 
             <div class="selection-bar" id="selectionBar">
@@ -697,10 +714,26 @@
                     <button type="button" class="my-menu-item" onclick="showPage('page-timetable')">
                         <span>Timetable</span><span class="my-menu-arrow">›</span>
                     </button>
+                    <button type="button" class="my-menu-item" onclick="showPage('page-watchhistory'); renderWatchHistory();">
+                        <span>정주행 기록</span><span class="my-menu-arrow">›</span>
+                    </button>
                     <button type="button" class="my-menu-item" onclick="showPage('page-import')">
                         <span>Load / Sync</span><span class="my-menu-arrow">›</span>
                     </button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= 정주행 기록 히스토리 페이지 ================= -->
+    <div id="page-watchhistory" class="page">
+        <div class="narrow-wrap">
+            <div class="subpage-back-row">
+                <button class="secondary btn-small" onclick="showPage('page-my')">←</button>
+            </div>
+            <div class="card">
+                <h2>정주행 기록</h2>
+                <div class="list-container" id="watchHistoryList" style="max-height: 640px;"></div>
             </div>
         </div>
     </div>
@@ -711,6 +744,32 @@
             <div class="subpage-back-row">
                 <button class="secondary btn-small" onclick="showPage('page-my')">←</button>
             </div>
+
+            <div class="card">
+                <h2>수동으로 추가</h2>
+                <div class="hint">개발자 도구 코드 없이, 제목/플랫폼/소장률만 입력해서 바로 추가할 수 있어요.</div>
+                <div class="row" style="align-items: flex-end;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="manualTitle">제목</label>
+                        <input type="text" id="manualTitle" placeholder="작품 제목을 입력하세요">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="manualPlatform">플랫폼</label>
+                        <select id="manualPlatform">
+                            <option value="레진코믹스">레진코믹스</option>
+                            <option value="봄툰">봄툰</option>
+                            <option value="리디">리디</option>
+                            <option value="네이버웹툰">네이버웹툰</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="manualPercent">소장률 (%)</label>
+                        <input type="number" id="manualPercent" value="0" min="0" max="100">
+                    </div>
+                    <button style="flex: none;" onclick="addManualItem()">추가하기</button>
+                </div>
+            </div>
+
             <div class="card">
                 <h2>웹툰 불러오기</h2>
                 <div class="row">
@@ -822,6 +881,13 @@
         <div class="form-group">
             <label for="modalKeywords">키워드 (쉼표 구분)</label>
             <input type="text" id="modalKeywords" placeholder="^3^">
+            <div class="filter-chips" id="modalKeywordPresets" style="margin-top: 10px;"></div>
+            <div class="row" style="align-items: flex-end; margin-top: 10px; margin-bottom: 0;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <input type="text" id="modalNewKeywordPreset" placeholder="새 키워드 추가">
+                </div>
+                <button type="button" class="secondary btn-small" style="flex: none;" onclick="addKeywordPresetFromModal()">프리셋에 추가</button>
+            </div>
         </div>
 
         <div class="form-group">
@@ -907,6 +973,7 @@
     let ttSelectedDays = new Set();
     let readingBooks = [];
     let currentBookId = null;
+    let keywordPresets = [];
     const GH_FILENAME = 'webtoon_library.json';
 
     function genId() {
@@ -939,14 +1006,22 @@
         }
         readingBooks.forEach(b => { if (!Array.isArray(b.entries)) b.entries = []; });
 
+        const storedKeywordPresets = localStorage.getItem('webtoonKeywordPresets');
+        if (storedKeywordPresets) {
+            try { keywordPresets = JSON.parse(storedKeywordPresets); } catch (e) { keywordPresets = []; }
+        }
+
         library.forEach(normalizeItem);
 
         renderList();
         renderGroupChips();
+        renderKeywordChips();
         renderGroupSelectOptions();
+        renderKeywordRouletteOptions();
         renderWishlist();
         renderTimetable();
         renderReadingBookList();
+        renderWatchHistory();
         updatePlaceholder();
         initSyncSettings();
     }
@@ -981,6 +1056,7 @@
         localStorage.setItem('webtoonWishlist', JSON.stringify(wishlist));
         localStorage.setItem('webtoonTimetable', JSON.stringify(timetableData));
         localStorage.setItem('webtoonReadingBooks', JSON.stringify(readingBooks));
+        localStorage.setItem('webtoonKeywordPresets', JSON.stringify(keywordPresets));
     }
 
     // ---------- 탭 전환 ----------
@@ -991,7 +1067,8 @@
         'page-my': 'page-my',
         'page-wishlist': 'page-my',
         'page-timetable': 'page-my',
-        'page-import': 'page-my'
+        'page-import': 'page-my',
+        'page-watchhistory': 'page-my'
     };
 
     function showPage(pageId) {
@@ -1072,6 +1149,40 @@
         } else {
             alert(`추가되거나 갱신된 작품이 없습니다. 이미 같은 소장률이거나 기준(${threshold}%)을 넘는 작품이 없습니다.`);
         }
+    }
+
+    // ---------- 수동으로 작품 추가 ----------
+
+    function addManualItem() {
+        const titleInput = document.getElementById('manualTitle');
+        const title = titleInput.value.trim();
+        const platform = document.getElementById('manualPlatform').value;
+        const percent = parseInt(document.getElementById('manualPercent').value, 10) || 0;
+
+        if (!title) { alert('제목을 입력해주세요.'); return; }
+
+        const existingItem = library.find(w => w.title === title && w.platform === platform);
+        if (existingItem) {
+            existingItem.percent = percent;
+            saveToStorage();
+            renderList();
+            titleInput.value = '';
+            document.getElementById('manualPercent').value = '';
+            alert(`이미 서재에 있는 작품이라 소장률을 ${percent}%로 갱신했습니다.`);
+            return;
+        }
+
+        library.push({
+            id: genId(),
+            title, platform, percent,
+            keywords: [], rating: 0, groupIds: [],
+            memo: '', watchLog: []
+        });
+        saveToStorage();
+        renderList();
+        titleInput.value = '';
+        document.getElementById('manualPercent').value = '';
+        alert('작품이 서재에 추가되었습니다.');
     }
 
     // 범용 HTML 파서: 클래스명(해시)에 의존하지 않고
@@ -1178,12 +1289,23 @@
             const gid = chip.getAttribute('data-group-id');
             chip.classList.toggle('active', libraryFilter.type === 'group' && libraryFilter.value === gid);
         });
+        document.querySelectorAll('#keywordChipList .group-chip').forEach(chip => {
+            const kw = chip.dataset.keyword;
+            chip.classList.toggle('active', libraryFilter.type === 'keyword' && libraryFilter.value === kw);
+        });
+    }
+
+    function setKeywordFilterView(keyword) {
+        libraryFilter = { type: 'keyword', value: keyword };
+        updateFilterChipsUI();
+        renderList();
     }
 
     function itemMatchesFilter(item) {
         if (libraryFilter.type === 'all') return true;
         if (libraryFilter.type === 'platform') return item.platform === libraryFilter.value;
         if (libraryFilter.type === 'group') return item.groupIds.includes(libraryFilter.value);
+        if (libraryFilter.type === 'keyword') return item.keywords.includes(libraryFilter.value);
         return true;
     }
 
@@ -1236,7 +1358,9 @@
         saveToStorage();
         input.value = '';
         renderGroupChips();
+        renderKeywordChips();
         renderGroupSelectOptions();
+        renderKeywordRouletteOptions();
     }
 
     function deleteGroup(groupId, event) {
@@ -1254,7 +1378,9 @@
         }
         saveToStorage();
         renderGroupChips();
+        renderKeywordChips();
         renderGroupSelectOptions();
+        renderKeywordRouletteOptions();
         renderList();
     }
 
@@ -1296,6 +1422,145 @@
         select.innerHTML = '<option value="">그룹 선택...</option>' +
             groups.map(g => `<option value="${g.id}">${escapeHTML(g.name)}</option>`).join('');
         if (groups.some(g => g.id === current)) select.value = current;
+    }
+
+    // ---------- 키워드 프리셋 (검색/필터/추천에 재사용) ----------
+
+    function toggleKeywordPanel() {
+        const panel = document.getElementById('keywordPanel');
+        const icon = document.getElementById('keywordToggleIcon');
+        const show = panel.classList.toggle('show');
+        icon.textContent = show ? '▼' : '▶';
+    }
+
+    function addKeywordPreset(name) {
+        const kw = (name || '').trim();
+        if (!kw) return false;
+        if (keywordPresets.includes(kw)) return false;
+        keywordPresets.push(kw);
+        return true;
+    }
+
+    function deleteKeywordPreset(keyword) {
+        if (!confirm(`"${keyword}" 키워드를 프리셋에서 삭제할까요? (이미 작품에 붙어있는 키워드는 유지됩니다)`)) return;
+        keywordPresets = keywordPresets.filter(k => k !== keyword);
+        if (libraryFilter.type === 'keyword' && libraryFilter.value === keyword) {
+            libraryFilter = { type: 'all' };
+            updateFilterChipsUI();
+            renderList();
+        }
+        saveToStorage();
+        renderKeywordChips();
+        renderKeywordRouletteOptions();
+    }
+
+    function renderKeywordChips() {
+        const container = document.getElementById('keywordChipList');
+        if (!container) return;
+        container.innerHTML = '';
+
+        if (keywordPresets.length === 0) {
+            container.innerHTML = `<span class="group-empty-hint">아직 저장된 키워드가 없습니다. 작품 상세 화면에서 키워드를 추가하면 여기에 표시됩니다.</span>`;
+            return;
+        }
+
+        keywordPresets.forEach(kw => {
+            const count = library.filter(item => item.keywords.includes(kw)).length;
+
+            const chip = document.createElement('span');
+            chip.className = 'group-chip';
+            chip.dataset.keyword = kw;
+            chip.addEventListener('click', () => setKeywordFilterView(kw));
+
+            const label = document.createElement('span');
+            label.textContent = `${kw} (${count})`;
+            chip.appendChild(label);
+
+            const delBtn = document.createElement('button');
+            delBtn.type = 'button';
+            delBtn.className = 'del-x';
+            delBtn.textContent = '✕';
+            delBtn.addEventListener('click', (event) => { event.stopPropagation(); deleteKeywordPreset(kw); });
+            chip.appendChild(delBtn);
+
+            container.appendChild(chip);
+        });
+
+        updateFilterChipsUI();
+    }
+
+    function renderKeywordRouletteOptions() {
+        const optgroup = document.getElementById('rouletteKeywordOptions');
+        if (!optgroup) return;
+        if (keywordPresets.length === 0) {
+            optgroup.innerHTML = '';
+            optgroup.style.display = 'none';
+            return;
+        }
+        optgroup.style.display = '';
+        optgroup.innerHTML = '';
+        keywordPresets.forEach(kw => {
+            const opt = document.createElement('option');
+            opt.value = 'keyword:' + kw;
+            opt.textContent = kw;
+            optgroup.appendChild(opt);
+        });
+    }
+
+    // ---------- 상세 모달의 키워드 선택 칩 ----------
+
+    function getModalKeywordArray() {
+        return document.getElementById('modalKeywords').value.split(',').map(k => k.trim()).filter(Boolean);
+    }
+
+    function setModalKeywordArray(arr) {
+        document.getElementById('modalKeywords').value = arr.join(', ');
+    }
+
+    function toggleModalKeywordPreset(keyword, forceAdd) {
+        const current = getModalKeywordArray();
+        const idx = current.indexOf(keyword);
+        if (idx === -1) {
+            current.push(keyword);
+        } else if (!forceAdd) {
+            current.splice(idx, 1);
+        }
+        setModalKeywordArray(current);
+        renderModalKeywordPresets();
+    }
+
+    function renderModalKeywordPresets() {
+        const box = document.getElementById('modalKeywordPresets');
+        if (!box) return;
+        box.innerHTML = '';
+
+        if (keywordPresets.length === 0) {
+            box.innerHTML = `<span class="group-empty-hint">아직 저장된 키워드가 없습니다. 아래에서 새 키워드를 추가해보세요.</span>`;
+            return;
+        }
+
+        const current = getModalKeywordArray();
+        keywordPresets.forEach(kw => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'chip' + (current.includes(kw) ? ' active' : '');
+            btn.textContent = kw;
+            btn.addEventListener('click', () => toggleModalKeywordPreset(kw));
+            box.appendChild(btn);
+        });
+    }
+
+    function addKeywordPresetFromModal() {
+        const input = document.getElementById('modalNewKeywordPreset');
+        const kw = input.value.trim();
+        if (!kw) { alert('추가할 키워드를 입력해주세요.'); return; }
+
+        addKeywordPreset(kw);
+        saveToStorage();
+        input.value = '';
+        toggleModalKeywordPreset(kw, true);
+        renderKeywordChips();
+        renderKeywordRouletteOptions();
     }
 
     // ---------- 서재 선택 모드 (여러 작품 골라서 그룹에 담기) ----------
@@ -1359,7 +1624,9 @@
         selectedIds.clear();
         updateSelectionCount();
         renderGroupChips();
+        renderKeywordChips();
         renderGroupSelectOptions();
+        renderKeywordRouletteOptions();
         renderList();
         alert(`${count}개 작품을 그룹에 추가했습니다.`);
     }
@@ -1380,7 +1647,10 @@
 
         if (librarySearchQuery) {
             const q = librarySearchQuery.toLowerCase();
-            filtered = filtered.filter(item => item.title.toLowerCase().includes(q));
+            filtered = filtered.filter(item =>
+                item.title.toLowerCase().includes(q) ||
+                item.keywords.some(k => k.toLowerCase().includes(q))
+            );
         }
 
         const sorted = sortItems(filtered);
@@ -1430,6 +1700,7 @@
         library = library.filter(item => item.id !== id);
         saveToStorage();
         renderGroupChips();
+        renderKeywordChips();
         renderList();
     }
 
@@ -1439,6 +1710,7 @@
             library = [];
             saveToStorage();
             renderGroupChips();
+        renderKeywordChips();
             renderList();
             document.getElementById('rouletteResult').innerHTML = '<div style="color: var(--text-muted);">버튼을 눌러 운명의 작품을 뽑아보세요!</div>';
         }
@@ -1457,6 +1729,8 @@
             `<span class="badge" data-platform="${escapeHTML(item.platform)}">${escapeHTML(item.platform)}</span> 소장률 ${item.percent}%`;
         document.getElementById('modalKeywords').value = item.keywords.join(', ');
         document.getElementById('modalMemo').value = item.memo || '';
+        document.getElementById('modalNewKeywordPreset').value = '';
+        renderModalKeywordPresets();
 
         updateStarPickerDisplay(currentEditRating);
 
@@ -1519,12 +1793,15 @@
 
         const rawKeywords = document.getElementById('modalKeywords').value;
         item.keywords = rawKeywords.split(',').map(k => k.trim()).filter(Boolean);
+        item.keywords.forEach(kw => addKeywordPreset(kw));
 
         const checked = Array.from(document.querySelectorAll('#modalGroupCheckboxes input[type="checkbox"]:checked'));
         item.groupIds = checked.map(cb => cb.value);
 
         saveToStorage();
         renderGroupChips();
+        renderKeywordChips();
+        renderKeywordRouletteOptions();
         renderList();
         closeModal();
     }
@@ -1546,6 +1823,10 @@
             const group = groups.find(g => g.id === groupId);
             pool = library.filter(item => item.groupIds.includes(groupId));
             poolLabel = group ? group.name + ' 그룹' : '그룹';
+        } else if (filterValue.startsWith('keyword:')) {
+            const keyword = filterValue.slice('keyword:'.length);
+            pool = library.filter(item => item.keywords.includes(keyword));
+            poolLabel = `#${keyword}`;
         }
 
         const minRating = parseFloat(document.getElementById('filterRating').value) || 0;
@@ -1603,6 +1884,68 @@
             item.watchLog = item.watchLog.filter(d => d !== today);
         }
         saveToStorage();
+        renderList();
+    }
+
+    // ---------- 정주행 기록 히스토리 ----------
+
+    function renderWatchHistory() {
+        const container = document.getElementById('watchHistoryList');
+        if (!container) return;
+
+        const records = [];
+        library.forEach(item => {
+            (item.watchLog || []).forEach(date => {
+                records.push({ date, itemId: item.id, title: item.title, platform: item.platform });
+            });
+        });
+
+        if (records.length === 0) {
+            container.innerHTML = `<div style="padding: 24px; text-align: center; color: var(--text-muted);">아직 정주행 기록이 없습니다. 메인 화면의 룰렛에서 "오늘 정주행 완료"로 기록해보세요.</div>`;
+            return;
+        }
+
+        records.sort((a, b) => b.date.localeCompare(a.date));
+
+        container.innerHTML = '';
+        let lastDate = null;
+        records.forEach(r => {
+            if (r.date !== lastDate) {
+                const dateHeader = document.createElement('div');
+                dateHeader.className = 'watch-history-date';
+                dateHeader.textContent = r.date;
+                container.appendChild(dateHeader);
+                lastDate = r.date;
+            }
+
+            const row = document.createElement('div');
+            row.className = 'list-item';
+            row.innerHTML = `
+                <div class="item-main" style="cursor: default;">
+                    <div class="item-top-row">
+                        <span class="item-title" style="font-size: 1.05rem;">${escapeHTML(r.title)}</span>
+                        <span class="badge" data-platform="${escapeHTML(r.platform)}">${escapeHTML(r.platform)}</span>
+                    </div>
+                </div>
+            `;
+            const delBtn = document.createElement('button');
+            delBtn.type = 'button';
+            delBtn.className = 'corner-x-delete';
+            delBtn.textContent = '✕';
+            delBtn.addEventListener('click', () => removeWatchHistoryEntry(r.itemId, r.date));
+            row.appendChild(delBtn);
+
+            container.appendChild(row);
+        });
+    }
+
+    function removeWatchHistoryEntry(itemId, date) {
+        if (!confirm('이 정주행 기록을 삭제할까요?')) return;
+        const item = library.find(w => w.id === itemId);
+        if (!item) return;
+        item.watchLog = item.watchLog.filter(d => d !== date);
+        saveToStorage();
+        renderWatchHistory();
         renderList();
     }
 
@@ -1891,7 +2234,7 @@
     // ---------- GitHub Gist 클라우드 동기화 (수동) ----------
 
     function buildBackupPayload() {
-        return { library, groups, wishlist, timetableData, readingBooks };
+        return { library, groups, wishlist, timetableData, readingBooks, keywordPresets };
     }
 
     function applyBackupPayload(payload) {
@@ -1912,6 +2255,10 @@
             if (Array.isArray(payload.readingBooks)) {
                 readingBooks = payload.readingBooks;
                 readingBooks.forEach(b => { if (!Array.isArray(b.entries)) b.entries = []; });
+            }
+
+            if (Array.isArray(payload.keywordPresets)) {
+                keywordPresets = payload.keywordPresets;
             }
         }
     }
@@ -2009,7 +2356,9 @@
 
             saveToStorage();
             renderGroupChips();
+        renderKeywordChips();
             renderGroupSelectOptions();
+        renderKeywordRouletteOptions();
             renderList();
             renderWishlist();
             renderTimetable();
@@ -2045,7 +2394,9 @@
             applyBackupPayload(cloudPayload);
             saveToStorage();
             renderGroupChips();
+        renderKeywordChips();
             renderGroupSelectOptions();
+        renderKeywordRouletteOptions();
             renderList();
             renderWishlist();
             renderTimetable();
@@ -2200,6 +2551,11 @@
             });
         }
 
+        // 키워드 프리셋 병합: 이름 기준으로 합침
+        if (Array.isArray(incoming.keywordPresets)) {
+            incoming.keywordPresets.forEach(kw => addKeywordPreset(kw));
+        }
+
         return { added, updated, skipped };
     }
 
@@ -2220,7 +2576,9 @@
 
         saveToStorage();
         renderGroupChips();
+        renderKeywordChips();
         renderGroupSelectOptions();
+        renderKeywordRouletteOptions();
         renderList();
         renderWishlist();
         renderTimetable();
@@ -2249,7 +2607,9 @@
         libraryFilter = { type: 'all' };
         saveToStorage();
         renderGroupChips();
+        renderKeywordChips();
         renderGroupSelectOptions();
+        renderKeywordRouletteOptions();
         renderList();
         renderWishlist();
         renderTimetable();

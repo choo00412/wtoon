@@ -1037,13 +1037,13 @@
             return;
         }
 
-        let added = 0, skipped = 0;
+        let added = 0, updated = 0, skipped = 0;
 
         parsedItems.forEach(({ title, percent }) => {
             if (!title) { skipped++; return; }
             if (percent >= threshold) {
-                const exists = library.some(w => w.title === title && w.platform === platform);
-                if (!exists) {
+                const existingItem = library.find(w => w.title === title && w.platform === platform);
+                if (!existingItem) {
                     library.push({
                         id: genId(),
                         title, platform, percent,
@@ -1052,20 +1052,25 @@
                     });
                     added++;
                 } else {
-                    skipped++;
+                    if (existingItem.percent !== percent) {
+                        existingItem.percent = percent;
+                        updated++;
+                    } else {
+                        skipped++;
+                    }
                 }
             } else {
                 skipped++;
             }
         });
 
-        if (added > 0) {
+        if (added > 0 || updated > 0) {
             saveToStorage();
             renderList();
             document.getElementById('htmlData').value = '';
-            alert(`성공! ${added}개의 작품이 추가되었습니다. (중복/조건미달 제외: ${skipped}개)`);
+            alert(`성공! 신규 추가 ${added}개, 소장률 갱신 ${updated}개 (변동없음/조건미달 제외: ${skipped}개)`);
         } else {
-            alert(`추가된 작품이 없습니다. 이미 추가된 작품이거나 소장률 기준(${threshold}%)을 넘는 작품이 없습니다.`);
+            alert(`추가되거나 갱신된 작품이 없습니다. 이미 같은 소장률이거나 기준(${threshold}%)을 넘는 작품이 없습니다.`);
         }
     }
 
@@ -2119,6 +2124,9 @@
             } else {
                 const incomingRating = typeof item.rating === 'number' ? item.rating : 0;
                 if (incomingRating > existingItem.rating) existingItem.rating = incomingRating;
+
+                const incomingPercent = typeof item.percent === 'number' ? item.percent : parseInt(item.percent, 10);
+                if (!isNaN(incomingPercent) && incomingPercent > existingItem.percent) existingItem.percent = incomingPercent;
 
                 if (Array.isArray(item.keywords)) {
                     existingItem.keywords = Array.from(new Set([...existingItem.keywords, ...item.keywords]));

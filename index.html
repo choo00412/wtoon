@@ -197,6 +197,9 @@
 
     /* ---------- 필터 칩 ---------- */
     .filter-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .modal-keyword-scroll { max-height: 190px; overflow-y: auto; padding: 4px 2px; align-content: flex-start; }
+    .keyword-group-block { margin-bottom: 14px; }
+    .keyword-group-title { font-size: 0.82rem; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; }
     .chip {
         padding: 7px 16px; border-radius: 9999px; border: 1px solid var(--border);
         background: #fff; cursor: pointer; font-size: 0.875rem; font-weight: 700; color: var(--text-muted);
@@ -879,12 +882,14 @@
         </div>
 
         <div class="form-group">
-            <label for="modalKeywords">키워드 (쉼표 구분)</label>
-            <input type="text" id="modalKeywords" placeholder="^3^">
-            <div class="filter-chips" id="modalKeywordPresets" style="margin-top: 10px;"></div>
+            <label for="modalKeywords">키워드 (쉼표 구분, 아래에서 선택도 가능)</label>
+            <input type="text" id="modalKeywords" placeholder="^3^" oninput="renderModalKeywordPresets()">
+            <div class="filter-chips" id="modalKeywordCategoryTabs" style="margin-top: 10px; margin-bottom: 0;"></div>
+            <input type="text" id="modalKeywordSearch" placeholder="키워드 검색..." style="margin-top: 8px;" oninput="setModalKeywordSearch(this.value)">
+            <div class="filter-chips modal-keyword-scroll" id="modalKeywordPresets" style="margin-top: 10px;"></div>
             <div class="row" style="align-items: flex-end; margin-top: 10px; margin-bottom: 0;">
                 <div class="form-group" style="margin-bottom: 0;">
-                    <input type="text" id="modalNewKeywordPreset" placeholder="새 키워드 추가">
+                    <input type="text" id="modalNewKeywordPreset" placeholder="목록에 없는 키워드 직접 추가">
                 </div>
                 <button type="button" class="secondary btn-small" style="flex: none;" onclick="addKeywordPresetFromModal()">프리셋에 추가</button>
             </div>
@@ -975,6 +980,25 @@
     let currentBookId = null;
     let keywordPresets = [];
     const GH_FILENAME = 'webtoon_library.json';
+
+    // ---------- 미리 정의된 키워드 사전 (분야/소재/캐릭터/공/수) ----------
+    const KEYWORD_CATEGORIES = {
+        "분야/분위기": ["BL","CG툰","sf","개그","고수위","궁정물","느와르","단편","단행본","달달물","동양풍","드라마","드라마화","러브코미디","로맨스","로코","로판","모럴리스","무협","미스터리","병맛","서스펜스","서양풍","성장물","소년만화","소설원작","수상작","수인물","스포츠","시대극","썰만화","애니화","액션","영화화","오컬트","옴니버스","음식","이세계물","일상","잔잔물","잔혹/고어","재회물","촉수물","추리","판타지","폭력","피폐물","하드코어","학원","현대물","호러/스릴러","후방주의","힐링물"],
+        "소재/관계": ["3P","NTR","SM","가이드버스","가족","강제","게임","결혼","계약관계","군대/군부물","기억상실","납치/감금","능욕","다각관계","더티토크","덩치케미","도구플레이","동거","리맨물","리버시블","마사지","반려동물","배틀연애","복수","부부","불륜","빙의","사내연애","사제지간","살인","삼각관계","선결혼후연애","선후배","섹스파트너","소꿉친구","순애","신분차이","쌍방구원","썸","아르바이트","아포칼립스","애증","여공남수","역키잡","역하렘","연애","영혼바뀜","오메가버스","오피스물","오해/착각","우정","원나잇","육아","은밀한관계","이웃","작가경험담","전쟁","조선","주종관계","집착","짝사랑","차원이동","첫경험","첫사랑","초능력","치정","친구","친구>연인","캠퍼스물","키잡","트라우마","페티쉬","하렘","혐관","화류계","환생","회귀"],
+        "캐릭터": ["거유","기사","뱀파이어","베이글","변태","비서","선생님","여장남자","연예인","의사","이종족","인외존재","재벌","조폭","중년","천사/악마","히어로"],
+        "공": ["강공","개아가공","계략공","과거있공","광공","까칠공","난폭공","냉혈공","능글공","능력공","능욕공","다정공","대물공","대형견공","동정공","떡대공","또라이공","무심공","문란공","미남공","미인공","사랑꾼공","상처공","서브공","순정공","순진공","연상공","연하공","울보공","유혹공","장발공","재벌공","절륜공","존댓말공","집착공","짝사랑공","초딩공","츤데레공","키작공","평범공","헌신공","후회공"],
+        "수": ["가난수","감자수","강수","계략수","공이었수","군림수","귀염수","까칠수","능글수","능력수","다공일수","다정수","단정수","도망수","동정수","떡대수","명랑수","무심수","무자각수","문란수","미남수","미인수","반항수","상처수","성실수","소심수","순진수","아방수","안경수","얼빠수","연상수","연하수","외유내강수","유혹수","임신수","잔망수","적극수","절륜수","지랄수","직진수","집착수","짝사랑수","츤데레수","평범수","허당수","헌신수","호구수"]
+    };
+    const KEYWORD_CATEGORY_NAMES = Object.keys(KEYWORD_CATEGORIES);
+    let modalActiveKeywordCategory = KEYWORD_CATEGORY_NAMES[0];
+    let modalKeywordSearchQuery = '';
+
+    function findKeywordCategory(keyword) {
+        for (const cat of KEYWORD_CATEGORY_NAMES) {
+            if (KEYWORD_CATEGORIES[cat].includes(keyword)) return cat;
+        }
+        return '커스텀';
+    }
 
     function genId() {
         return Date.now().toString() + Math.random().toString(36).substr(2);
@@ -1454,37 +1478,69 @@
         renderKeywordRouletteOptions();
     }
 
+    // 커스텀(사전에 없는) 키워드 목록: 실제 사용된 적 있는 것 + addKeywordPreset으로 추가된 것 중 사전 밖의 것
+    function getCustomKeywordList() {
+        const used = new Set(keywordPresets);
+        library.forEach(item => item.keywords.forEach(k => used.add(k)));
+        return Array.from(used).filter(k => findKeywordCategory(k) === '커스텀').sort((a, b) => a.localeCompare(b, 'ko'));
+    }
+
     function renderKeywordChips() {
         const container = document.getElementById('keywordChipList');
         if (!container) return;
         container.innerHTML = '';
 
-        if (keywordPresets.length === 0) {
-            container.innerHTML = `<span class="group-empty-hint">아직 저장된 키워드가 없습니다. 작품 상세 화면에서 키워드를 추가하면 여기에 표시됩니다.</span>`;
-            return;
-        }
+        const allCats = [...KEYWORD_CATEGORY_NAMES, '커스텀'];
+        let anyUsed = false;
 
-        keywordPresets.forEach(kw => {
-            const count = library.filter(item => item.keywords.includes(kw)).length;
+        allCats.forEach(cat => {
+            const list = cat === '커스텀' ? getCustomKeywordList() : KEYWORD_CATEGORIES[cat];
+            const usedInCat = list
+                .map(kw => ({ kw, count: library.filter(item => item.keywords.includes(kw)).length }))
+                .filter(x => x.count > 0);
+            if (usedInCat.length === 0) return;
+            anyUsed = true;
 
-            const chip = document.createElement('span');
-            chip.className = 'group-chip';
-            chip.dataset.keyword = kw;
-            chip.addEventListener('click', () => setKeywordFilterView(kw));
+            const block = document.createElement('div');
+            block.className = 'keyword-group-block';
+            const title = document.createElement('div');
+            title.className = 'keyword-group-title';
+            title.textContent = cat;
+            block.appendChild(title);
 
-            const label = document.createElement('span');
-            label.textContent = `${kw} (${count})`;
-            chip.appendChild(label);
+            const row = document.createElement('div');
+            row.className = 'filter-chips';
+            row.style.marginBottom = '0';
 
-            const delBtn = document.createElement('button');
-            delBtn.type = 'button';
-            delBtn.className = 'del-x';
-            delBtn.textContent = '✕';
-            delBtn.addEventListener('click', (event) => { event.stopPropagation(); deleteKeywordPreset(kw); });
-            chip.appendChild(delBtn);
+            usedInCat.forEach(({ kw, count }) => {
+                const chip = document.createElement('span');
+                chip.className = 'group-chip';
+                chip.dataset.keyword = kw;
+                chip.addEventListener('click', () => setKeywordFilterView(kw));
 
-            container.appendChild(chip);
+                const label = document.createElement('span');
+                label.textContent = `${kw} (${count})`;
+                chip.appendChild(label);
+
+                if (cat === '커스텀') {
+                    const delBtn = document.createElement('button');
+                    delBtn.type = 'button';
+                    delBtn.className = 'del-x';
+                    delBtn.textContent = '✕';
+                    delBtn.addEventListener('click', (event) => { event.stopPropagation(); deleteKeywordPreset(kw); });
+                    chip.appendChild(delBtn);
+                }
+
+                row.appendChild(chip);
+            });
+
+            block.appendChild(row);
+            container.appendChild(block);
         });
+
+        if (!anyUsed) {
+            container.innerHTML = `<span class="group-empty-hint">아직 붙여진 키워드가 없습니다. 작품 상세 화면에서 키워드를 선택하면 여기에 표시됩니다.</span>`;
+        }
 
         updateFilterChipsUI();
     }
@@ -1492,22 +1548,35 @@
     function renderKeywordRouletteOptions() {
         const optgroup = document.getElementById('rouletteKeywordOptions');
         if (!optgroup) return;
-        if (keywordPresets.length === 0) {
-            optgroup.innerHTML = '';
-            optgroup.style.display = 'none';
-            return;
-        }
-        optgroup.style.display = '';
         optgroup.innerHTML = '';
-        keywordPresets.forEach(kw => {
-            const opt = document.createElement('option');
-            opt.value = 'keyword:' + kw;
-            opt.textContent = kw;
-            optgroup.appendChild(opt);
+
+        const allCats = [...KEYWORD_CATEGORY_NAMES, '커스텀'];
+        let any = false;
+
+        allCats.forEach(cat => {
+            const list = cat === '커스텀' ? getCustomKeywordList() : KEYWORD_CATEGORIES[cat];
+            const used = list.filter(kw => library.some(item => item.keywords.includes(kw)));
+            if (used.length === 0) return;
+            any = true;
+
+            // 카테고리 통째로 랜덤 뽑기 옵션 (해당 카테고리의 아무 키워드나 가진 작품 중 랜덤)
+            const groupOpt = document.createElement('option');
+            groupOpt.value = 'keywordcat:' + cat;
+            groupOpt.textContent = `[${cat}] 카테고리 전체 (아무 키워드나)`;
+            optgroup.appendChild(groupOpt);
+
+            used.forEach(kw => {
+                const opt = document.createElement('option');
+                opt.value = 'keyword:' + kw;
+                opt.textContent = `  ㄴ ${kw}`;
+                optgroup.appendChild(opt);
+            });
         });
+
+        optgroup.style.display = any ? '' : 'none';
     }
 
-    // ---------- 상세 모달의 키워드 선택 칩 ----------
+    // ---------- 상세 모달의 키워드 선택 칩 (사전 카테고리 기반) ----------
 
     function getModalKeywordArray() {
         return document.getElementById('modalKeywords').value.split(',').map(k => k.trim()).filter(Boolean);
@@ -1529,25 +1598,75 @@
         renderModalKeywordPresets();
     }
 
+    function renderModalKeywordCategoryTabs() {
+        const tabs = document.getElementById('modalKeywordCategoryTabs');
+        if (!tabs) return;
+        const allCats = [...KEYWORD_CATEGORY_NAMES, '커스텀'];
+        tabs.innerHTML = allCats.map(cat =>
+            `<button type="button" class="chip${cat === modalActiveKeywordCategory ? ' active' : ''}" onclick="setModalKeywordCategory('${cat.replace(/'/g, "\\'")}')">${escapeHTML(cat)}</button>`
+        ).join('');
+    }
+
+    function setModalKeywordCategory(cat) {
+        modalActiveKeywordCategory = cat;
+        document.getElementById('modalKeywordSearch').value = '';
+        modalKeywordSearchQuery = '';
+        renderModalKeywordCategoryTabs();
+        renderModalKeywordPresets();
+    }
+
+    function setModalKeywordSearch(value) {
+        modalKeywordSearchQuery = value.trim().toLowerCase();
+        renderModalKeywordPresets();
+    }
+
     function renderModalKeywordPresets() {
         const box = document.getElementById('modalKeywordPresets');
         if (!box) return;
         box.innerHTML = '';
-
-        if (keywordPresets.length === 0) {
-            box.innerHTML = `<span class="group-empty-hint">아직 저장된 키워드가 없습니다. 아래에서 새 키워드를 추가해보세요.</span>`;
-            return;
-        }
-
         const current = getModalKeywordArray();
-        keywordPresets.forEach(kw => {
+
+        const makeChip = (kw) => {
             const btn = document.createElement('button');
             btn.type = 'button';
             btn.className = 'chip' + (current.includes(kw) ? ' active' : '');
             btn.textContent = kw;
             btn.addEventListener('click', () => toggleModalKeywordPreset(kw));
-            box.appendChild(btn);
-        });
+            return btn;
+        };
+
+        if (modalKeywordSearchQuery) {
+            // 검색 중에는 모든 카테고리를 통틀어 매칭되는 키워드만 보여줌
+            const allCats = [...KEYWORD_CATEGORY_NAMES, '커스텀'];
+            let found = false;
+            allCats.forEach(cat => {
+                const list = cat === '커스텀' ? getCustomKeywordList() : KEYWORD_CATEGORIES[cat];
+                const matches = list.filter(kw => kw.toLowerCase().includes(modalKeywordSearchQuery));
+                if (matches.length === 0) return;
+                found = true;
+                const block = document.createElement('div');
+                block.className = 'keyword-group-block';
+                const title = document.createElement('div');
+                title.className = 'keyword-group-title';
+                title.textContent = cat;
+                block.appendChild(title);
+                const row = document.createElement('div');
+                row.className = 'filter-chips';
+                row.style.marginBottom = '0';
+                matches.forEach(kw => row.appendChild(makeChip(kw)));
+                block.appendChild(row);
+                box.appendChild(block);
+            });
+            if (!found) box.innerHTML = `<span class="group-empty-hint">"${escapeHTML(modalKeywordSearchQuery)}"와(과) 일치하는 키워드가 없습니다.</span>`;
+            return;
+        }
+
+        const list = modalActiveKeywordCategory === '커스텀' ? getCustomKeywordList() : (KEYWORD_CATEGORIES[modalActiveKeywordCategory] || []);
+        if (list.length === 0) {
+            box.innerHTML = `<span class="group-empty-hint">아직 이 카테고리에 커스텀 키워드가 없습니다. 아래에서 새로 추가해보세요.</span>`;
+            return;
+        }
+        list.forEach(kw => box.appendChild(makeChip(kw)));
     }
 
     function addKeywordPresetFromModal() {
@@ -1558,6 +1677,10 @@
         addKeywordPreset(kw);
         saveToStorage();
         input.value = '';
+        modalActiveKeywordCategory = findKeywordCategory(kw) === '커스텀' ? '커스텀' : findKeywordCategory(kw);
+        document.getElementById('modalKeywordSearch').value = '';
+        modalKeywordSearchQuery = '';
+        renderModalKeywordCategoryTabs();
         toggleModalKeywordPreset(kw, true);
         renderKeywordChips();
         renderKeywordRouletteOptions();
@@ -1730,6 +1853,10 @@
         document.getElementById('modalKeywords').value = item.keywords.join(', ');
         document.getElementById('modalMemo').value = item.memo || '';
         document.getElementById('modalNewKeywordPreset').value = '';
+        document.getElementById('modalKeywordSearch').value = '';
+        modalKeywordSearchQuery = '';
+        modalActiveKeywordCategory = KEYWORD_CATEGORY_NAMES[0];
+        renderModalKeywordCategoryTabs();
         renderModalKeywordPresets();
 
         updateStarPickerDisplay(currentEditRating);
@@ -1823,6 +1950,11 @@
             const group = groups.find(g => g.id === groupId);
             pool = library.filter(item => item.groupIds.includes(groupId));
             poolLabel = group ? group.name + ' 그룹' : '그룹';
+        } else if (filterValue.startsWith('keywordcat:')) {
+            const cat = filterValue.slice('keywordcat:'.length);
+            const catList = cat === '커스텀' ? getCustomKeywordList() : (KEYWORD_CATEGORIES[cat] || []);
+            pool = library.filter(item => item.keywords.some(k => catList.includes(k)));
+            poolLabel = `[${cat}] 카테고리`;
         } else if (filterValue.startsWith('keyword:')) {
             const keyword = filterValue.slice('keyword:'.length);
             pool = library.filter(item => item.keywords.includes(keyword));

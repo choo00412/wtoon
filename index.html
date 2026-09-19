@@ -36,7 +36,8 @@
         background-color: var(--bg-color);
         color: var(--text-main);
         line-height: 1.5;
-        padding: 20px;
+        padding: 76px 20px calc(84px + env(safe-area-inset-bottom, 0px));
+        min-height: 100vh;
     }
 
     .container { max-width: 1100px; margin: 0 auto; }
@@ -46,28 +47,80 @@
         font-size: 1.6rem; text-align: center; margin-bottom: 20px;
     }
 
-    /* ---------- 탭 메뉴 ---------- */
-    .tabs {
-        display: flex; gap: 8px; margin-bottom: 20px; background: var(--surface);
-        padding: 6px; border-radius: 12px; border: 1px solid var(--border); flex-wrap: wrap;
+    /* ---------- 상단 고정 바 ---------- */
+    .top-bar {
+        position: fixed; top: 0; left: 0; right: 0; z-index: 600;
+        height: 60px; padding: 0 20px;
+        background: rgba(255, 255, 255, 0.92);
+        -webkit-backdrop-filter: saturate(180%) blur(14px);
+        backdrop-filter: saturate(180%) blur(14px);
+        border-bottom: 1px solid var(--border);
+        box-shadow: 0 1px 2px rgba(0,0,0,0.03);
     }
-    .tab-btn {
-        flex: 1; min-width: 110px; background: transparent; color: var(--text-muted); border: none;
-        padding: 10px 8px; border-radius: 8px; font-weight: 700; font-size: 0.95rem; cursor: pointer;
+    .top-bar-inner {
+        max-width: 1100px; height: 100%; margin: 0 auto;
+        display: flex; align-items: center; justify-content: space-between; gap: 12px;
     }
-    .tab-btn:hover { background: #f3f4f6; }
-    .tab-btn.active { background: var(--primary); color: #fff; }
+    .top-bar-title {
+        font-size: 1.15rem; font-weight: 800; letter-spacing: -0.01em;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .top-bar-actions { display: flex; gap: 8px; flex: none; }
+    .top-bar-actions button { padding: 8px 14px; }
+
+    /* ---------- 하단 고정 탭 바 ---------- */
+    .bottom-nav {
+        position: fixed; bottom: 0; left: 0; right: 0; z-index: 600;
+        display: flex; justify-content: center;
+        background: rgba(255, 255, 255, 0.94);
+        -webkit-backdrop-filter: saturate(180%) blur(14px);
+        backdrop-filter: saturate(180%) blur(14px);
+        border-top: 1px solid var(--border);
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+        box-shadow: 0 -1px 2px rgba(0,0,0,0.03);
+    }
+    .bottom-nav-inner { display: flex; width: 100%; max-width: 520px; }
+    .bottom-nav-btn {
+        flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+        gap: 3px; background: transparent; color: var(--text-muted); border: none; border-radius: 0;
+        padding: 8px 4px 7px; font-weight: 700; font-size: 0.72rem; cursor: pointer;
+        transition: color 0.18s ease, transform 0.18s ease;
+    }
+    .bottom-nav-btn svg { width: 22px; height: 22px; transition: transform 0.18s ease; }
+    .bottom-nav-btn:active { transform: scale(0.92); }
+    .bottom-nav-btn.active { color: var(--primary); }
+    .bottom-nav-btn.active svg { transform: translateY(-1px); }
 
     .page { display: none; }
-    .page.active { display: block; }
+    .page.active { display: block; animation: page-fade-in 0.22s ease; }
+
+    @keyframes page-fade-in {
+        from { opacity: 0; transform: translateY(6px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ---------- My 메뉴 ---------- */
+    .my-menu-list { display: flex; flex-direction: column; gap: 10px; }
+    .my-menu-item {
+        display: flex; align-items: center; justify-content: space-between;
+        width: 100%; background: #f9fafb; color: var(--text-main); border: 1px solid var(--border);
+        border-radius: 10px; padding: 16px 18px; font-size: 1rem; font-weight: 700;
+        cursor: pointer; transition: background 0.15s ease, transform 0.15s ease;
+    }
+    .my-menu-item:hover { background: #f3f4f6; }
+    .my-menu-item:active { transform: scale(0.99); }
+    .my-menu-arrow { color: var(--text-muted); font-weight: 400; font-size: 1.2rem; }
+
+    .subpage-back-row { margin-bottom: 12px; }
 
     .card {
         background-color: var(--surface);
-        border-radius: 12px;
+        border-radius: 14px;
         padding: 24px;
         margin-bottom: 24px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        box-shadow: 0 8px 20px -6px rgba(15, 23, 42, 0.08), 0 2px 6px -2px rgba(15, 23, 42, 0.06);
         border: 1px solid var(--border);
+        transition: box-shadow 0.2s ease;
     }
 
     h2 { margin-bottom: 16px; color: var(--text-main); font-size: 1.25rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
@@ -82,9 +135,17 @@
         width: 100%;
         padding: 10px 12px;
         border: 1px solid var(--border);
-        border-radius: 6px;
+        border-radius: 8px;
         font-size: 1rem;
         font-family: inherit;
+        background-color: #fff;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    input[type="number"]:focus, input[type="text"]:focus, input[type="password"]:focus,
+    select:focus, textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(71, 121, 155, 0.15);
     }
 
     textarea {
@@ -117,13 +178,14 @@
         color: white;
         border: none;
         padding: 10px 16px;
-        border-radius: 6px;
+        border-radius: 8px;
         font-size: 1rem;
         font-weight: 600;
         cursor: pointer;
-        transition: background-color 0.2s;
+        transition: background-color 0.18s ease, transform 0.12s ease, box-shadow 0.18s ease;
     }
     button:hover { background-color: var(--primary-hover); }
+    button:active { transform: scale(0.97); }
 
     button.danger { background-color: var(--danger); }
     button.danger:hover { background-color: var(--danger-hover); }
@@ -138,7 +200,10 @@
     .chip {
         padding: 7px 16px; border-radius: 9999px; border: 1px solid var(--border);
         background: #fff; cursor: pointer; font-size: 0.875rem; font-weight: 700; color: var(--text-muted);
+        transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.12s ease;
     }
+    .chip:hover { border-color: var(--primary); color: var(--primary); }
+    .chip:active { transform: scale(0.96); }
     .chip.active { background: var(--primary); color: #fff; border-color: var(--primary); }
     .chip[data-platform="레진코믹스"].active { background: var(--lezhin); border-color: var(--lezhin); }
     .chip[data-platform="봄툰"].active { background: var(--bomtoon); border-color: var(--bomtoon); }
@@ -343,13 +408,39 @@
 
     /* ---------- 상세 모달 (크게) ---------- */
     .modal-overlay {
-        display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+        display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5);
         align-items: center; justify-content: center; z-index: 1000; padding: 20px;
+        -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px);
+        animation: modal-overlay-in 0.18s ease;
     }
     .modal-overlay.show { display: flex; }
     .modal {
         background: #fff; border-radius: 16px; padding: 36px; max-width: 680px; width: 100%;
         max-height: 92vh; overflow-y: auto;
+        box-shadow: 0 24px 48px -12px rgba(15, 23, 42, 0.35);
+        animation: modal-pop-in 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes modal-overlay-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    @keyframes modal-pop-in {
+        from { opacity: 0; transform: translateY(16px) scale(0.98); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @media (max-width: 640px) {
+        .modal-overlay { align-items: flex-end; padding: 0; }
+        .modal {
+            max-width: 100%; width: 100%; max-height: 88vh;
+            border-radius: 20px 20px 0 0; padding: 28px 24px calc(28px + env(safe-area-inset-bottom, 0px));
+            animation: modal-sheet-in 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes modal-sheet-in {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
     }
     .modal h2 { margin-bottom: 4px; font-size: 1.5rem; }
     .modal .modal-sub { color: var(--text-muted); margin-bottom: 24px; font-size: 1rem; }
@@ -370,17 +461,17 @@
 </head>
 <body>
 
-<div class="container">
-    <h1>My Wtoon Library</h1>
-
-    <div class="tabs">
-        <button class="tab-btn active" id="tabBtn-page-main" onclick="showPage('page-main')">Main</button>
-        <button class="tab-btn" id="tabBtn-page-library" onclick="showPage('page-library')">Library</button>
-        <button class="tab-btn" id="tabBtn-page-wishlist" onclick="showPage('page-wishlist')">Wishlist</button>
-        <button class="tab-btn" id="tabBtn-page-timetable" onclick="showPage('page-timetable')">Timetable</button>
-        <button class="tab-btn" id="tabBtn-page-reading" onclick="showPage('page-reading')">Reading Log</button>
-        <button class="tab-btn" id="tabBtn-page-import" onclick="showPage('page-import')">Load / Sync</button>
+<div class="top-bar">
+    <div class="top-bar-inner">
+        <div class="top-bar-title">My Wtoon Library</div>
+        <div class="top-bar-actions">
+            <button class="success btn-small" onclick="pushToCloud()">Upload</button>
+            <button class="danger btn-small" onclick="pullFromCloud()">Load</button>
+        </div>
     </div>
+</div>
+
+<div class="container">
 
     <!-- ================= 메인 페이지 (룰렛만) ================= -->
     <div id="page-main" class="page active">
@@ -434,11 +525,6 @@
                     <button class="danger btn-small" onclick="clearAll()">전체 초기화</button>
                 </span>
             </h2>
-
-            <div style="display: flex; gap: 8px; margin-bottom: 16px;">
-                <button class="success btn-small" style="flex: none;" onclick="pushToCloud()">Upload</button>
-                <button class="danger btn-small" style="flex: none;" onclick="pullFromCloud()">Load</button>
-            </div>
 
             <div class="row">
                 <div class="form-group" style="flex: 2; min-width: 240px;">
@@ -503,6 +589,9 @@
     <!-- ================= 위시리스트 페이지 ================= -->
     <div id="page-wishlist" class="page">
         <div class="narrow-wrap">
+            <div class="subpage-back-row">
+                <button class="secondary btn-small" onclick="showPage('page-my')">←</button>
+            </div>
             <div class="card">
                 <h2> 위시리스트</h2>
                 <div class="hint">보고 싶은 작품을 적어보세요.</div>
@@ -520,6 +609,9 @@
 
     <!-- ================= 시간표 페이지 ================= -->
     <div id="page-timetable" class="page">
+        <div class="subpage-back-row">
+            <button class="secondary btn-small" onclick="showPage('page-my')">←</button>
+        </div>
         <div class="card">
             <h2>
                 <span>시간표</span>
@@ -593,9 +685,32 @@
         </div>
     </div>
 
+    <!-- ================= My 페이지 ================= -->
+    <div id="page-my" class="page">
+        <div class="narrow-wrap">
+            <div class="card">
+                <h2>My</h2>
+                <div class="my-menu-list">
+                    <button type="button" class="my-menu-item" onclick="showPage('page-wishlist')">
+                        <span>Wishlist</span><span class="my-menu-arrow">›</span>
+                    </button>
+                    <button type="button" class="my-menu-item" onclick="showPage('page-timetable')">
+                        <span>Timetable</span><span class="my-menu-arrow">›</span>
+                    </button>
+                    <button type="button" class="my-menu-item" onclick="showPage('page-import')">
+                        <span>Load / Sync</span><span class="my-menu-arrow">›</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- ================= 불러오기 & 동기화 페이지 ================= -->
     <div id="page-import" class="page">
         <div class="narrow-wrap">
+            <div class="subpage-back-row">
+                <button class="secondary btn-small" onclick="showPage('page-my')">←</button>
+            </div>
             <div class="card">
                 <h2>웹툰 불러오기</h2>
                 <div class="row">
@@ -664,6 +779,27 @@
         </div>
     </div>
 </div>
+
+<nav class="bottom-nav">
+    <div class="bottom-nav-inner">
+        <button type="button" class="bottom-nav-btn active" id="navBtn-page-main" onclick="showPage('page-main')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/></svg>
+            <span>Main</span>
+        </button>
+        <button type="button" class="bottom-nav-btn" id="navBtn-page-library" onclick="showPage('page-library')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4.5A1.5 1.5 0 0 1 5.5 3H9a1.5 1.5 0 0 1 1.5 1.5v16A1.5 1.5 0 0 0 9 22H5.5A1.5 1.5 0 0 1 4 20.5z"/><path d="M14 4.5A1.5 1.5 0 0 1 15.5 3H19a1.5 1.5 0 0 1 1.5 1.5v16a1.5 1.5 0 0 1-1.5 1.5h-3.5A1.5 1.5 0 0 1 14 20.5z"/><path d="M10 8h4M10 12h4M10 16h4"/></svg>
+            <span>Library</span>
+        </button>
+        <button type="button" class="bottom-nav-btn" id="navBtn-page-reading" onclick="showPage('page-reading')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M9 7h7M9 11h5"/></svg>
+            <span>Reading Log</span>
+        </button>
+        <button type="button" class="bottom-nav-btn" id="navBtn-page-my" onclick="showPage('page-my')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20.5a7.5 7.5 0 0 1 15 0"/></svg>
+            <span>My</span>
+        </button>
+    </div>
+</nav>
 
 <!-- ================= 상세 모달 ================= -->
 <div id="detailModal" class="modal-overlay" onclick="closeModalOverlay(event)">
@@ -848,11 +984,24 @@
     }
 
     // ---------- 탭 전환 ----------
+    const NAV_TAB_MAP = {
+        'page-main': 'page-main',
+        'page-library': 'page-library',
+        'page-reading': 'page-reading',
+        'page-my': 'page-my',
+        'page-wishlist': 'page-my',
+        'page-timetable': 'page-my',
+        'page-import': 'page-my'
+    };
+
     function showPage(pageId) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.bottom-nav-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(pageId).classList.add('active');
-        document.getElementById('tabBtn-' + pageId).classList.add('active');
+        const navId = NAV_TAB_MAP[pageId] || pageId;
+        const navBtn = document.getElementById('navBtn-' + navId);
+        if (navBtn) navBtn.classList.add('active');
+        window.scrollTo(0, 0);
     }
 
     function updatePlaceholder() {

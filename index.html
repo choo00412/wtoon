@@ -197,9 +197,47 @@
 
     /* ---------- 필터 칩 ---------- */
     .filter-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
-    .modal-keyword-scroll { max-height: 190px; overflow-y: auto; padding: 4px 2px; align-content: flex-start; }
+    .modal-keyword-scroll { max-height: 190px; overflow-y: auto; padding: 2px 2px; align-content: flex-start; margin-bottom: 0; }
     .keyword-group-block { margin-bottom: 14px; }
+    .keyword-group-block:last-child { margin-bottom: 0; }
     .keyword-group-title { font-size: 0.82rem; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; }
+
+    /* ---------- 키워드 선택 박스 ---------- */
+    .keyword-picker {
+        border: 1px solid var(--border); border-radius: 12px; padding: 14px;
+        background: #f9fafb; margin-top: 8px;
+    }
+    .kw-section { margin-bottom: 14px; }
+    .kw-section:last-child { margin-bottom: 0; }
+    .kw-section-label {
+        font-size: 0.75rem; font-weight: 800; color: var(--text-muted);
+        margin-bottom: 7px; letter-spacing: 0.02em;
+    }
+    .kw-divider { border-top: 1px dashed var(--border); margin: 14px 0; }
+    .kw-selected-box {
+        min-height: 42px; border: 1px solid var(--border); border-radius: 8px;
+        padding: 8px; background: #fff; display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+    }
+    .kw-selected-chip {
+        display: inline-flex; align-items: center; gap: 6px;
+        background: var(--primary); color: #fff; padding: 5px 6px 5px 12px;
+        border-radius: 9999px; font-size: 0.82rem; font-weight: 700;
+    }
+    .kw-selected-chip button {
+        background: rgba(255,255,255,0.25); color: #fff; border-radius: 50%;
+        width: 18px; height: 18px; padding: 0; font-size: 0.68rem;
+        display: inline-flex; align-items: center; justify-content: center; line-height: 1;
+    }
+    .kw-selected-empty { font-size: 0.85rem; color: var(--text-muted); }
+    .kw-panel-box {
+        border: 1px solid var(--border); border-radius: 8px; padding: 10px; background: #fff;
+    }
+    .kw-manual-details { margin-top: 12px; }
+    .kw-manual-details summary {
+        cursor: pointer; font-size: 0.82rem; font-weight: 700; color: var(--text-muted); user-select: none;
+    }
+    .kw-manual-details summary:hover { color: var(--primary); }
+    .kw-manual-details[open] summary { margin-bottom: 8px; }
     .chip {
         padding: 7px 16px; border-radius: 9999px; border: 1px solid var(--border);
         background: #fff; cursor: pointer; font-size: 0.875rem; font-weight: 700; color: var(--text-muted);
@@ -882,16 +920,44 @@
         </div>
 
         <div class="form-group">
-            <label for="modalKeywords">키워드 (쉼표 구분, 아래에서 선택도 가능)</label>
-            <input type="text" id="modalKeywords" placeholder="^3^" oninput="renderModalKeywordPresets()">
-            <div class="filter-chips" id="modalKeywordCategoryTabs" style="margin-top: 10px; margin-bottom: 0;"></div>
-            <input type="text" id="modalKeywordSearch" placeholder="키워드 검색..." style="margin-top: 8px;" oninput="setModalKeywordSearch(this.value)">
-            <div class="filter-chips modal-keyword-scroll" id="modalKeywordPresets" style="margin-top: 10px;"></div>
-            <div class="row" style="align-items: flex-end; margin-top: 10px; margin-bottom: 0;">
-                <div class="form-group" style="margin-bottom: 0;">
-                    <input type="text" id="modalNewKeywordPreset" placeholder="목록에 없는 키워드 직접 추가">
+            <label>키워드</label>
+
+            <div class="keyword-picker">
+                <div class="kw-section">
+                    <div class="kw-section-label">✓ 선택된 키워드</div>
+                    <div class="kw-selected-box" id="modalSelectedKeywords"></div>
                 </div>
-                <button type="button" class="secondary btn-small" style="flex: none;" onclick="addKeywordPresetFromModal()">프리셋에 추가</button>
+
+                <div class="kw-divider"></div>
+
+                <div class="kw-section">
+                    <div class="kw-section-label">카테고리</div>
+                    <div class="filter-chips" id="modalKeywordCategoryTabs" style="margin-bottom: 0;"></div>
+                </div>
+
+                <div class="kw-section">
+                    <div class="kw-section-label">🔍 키워드 검색</div>
+                    <input type="text" id="modalKeywordSearch" placeholder="키워드 검색..." oninput="setModalKeywordSearch(this.value)">
+                </div>
+
+                <div class="kw-section" style="margin-bottom: 0;">
+                    <div class="kw-section-label">목록에서 선택 (클릭해서 추가/해제)</div>
+                    <div class="kw-panel-box">
+                        <div class="filter-chips modal-keyword-scroll" id="modalKeywordPresets"></div>
+                    </div>
+                </div>
+
+                <details class="kw-manual-details">
+                    <summary>＋ 목록에 없는 키워드 직접 추가 / 텍스트로 한번에 입력</summary>
+                    <div class="row" style="align-items: flex-end; margin-bottom: 10px;">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <input type="text" id="modalNewKeywordPreset" placeholder="새 키워드 입력">
+                        </div>
+                        <button type="button" class="secondary btn-small" style="flex: none;" onclick="addKeywordPresetFromModal()">추가</button>
+                    </div>
+                    <div class="hint" style="margin: 0 0 6px;">아래에 쉼표로 구분해서 직접 입력/수정할 수도 있어요.</div>
+                    <input type="text" id="modalKeywords" placeholder="예: 집착공, 순진수" oninput="renderModalKeywordPresets(); renderModalSelectedKeywords();">
+                </details>
             </div>
         </div>
 
@@ -1596,6 +1662,27 @@
         }
         setModalKeywordArray(current);
         renderModalKeywordPresets();
+        renderModalSelectedKeywords();
+    }
+
+    function removeModalKeyword(keyword) {
+        toggleModalKeywordPreset(keyword, false);
+    }
+
+    function renderModalSelectedKeywords() {
+        const box = document.getElementById('modalSelectedKeywords');
+        if (!box) return;
+        const current = getModalKeywordArray();
+        if (current.length === 0) {
+            box.innerHTML = `<span class="kw-selected-empty">아직 선택된 키워드가 없어요. 아래에서 골라보세요.</span>`;
+            return;
+        }
+        box.innerHTML = current.map(kw => `
+            <span class="kw-selected-chip">
+                ${escapeHTML(kw)}
+                <button type="button" onclick="removeModalKeyword('${kw.replace(/'/g, "\\'")}')">✕</button>
+            </span>
+        `).join('');
     }
 
     function renderModalKeywordCategoryTabs() {
@@ -1858,6 +1945,7 @@
         modalActiveKeywordCategory = KEYWORD_CATEGORY_NAMES[0];
         renderModalKeywordCategoryTabs();
         renderModalKeywordPresets();
+        renderModalSelectedKeywords();
 
         updateStarPickerDisplay(currentEditRating);
 

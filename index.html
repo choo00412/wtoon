@@ -255,6 +255,33 @@
     }
     .kw-manual-details summary:hover { color: var(--primary); }
     .kw-manual-details[open] summary { margin-bottom: 8px; }
+
+    /* ---------- 키워드 섹션 전체 접기/펼치기 ---------- */
+    .kw-details { border: 1px solid var(--border); border-radius: 10px; padding: 2px 14px; background: #fff; }
+    .kw-details .keyword-picker { margin-top: 4px; margin-bottom: 10px; }
+    .kw-details-summary {
+        list-style: none; cursor: pointer; user-select: none;
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 12px 0; font-weight: 700; font-size: 0.95rem; color: var(--text-main);
+    }
+    .kw-details-summary::-webkit-details-marker { display: none; }
+    .kw-details-summary::before {
+        content: '▶'; display: inline-block; font-size: 0.7rem; margin-right: 8px; color: var(--text-muted);
+        transition: transform 0.15s ease;
+    }
+    .kw-details[open] .kw-details-summary::before { transform: rotate(90deg); }
+    .kw-details-count {
+        font-size: 0.78rem; font-weight: 700; color: var(--primary); background: #eef2f6;
+        padding: 3px 10px; border-radius: 9999px;
+    }
+
+    /* ---------- 상세 모달 내 정주행 기록 토글 ---------- */
+    .modal-watch-toggle {
+        display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+        border: 1px solid var(--border); border-radius: 8px; background: #fffbeb;
+        cursor: pointer; font-size: 0.92rem; color: #92400e; font-weight: 600;
+    }
+    .modal-watch-toggle input[type="checkbox"] { width: auto; transform: scale(1.15); }
     .chip {
         padding: 7px 16px; border-radius: 9999px; border: 1px solid var(--border);
         background: #fff; cursor: pointer; font-size: 0.875rem; font-weight: 700; color: var(--text-muted);
@@ -1035,45 +1062,59 @@
         </div>
 
         <div class="form-group">
-            <label>키워드</label>
+            <details class="kw-details" id="modalKeywordDetails">
+                <summary class="kw-details-summary">
+                    <span>키워드</span>
+                    <span class="kw-details-count" id="modalKeywordSummaryCount">선택 없음</span>
+                </summary>
 
-            <div class="keyword-picker">
-                <div class="kw-section">
-                    <div class="kw-section-label">✓ 선택된 키워드</div>
-                    <div class="kw-selected-box" id="modalSelectedKeywords"></div>
-                </div>
-
-                <div class="kw-divider"></div>
-
-                <div class="kw-section">
-                    <div class="kw-section-label">🔍 키워드 검색</div>
-                    <input type="text" id="modalKeywordSearch" placeholder="키워드 검색..." oninput="setModalKeywordSearch(this.value)">
-                </div>
-
-                <div class="kw-section">
-                    <div class="kw-section-label">카테고리</div>
-                    <div class="filter-chips" id="modalKeywordCategoryTabs" style="margin-bottom: 0;"></div>
-                </div>
-
-                <div class="kw-section" style="margin-bottom: 0;">
-                    <div class="kw-section-label">목록에서 선택 (클릭해서 추가/해제)</div>
-                    <div class="kw-panel-box">
-                        <div class="filter-chips modal-keyword-scroll" id="modalKeywordPresets"></div>
+                <div class="keyword-picker">
+                    <div class="kw-section">
+                        <div class="kw-section-label">✓ 선택된 키워드</div>
+                        <div class="kw-selected-box" id="modalSelectedKeywords"></div>
                     </div>
-                </div>
 
-                <details class="kw-manual-details">
-                    <summary>＋ 목록에 없는 키워드 직접 추가 / 텍스트로 한번에 입력</summary>
-                    <div class="row" style="align-items: flex-end; margin-bottom: 10px;">
-                        <div class="form-group" style="margin-bottom: 0;">
-                            <input type="text" id="modalNewKeywordPreset" placeholder="새 키워드 입력">
+                    <div class="kw-divider"></div>
+
+                    <div class="kw-section">
+                        <div class="kw-section-label">🔍 키워드 검색</div>
+                        <input type="text" id="modalKeywordSearch" placeholder="키워드 검색..." oninput="setModalKeywordSearch(this.value)">
+                    </div>
+
+                    <div class="kw-section">
+                        <div class="kw-section-label">카테고리</div>
+                        <div class="filter-chips" id="modalKeywordCategoryTabs" style="margin-bottom: 0;"></div>
+                    </div>
+
+                    <div class="kw-section" style="margin-bottom: 0;">
+                        <div class="kw-section-label">목록에서 선택 (클릭해서 추가/해제)</div>
+                        <div class="kw-panel-box">
+                            <div class="filter-chips modal-keyword-scroll" id="modalKeywordPresets"></div>
                         </div>
-                        <button type="button" class="secondary btn-small" style="flex: none;" onclick="addKeywordPresetFromModal()">추가</button>
                     </div>
-                    <div class="hint" style="margin: 0 0 6px;">아래에 쉼표로 구분해서 직접 입력/수정할 수도 있어요.</div>
-                    <input type="text" id="modalKeywords" placeholder="예: 집착공, 순진수" oninput="renderModalKeywordPresets(); renderModalSelectedKeywords();">
-                </details>
-            </div>
+
+                    <details class="kw-manual-details">
+                        <summary>＋ 목록에 없는 키워드 직접 추가 / 텍스트로 한번에 입력</summary>
+                        <div class="row" style="align-items: flex-end; margin-bottom: 10px;">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <input type="text" id="modalNewKeywordPreset" placeholder="새 키워드 입력">
+                            </div>
+                            <button type="button" class="secondary btn-small" style="flex: none;" onclick="addKeywordPresetFromModal()">추가</button>
+                        </div>
+                        <div class="hint" style="margin: 0 0 6px;">아래에 쉼표로 구분해서 직접 입력/수정할 수도 있어요.</div>
+                        <input type="text" id="modalKeywords" placeholder="예: 집착공, 순진수" oninput="renderModalKeywordPresets(); renderModalSelectedKeywords();">
+                    </details>
+                </div>
+            </details>
+        </div>
+
+        <div class="form-group">
+            <label>정주행</label>
+            <label class="modal-watch-toggle">
+                <input type="checkbox" id="modalWatchedCheck" onchange="toggleWatchedFromModal(this.checked)">
+                <span id="modalWatchedLabel">오늘 정주행 완료로 기록</span>
+            </label>
+            <div class="hint" id="modalWatchHistoryHint" style="margin: 6px 0 0;"></div>
         </div>
 
         <div class="form-group">
@@ -1788,6 +1829,12 @@
         const box = document.getElementById('modalSelectedKeywords');
         if (!box) return;
         const current = getModalKeywordArray();
+
+        const summaryCount = document.getElementById('modalKeywordSummaryCount');
+        if (summaryCount) {
+            summaryCount.textContent = current.length === 0 ? '선택 없음' : `${current.length}개 선택됨`;
+        }
+
         if (current.length === 0) {
             box.innerHTML = `<span class="kw-selected-empty">아직 선택된 키워드가 없어요. 아래에서 골라보세요.</span>`;
             return;
@@ -2062,8 +2109,10 @@
         renderModalKeywordCategoryTabs();
         renderModalKeywordPresets();
         renderModalSelectedKeywords();
+        document.getElementById('modalKeywordDetails').removeAttribute('open');
 
         updateStarPickerDisplay(currentEditRating);
+        renderModalWatchToggle(item);
 
         const groupBox = document.getElementById('modalGroupCheckboxes');
         if (groups.length === 0) {
@@ -2078,6 +2127,28 @@
         }
 
         document.getElementById('detailModal').classList.add('show');
+    }
+
+    function renderModalWatchToggle(item) {
+        const today = todayStr();
+        const alreadyWatchedToday = item.watchLog.includes(today);
+        document.getElementById('modalWatchedCheck').checked = alreadyWatchedToday;
+        document.getElementById('modalWatchedLabel').textContent = `오늘(${today}) 정주행 완료로 기록`;
+
+        const hint = document.getElementById('modalWatchHistoryHint');
+        if (item.watchLog.length === 0) {
+            hint.textContent = '아직 정주행 기록이 없어요.';
+        } else {
+            const last = item.watchLog[item.watchLog.length - 1];
+            hint.textContent = `총 ${item.watchLog.length}회 정주행 · 최근: ${last}`;
+        }
+    }
+
+    function toggleWatchedFromModal(checked) {
+        if (!currentEditId) return;
+        toggleWatchedToday(currentEditId, checked);
+        const item = library.find(w => w.id === currentEditId);
+        if (item) renderModalWatchToggle(item);
     }
 
     function pickerValueFromEvent(event) {
@@ -2192,13 +2263,13 @@
         resultBox.classList.add('rolling');
 
         let count = 0;
-        const maxTicks = 12;
+        const maxTicks = 16;
 
         // 점점 느려지는 이징(ease-out)으로 슬롯머신처럼 서서히 멈추는 느낌을 줌
         function easedDelay(i) {
             const t = i / maxTicks;
             const eased = 1 - Math.pow(1 - t, 3);
-            return 35 + eased * 170;
+            return 55 + eased * 190;
         }
 
         function tick() {

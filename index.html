@@ -524,6 +524,43 @@
     .roulette-title { font-size: 1.75rem; font-weight: bold; color: #d97706; margin: 8px 0; }
     .roulette-meta { font-size: 1.1rem; color: #92400e; }
 
+    /* ---------- 랜덤 픽 애니메이션 ---------- */
+    .roulette-pick-btn { position: relative; transition: transform 0.15s ease, box-shadow 0.15s ease; }
+    .roulette-pick-btn:active { transform: scale(0.95); }
+    .roulette-pick-btn.spinning { pointer-events: none; opacity: 0.88; }
+    .roulette-pick-btn .dice-icon { display: inline-block; margin-right: 6px; }
+    .roulette-pick-btn.spinning .dice-icon { animation: diceSpin 0.5s linear infinite; }
+    @keyframes diceSpin { from { transform: rotate(0deg) scale(1); } 50% { transform: rotate(180deg) scale(1.15); } to { transform: rotate(360deg) scale(1); } }
+
+    .roulette-box.rolling {
+        background: repeating-linear-gradient(120deg, #fef3c7 0 16px, #fde68a 16px 32px);
+        background-size: 200% 100%;
+        animation: rouletteStripes 0.7s linear infinite;
+        border-color: #f59e0b;
+    }
+    @keyframes rouletteStripes { from { background-position: 0 0; } to { background-position: -64px 0; } }
+
+    .roulette-tick-text { display: inline-block; animation: rouletteTick 0.18s ease-out; }
+    @keyframes rouletteTick {
+        0% { transform: scale(0.9) translateY(3px); opacity: 0.45; filter: blur(1px); }
+        100% { transform: scale(1) translateY(0); opacity: 1; filter: blur(0); }
+    }
+
+    .roulette-box.revealing { animation: rouletteReveal 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    @keyframes rouletteReveal {
+        0% { transform: scale(0.82); opacity: 0.3; }
+        70% { transform: scale(1.04); opacity: 1; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    .roulette-box.revealing .roulette-title { animation: roulettePulseGlow 1s ease-out; }
+    @keyframes roulettePulseGlow {
+        0% { text-shadow: 0 0 0 rgba(245, 158, 11, 0); }
+        35% { text-shadow: 0 0 18px rgba(245, 158, 11, 0.65); }
+        100% { text-shadow: 0 0 0 rgba(245, 158, 11, 0); }
+    }
+    .roulette-title.clickable { cursor: pointer; transition: color 0.15s ease; }
+    .roulette-title.clickable:hover { color: #b45309; text-decoration: underline; }
+
     #syncStatus { min-height: 1.2em; }
 
     /* ---------- 상세 모달 (크게) ---------- */
@@ -615,6 +652,7 @@
                         <label for="filterRating">최소 별점</label>
                         <select id="filterRating">
                             <option value="0">전체 별점</option>
+                            <option value="unrated">★ 별점 없는 것만</option>
                             <option value="0.5">★0.5</option>
                             <option value="1">★1</option>
                             <option value="1.5">★1.5</option>
@@ -627,7 +665,9 @@
                             <option value="5">★5</option>
                         </select>
                     </div>
-                    <button onclick="spinRoulette()" style="background-color: #486cb9;">랜덤 픽!</button>
+                    <button id="rouletteBtn" class="roulette-pick-btn" onclick="spinRoulette()" style="background-color: #486cb9;">
+                        <span class="dice-icon">🎲</span><span id="rouletteBtnLabel">랜덤 픽!</span>
+                    </button>
                 </div>
                 <div id="rouletteResult" class="roulette-box">
                     <div style="color: var(--text-muted);">오늘 정주행은?</div>
@@ -1997,6 +2037,7 @@
             renderGroupChips();
         renderKeywordChips();
             renderList();
+            document.getElementById('rouletteResult').className = 'roulette-box';
             document.getElementById('rouletteResult').innerHTML = '<div style="color: var(--text-muted);">버튼을 눌러 운명의 작품을 뽑아보세요!</div>';
         }
     }
@@ -2101,6 +2142,9 @@
     function spinRoulette() {
         const filterValue = document.getElementById('filterPlatform').value;
         const resultBox = document.getElementById('rouletteResult');
+        const btn = document.getElementById('rouletteBtn');
+        const btnLabel = document.getElementById('rouletteBtnLabel');
+        if (btn.classList.contains('spinning')) return;
 
         let pool = library;
         let poolLabel = '전체 플랫폼';
@@ -2124,37 +2168,57 @@
             poolLabel = `#${keyword}`;
         }
 
-        const minRating = parseFloat(document.getElementById('filterRating').value) || 0;
-        if (minRating > 0) {
-            pool = pool.filter(item => item.rating >= minRating);
-            poolLabel += ` (★${minRating} 이상)`;
+        const ratingValue = document.getElementById('filterRating').value;
+        if (ratingValue === 'unrated') {
+            pool = pool.filter(item => !item.rating || item.rating === 0);
+            poolLabel += ' (별점 없는 것만)';
+        } else {
+            const minRating = parseFloat(ratingValue) || 0;
+            if (minRating > 0) {
+                pool = pool.filter(item => item.rating >= minRating);
+                poolLabel += ` (★${minRating} 이상)`;
+            }
         }
 
         if (pool.length === 0) {
+            resultBox.classList.remove('rolling', 'revealing');
             resultBox.innerHTML = `<div style="color: var(--danger); font-weight: bold;">"${escapeHTML(poolLabel)}" 조건에 맞는 작품이 없습니다!</div>`;
             return;
         }
 
-        let count = 0;
-        const maxTicks = 15;
-        const speed = 80;
+        btn.classList.add('spinning');
+        btnLabel.textContent = '고르는 중...';
+        resultBox.classList.remove('revealing');
+        resultBox.classList.add('rolling');
 
-        const interval = setInterval(() => {
+        let count = 0;
+        const maxTicks = 16;
+
+        // 점점 느려지는 이징(ease-out)으로 슬롯머신처럼 서서히 멈추는 느낌을 줌
+        function easedDelay(i) {
+            const t = i / maxTicks;
+            const eased = 1 - Math.pow(1 - t, 3);
+            return 55 + eased * 190;
+        }
+
+        function tick() {
             const randomPick = pool[Math.floor(Math.random() * pool.length)];
             resultBox.innerHTML = `
                 <div class="roulette-meta" style="color: #9ca3af;">고르는 중...</div>
-                <div class="roulette-title" style="color: #6b7280;">${escapeHTML(randomPick.title)}</div>
+                <div class="roulette-title roulette-tick-text" style="color: #6b7280;">${escapeHTML(randomPick.title)}</div>
             `;
 
             count++;
             if (count >= maxTicks) {
-                clearInterval(interval);
                 const finalPick = pool[Math.floor(Math.random() * pool.length)];
                 const today = todayStr();
                 const alreadyWatchedToday = finalPick.watchLog.includes(today);
+
+                resultBox.classList.remove('rolling');
+                resultBox.classList.add('revealing');
                 resultBox.innerHTML = `
                     <div class="roulette-meta">오늘은 이 작품 어때요?</div>
-                    <div class="roulette-title">${escapeHTML(finalPick.title)}</div>
+                    <div class="roulette-title clickable" onclick="openDetail('${finalPick.id}')" title="클릭하면 상세정보로 이동">${escapeHTML(finalPick.title)}</div>
                     <div class="roulette-meta">
                         <span class="badge" data-platform="${escapeHTML(finalPick.platform)}">${escapeHTML(finalPick.platform)}</span>
                         소장률 ${finalPick.percent}%
@@ -2165,8 +2229,16 @@
                         오늘(${today}) 정주행 완료로 기록
                     </label>
                 `;
+
+                btn.classList.remove('spinning');
+                btnLabel.textContent = '랜덤 픽!';
+                return;
             }
-        }, speed);
+
+            setTimeout(tick, easedDelay(count));
+        }
+
+        tick();
     }
 
     function toggleWatchedToday(itemId, checked) {

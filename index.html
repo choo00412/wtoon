@@ -2192,13 +2192,13 @@
         resultBox.classList.add('rolling');
 
         let count = 0;
-        const maxTicks = 16;
+        const maxTicks = 12;
 
         // 점점 느려지는 이징(ease-out)으로 슬롯머신처럼 서서히 멈추는 느낌을 줌
         function easedDelay(i) {
             const t = i / maxTicks;
             const eased = 1 - Math.pow(1 - t, 3);
-            return 55 + eased * 190;
+            return 35 + eased * 170;
         }
 
         function tick() {

@@ -706,60 +706,71 @@
     .wishlist-title.checked { text-decoration: line-through; color: var(--text-muted); font-weight: 400; }
 
     /* ---------- 랭킹 (티어) ---------- */
-    :root {
-        --tier-s: #ef4444; --tier-a: #f97316; --tier-b: #eab308; --tier-c: #22c55e; --tier-d: #9ca3af;
+    .rank-toolbar { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
+    .rank-toolbar input { flex: 1; min-width: 0; }
+    .rank-toolbar button { flex: none; }
+    #rankWorksBody, #rankKwBody { scroll-margin-top: 70px; }
+    .tier-tabs {
+        display: flex; gap: 6px; overflow-x: auto; padding: 8px 0 10px; margin-bottom: 12px;
+        position: sticky; top: 60px; z-index: 40; background: var(--surface);
+        border-bottom: 1px solid var(--border); -webkit-overflow-scrolling: touch;
     }
-    .tier-board { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
-    .tier-row { display: flex; align-items: stretch; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: #fff; min-height: 56px; }
-    .tier-label {
-        flex: none; width: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center;
-        color: #fff; font-weight: 900; font-size: 1.35rem; line-height: 1.1;
+    .tier-tab {
+        flex: none; min-width: 54px; display: flex; flex-direction: column; align-items: center; gap: 1px;
+        padding: 6px 12px; border-radius: 12px; border: 2px solid; font-size: 1rem; font-weight: 900; line-height: 1.15;
     }
-    .tier-label small { font-size: 0.68rem; font-weight: 700; opacity: 0.9; margin-top: 2px; }
-    .tier-label.t-S { background: var(--tier-s); }
-    .tier-label.t-A { background: var(--tier-a); }
-    .tier-label.t-B { background: var(--tier-b); color: #422006; }
-    .tier-label.t-C { background: var(--tier-c); }
-    .tier-label.t-D { background: var(--tier-d); }
-    .tier-items { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; align-content: flex-start; }
-    .tier-empty { color: #c0c5cd; font-size: 0.8rem; align-self: center; }
-    .tier-chip {
-        background: #f3f4f6; color: var(--text-main); border: 1px solid var(--border);
-        padding: 6px 11px; border-radius: 9999px; font-size: 0.82rem; font-weight: 700;
-        max-width: 100%; text-align: left; word-break: break-all;
+    .tier-tab small { font-size: 0.7rem; font-weight: 800; }
+    .tier-tab:hover { filter: brightness(0.96); }
+    .rank-section { margin-bottom: 20px; }
+    .rank-section-head {
+        display: flex; align-items: baseline; gap: 10px; padding: 10px 14px; border-radius: 12px 12px 0 0; font-weight: 900;
     }
-    .tier-chip:hover { background: #e8edf2; }
-    .tier-chip small { color: var(--text-muted); font-weight: 600; margin-left: 4px; }
-    .tier-chip.just-moved { animation: tier-pop 0.42s cubic-bezier(.2,1.4,.4,1); border-color: var(--primary); }
+    .rank-section-head .name { font-size: 1.6rem; line-height: 1; }
+    .rank-section-head .cnt { font-size: 0.85rem; font-weight: 800; opacity: 0.9; }
+    .rank-section-head .rule { margin-left: auto; font-size: 0.72rem; font-weight: 700; opacity: 0.85; }
+    .rank-list { border: 1px solid var(--border); border-top: none; border-radius: 0 0 12px 12px; overflow: hidden; background: #fff; }
+    .rank-item {
+        display: flex; align-items: center; gap: 10px; padding: 10px 12px 10px 10px;
+        border-bottom: 1px solid #eef0f3; border-left: 5px solid var(--tc, #9ca3af); cursor: pointer;
+    }
+    .rank-item:last-child { border-bottom: none; }
+    .rank-item:active { filter: brightness(0.95); }
+    .rank-item.just-moved { animation: tier-pop 0.42s cubic-bezier(.2,1.4,.4,1); }
     @keyframes tier-pop {
-        0% { transform: scale(0.6); opacity: 0.2; }
+        0% { transform: scale(0.94); opacity: 0.3; }
         100% { transform: scale(1); opacity: 1; }
     }
-    .tier-pool-title { margin: 20px 0 8px; font-size: 0.95rem; font-weight: 800; display: flex; align-items: center; gap: 8px; }
-    .tier-pool-title .lib-count-badge { font-size: 0.75rem; }
-    .pool-list { display: flex; flex-direction: column; gap: 6px; }
-    .pool-row {
-        display: flex; align-items: center; justify-content: space-between; gap: 8px;
-        border: 1px solid var(--border); border-radius: 10px; padding: 8px 8px 8px 12px; background: #fff;
+    .rank-no {
+        flex: none; min-width: 30px; height: 30px; padding: 0 7px; border-radius: 9999px;
+        display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 0.85rem;
     }
-    .pool-row.just-moved { animation: tier-pop 0.42s cubic-bezier(.2,1.4,.4,1); }
-    .pool-name { flex: 1; min-width: 0; font-weight: 700; font-size: 0.9rem; word-break: break-all; line-height: 1.3; }
-    .pool-name small { display: block; color: var(--text-muted); font-weight: 600; font-size: 0.72rem; }
-    .pool-btns { display: flex; gap: 4px; flex: none; }
+    .rank-main { flex: 1; min-width: 0; }
+    .rank-title { font-weight: 800; font-size: 0.95rem; line-height: 1.3; word-break: break-all; }
+    .rank-sub { font-size: 0.74rem; color: var(--text-muted); font-weight: 600; margin-top: 1px; }
+    .rank-more { flex: none; color: var(--text-muted); font-size: 1.2rem; font-weight: 900; }
+    .rank-empty { padding: 16px; text-align: center; color: #b0b6c0; font-size: 0.85rem; }
+    .rank-more-btn {
+        display: block; width: 100%; background: #f3f4f6; color: var(--primary); border-radius: 0;
+        padding: 11px; font-size: 0.88rem; font-weight: 800;
+    }
+    .rank-more-btn:hover { background: #e8edf2; }
+    .rank-item.pool { display: block; cursor: default; padding: 10px 12px 12px 10px; }
+    .rank-item.pool:active { filter: none; }
+    .pool-btns { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 9px; }
     .tier-btn {
-        width: 32px; height: 32px; padding: 0; border-radius: 8px; font-weight: 900; font-size: 0.85rem; color: #fff;
+        flex: 1 0 38px; height: 38px; padding: 0 4px; border-radius: 9px; font-weight: 900; font-size: 0.85rem; color: #fff;
+        border: none; white-space: nowrap;
     }
-    .tier-btn.t-S { background: var(--tier-s); }
-    .tier-btn.t-A { background: var(--tier-a); }
-    .tier-btn.t-B { background: var(--tier-b); color: #422006; }
-    .tier-btn.t-C { background: var(--tier-c); }
-    .tier-btn.t-D { background: var(--tier-d); }
     .tier-btn:hover { filter: brightness(0.94); }
-    .tier-btn.current { outline: 3px solid rgba(31,41,55,0.35); outline-offset: 1px; }
+    .tier-btn.current { outline: 3px solid rgba(31,41,55,0.4); outline-offset: 1px; }
     .rank-tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 12px; -webkit-overflow-scrolling: touch; }
     .rank-tabs .chip { flex: none; }
     .rank-add-box { border: 1px dashed #c7ced8; border-radius: 10px; padding: 12px; background: #f9fafb; margin-bottom: 14px; }
     .rank-add-box .add-title { font-size: 0.82rem; font-weight: 800; color: var(--text-muted); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .rank-add-input-row { display: flex; gap: 8px; }
+    .rank-add-input-row input { flex: 1; min-width: 0; }
+    .rank-add-input-row button { flex: none; }
+    .add-hint { font-size: 0.74rem; color: var(--text-muted); margin-top: 8px; }
     .rank-add-list { display: flex; flex-wrap: wrap; gap: 6px; max-height: 170px; overflow-y: auto; margin-top: 10px; }
     .rank-add-chip {
         background: #fff; color: var(--text-main); border: 1px solid var(--border);
@@ -767,6 +778,10 @@
     }
     .rank-add-chip:hover { border-color: var(--primary); color: var(--primary); background: #fff; }
     .rank-add-chip::before { content: '+ '; color: var(--primary); }
+    .rank-add-chip.new { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .rank-add-chip.new::before { color: #fff; }
+    .rank-add-chip.new:hover { background: var(--primary-hover); color: #fff; }
+    .tier-empty { color: #c0c5cd; font-size: 0.8rem; }
 
     .sheet-overlay {
         display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.45); z-index: 1100;
@@ -774,16 +789,33 @@
     }
     .sheet-overlay.show { display: flex; animation: modal-overlay-in 0.16s ease; }
     .sheet {
-        width: 100%; max-width: 520px; background: #fff; border-radius: 18px 18px 0 0;
+        width: 100%; max-width: 520px; max-height: 88vh; overflow-y: auto; background: #fff; border-radius: 18px 18px 0 0;
         padding: 20px 20px calc(20px + env(safe-area-inset-bottom, 0px));
         box-shadow: 0 -10px 30px rgba(0,0,0,0.18);
     }
     .sheet-title { font-size: 1.05rem; font-weight: 800; word-break: break-all; }
     .sheet-sub { font-size: 0.8rem; color: var(--text-muted); margin: 2px 0 14px; }
-    .sheet-tier-btns { display: flex; gap: 8px; margin-bottom: 12px; }
-    .sheet-tier-btns .tier-btn { flex: 1; height: 48px; font-size: 1.15rem; border-radius: 10px; }
+    .sheet-tier-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+    .sheet-tier-btns .tier-btn { flex: 1 0 56px; height: 46px; font-size: 1.05rem; border-radius: 10px; }
+    .sheet-label { font-size: 0.82rem; font-weight: 800; margin-bottom: 8px; }
+    .sheet-label small { color: var(--text-muted); font-weight: 600; }
+    .sheet-order-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+    .sheet-order-btns button, .sheet-actions button { font-size: 0.88rem; padding: 10px 8px; }
+    .sheet-order-btns button:disabled { opacity: 0.4; cursor: default; }
+    .sheet-order-input { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; font-weight: 700; font-size: 0.9rem; }
+    .sheet-order-input input { width: 84px; text-align: center; }
+    #tierSheetOrder { border-top: 1px solid var(--border); padding-top: 14px; }
     .sheet-actions { display: flex; flex-wrap: wrap; gap: 8px; }
-    .sheet-actions button { flex: 1; min-width: 120px; font-size: 0.88rem; }
+    .sheet-actions button { flex: 1; min-width: 110px; }
+
+    .tier-edit-row { border: 1px solid var(--border); border-left: 6px solid #9ca3af; border-radius: 10px; padding: 10px; margin-bottom: 8px; }
+    .tier-edit-line { display: flex; align-items: center; gap: 6px; }
+    .tier-edit-line input[type="color"] { flex: none; width: 42px; height: 38px; padding: 2px; border: 1px solid var(--border); border-radius: 8px; background: #fff; cursor: pointer; }
+    .tier-edit-line input[type="text"] { flex: 1; min-width: 0; }
+    .tier-edit-line button { flex: none; padding: 6px 10px; }
+    .tier-edit-line button:disabled { opacity: 0.35; cursor: default; }
+    .tier-edit-line2 { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); }
+    .tier-edit-line2 select { width: auto; flex: 1; padding: 7px 8px; font-size: 0.9rem; }
 
     /* ---------- 분석 ---------- */
     .an-tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
@@ -1124,11 +1156,12 @@
             </div>
             <div class="card">
                 <h2>🏆 작품 랭킹
-                    <button type="button" class="secondary btn-small" onclick="resetWorkTiersToRating()">별점으로 초기화</button>
+                    <button type="button" class="secondary btn-small" onclick="openTierEditor()">⚙ 등급 편집</button>
                 </h2>
-                <div class="hint" style="margin-top: 0;">별점 기준으로 자동 배정돼 있어요 (★4.5~5 S / ★3.5~4 A / ★2.5~3 B / ★1~2 C / ★0.5 D, 별점 없음은 미분류). 작품 이름을 탭하면 등급을 옮길 수 있어요.</div>
-                <div class="form-group">
+                <div class="hint" style="margin-top: 0;">별점 기준으로 자동 배정돼 있어요. 등급 안에서는 <b>위에 있을수록 순위가 높아요</b>. 작품을 탭하면 등급 이동과 순위 조정을 할 수 있어요.</div>
+                <div class="rank-toolbar">
                     <input type="text" id="rankWorksSearch" placeholder="작품 검색 (초성 가능)" oninput="rankWorksSearch = this.value.trim(); renderWorkRanking();">
+                    <button type="button" class="secondary btn-small" onclick="resetWorkTiersToRating()">별점으로 초기화</button>
                 </div>
                 <div id="rankWorksBody"></div>
             </div>
@@ -1142,8 +1175,12 @@
                 <button class="secondary btn-small" onclick="showPage('page-my')">←</button>
             </div>
             <div class="card">
-                <h2>🏷️ 키워드 랭킹</h2>
+                <h2>🏷️ 키워드 랭킹
+                    <button type="button" class="secondary btn-small" onclick="openTierEditor()">⚙ 등급 편집</button>
+                </h2>
+                <div class="hint" style="margin-top: 0;">등급 안에서는 위에 있을수록 순위가 높아요. 키워드를 탭하면 등급 이동과 순위 조정을 할 수 있어요.</div>
                 <div class="rank-tabs" id="rankKwTabs"></div>
+                <div id="rankKwAdd"></div>
                 <div id="rankKwBody"></div>
             </div>
         </div>
@@ -1264,13 +1301,30 @@
     </div>
 </div>
 
-<!-- 랭킹 등급 선택 시트 (모바일 하단 시트) -->
+<!-- 랭킹 등급/순위 선택 시트 (모바일 하단 시트) -->
 <div id="tierSheetOverlay" class="sheet-overlay" onclick="closeTierSheet(event)">
     <div class="sheet">
         <div class="sheet-title" id="tierSheetTitle"></div>
         <div class="sheet-sub" id="tierSheetSub"></div>
         <div class="sheet-tier-btns" id="tierSheetBtns"></div>
+        <div id="tierSheetOrder"></div>
         <div class="sheet-actions" id="tierSheetActions"></div>
+    </div>
+</div>
+
+<!-- 등급 편집 (이름/색/개수/자동 배정 기준) -->
+<div id="tierEditOverlay" class="sheet-overlay">
+    <div class="sheet">
+        <div class="sheet-title">⚙ 등급 편집</div>
+        <div class="sheet-sub">작품 랭킹과 키워드 랭킹이 같은 등급을 써요. 저장을 눌러야 적용돼요. 이름을 바꿔도 이미 넣어둔 항목은 그대로예요.</div>
+        <div class="sheet-label">프리셋 불러오기</div>
+        <div class="sheet-actions" id="tierEditPresets" style="margin-bottom: 14px;"></div>
+        <div id="tierEditRows"></div>
+        <button type="button" class="secondary" style="width:100%; margin: 4px 0 14px;" onclick="addTierToDraft()">＋ 등급 추가</button>
+        <div class="sheet-actions">
+            <button type="button" class="secondary" onclick="closeTierEditor()">취소</button>
+            <button type="button" onclick="saveTierEditor()">저장</button>
+        </div>
     </div>
 </div>
 
@@ -1455,7 +1509,7 @@
     let currentBookId = null;
     let keywordPresets = [];
     let keywordFavorites = [];
-    let keywordRank = {}; // { 카테고리: { 키워드: 'S'|'A'|'B'|'C'|'D'|'' (''=미분류) } }
+    let keywordRank = {}; // { 카테고리: { 키워드: 등급 id | '' (''=미분류) } }
     const GH_FILENAME = 'webtoon_library.json';
 
     // ---------- 미리 정의된 키워드 사전 (분야/소재/캐릭터/공/수) ----------
@@ -1543,6 +1597,15 @@
             try { keywordRank = JSON.parse(storedKeywordRank) || {}; } catch (e) { keywordRank = {}; }
         }
 
+        const storedKeywordRankPos = localStorage.getItem('webtoonKeywordRankPos');
+        if (storedKeywordRankPos) {
+            try { keywordRankPos = JSON.parse(storedKeywordRankPos) || {}; } catch (e) { keywordRankPos = {}; }
+        }
+        const storedTierConfig = localStorage.getItem('webtoonTierConfig');
+        if (storedTierConfig) {
+            try { tierConfig = sanitizeTierConfig(JSON.parse(storedTierConfig)) || tierConfig; } catch (e) { /* keep default */ }
+        }
+
         library.forEach(normalizeItem);
 
         renderList();
@@ -1564,6 +1627,7 @@
         if (!Array.isArray(item.groupIds)) item.groupIds = [];
         if (typeof item.memo !== 'string') item.memo = '';
         if (!Array.isArray(item.watchLog)) item.watchLog = [];
+        if (item.tier === 'N') item.tier = '_'; // 이전 버전의 "직접 미분류" 표시
         return item;
     }
 
@@ -1623,6 +1687,8 @@
         localStorage.setItem('webtoonKeywordPresets', JSON.stringify(keywordPresets));
         localStorage.setItem('webtoonKeywordFavorites', JSON.stringify(keywordFavorites));
         localStorage.setItem('webtoonKeywordRank', JSON.stringify(keywordRank));
+        localStorage.setItem('webtoonKeywordRankPos', JSON.stringify(keywordRankPos));
+        localStorage.setItem('webtoonTierConfig', JSON.stringify(tierConfig));
     }
 
     // ---------- 탭 전환 ----------
@@ -3055,7 +3121,7 @@
     // ---------- GitHub Gist 클라우드 동기화 (수동) ----------
 
     function buildBackupPayload() {
-        return { library, groups, wishlist, timetableData, readingBooks, keywordPresets, keywordFavorites, keywordRank };
+        return { library, groups, wishlist, timetableData, readingBooks, keywordPresets, keywordFavorites, keywordRank, keywordRankPos, tierConfig };
     }
 
     function applyBackupPayload(payload) {
@@ -3087,6 +3153,11 @@
             if (payload.keywordRank && typeof payload.keywordRank === 'object' && !Array.isArray(payload.keywordRank)) {
                 keywordRank = payload.keywordRank;
             }
+            if (payload.keywordRankPos && typeof payload.keywordRankPos === 'object' && !Array.isArray(payload.keywordRankPos)) {
+                keywordRankPos = payload.keywordRankPos;
+            }
+            const cfg = sanitizeTierConfig(payload.tierConfig);
+            if (cfg) tierConfig = cfg;
         }
     }
 
@@ -3297,7 +3368,8 @@
                     groupIds: remappedGroupIds,
                     memo: typeof item.memo === 'string' ? item.memo : '',
                     watchLog: Array.isArray(item.watchLog) ? item.watchLog : [],
-                    ...(item.tier ? { tier: item.tier } : {})
+                    ...(item.tier ? { tier: item.tier } : {}),
+                    ...(typeof item.rankPos === 'number' ? { rankPos: item.rankPos } : {})
                 }));
                 added++;
             } else {
@@ -3328,7 +3400,10 @@
                 }
 
                 // 수동으로 매긴 등급은 이 기기에 등급이 없을 때만 가져옴 (기존 수동 등급 우선)
-                if (item.tier && !existingItem.tier) existingItem.tier = item.tier;
+                if (item.tier && !existingItem.tier) {
+                    existingItem.tier = item.tier === 'N' ? '_' : item.tier;
+                    if (typeof item.rankPos === 'number') existingItem.rankPos = item.rankPos;
+                }
 
                 updated++;
             }
@@ -3387,6 +3462,10 @@
             incoming.keywordPresets.forEach(kw => addKeywordPreset(kw));
         }
 
+        // 등급 설정 병합: 이 기기 설정이 기본값 그대로일 때만 가져온 설정을 따라감 (직접 꾸민 설정 우선)
+        const incomingCfg = sanitizeTierConfig(incoming.tierConfig);
+        if (incomingCfg && isDefaultTierConfig()) tierConfig = incomingCfg;
+
         // 키워드 랭킹 병합: 없는 키워드는 추가, 이 기기에서 미분류인 키워드만 가져온 등급 적용
         if (incoming.keywordRank && typeof incoming.keywordRank === 'object' && !Array.isArray(incoming.keywordRank)) {
             Object.keys(incoming.keywordRank).forEach(cat => {
@@ -3394,9 +3473,16 @@
                 if (!src || typeof src !== 'object') return;
                 if (!keywordRank[cat]) keywordRank[cat] = {};
                 Object.keys(src).forEach(kw => {
-                    const t = TIERS.includes(src[kw]) ? src[kw] : '';
-                    if (!(kw in keywordRank[cat])) keywordRank[cat][kw] = t;
-                    else if (!keywordRank[cat][kw] && t) keywordRank[cat][kw] = t;
+                    const t = typeof src[kw] === 'string' ? src[kw] : '';
+                    const isNew = !hasOwn(keywordRank[cat], kw);
+                    if (isNew || (!keywordRank[cat][kw] && t)) {
+                        keywordRank[cat][kw] = t;
+                        const p = incoming.keywordRankPos && incoming.keywordRankPos[cat] && incoming.keywordRankPos[cat][kw];
+                        if (typeof p === 'number') {
+                            if (!keywordRankPos[cat]) keywordRankPos[cat] = {};
+                            keywordRankPos[cat][kw] = p;
+                        }
+                    }
                 });
             });
         }
@@ -3471,105 +3557,110 @@
     // =====================================================================
     // 랭킹 (티어 매기기): 작품 / 키워드
     // =====================================================================
-    const TIERS = ['S', 'A', 'B', 'C', 'D'];
     const RANK_KW_TABS = ['분야/분위기', '소재/관계', '캐릭터', '공', '수', '커스텀'];
     const RANK_KW_AUTO_TABS = ['공', '수']; // 처음부터 사전 전체가 미분류 풀에 들어가는 탭
+    const DEFAULT_TIER_PRESET = '5단계 (S~D)';
+    // min = 작품 랭킹에서 "별점이 이 값 이상이면 자동 배정" 기준 (0이면 자동 배정 안 함)
+    const TIER_PRESETS = {
+        '5단계 (S~D)': [
+            { id: 'S', name: 'S', color: '#ef4444', min: 4.5 },
+            { id: 'A', name: 'A', color: '#f97316', min: 3.5 },
+            { id: 'B', name: 'B', color: '#eab308', min: 2.5 },
+            { id: 'C', name: 'C', color: '#22c55e', min: 1 },
+            { id: 'D', name: 'D', color: '#9ca3af', min: 0.5 }
+        ],
+        '8단계 (SS·A+·B+)': [
+            { id: 'SS', name: 'SS', color: '#e11d48', min: 5 },
+            { id: 'S', name: 'S', color: '#ef4444', min: 4.5 },
+            { id: 'A+', name: 'A+', color: '#f97316', min: 4 },
+            { id: 'A', name: 'A', color: '#f59e0b', min: 3.5 },
+            { id: 'B+', name: 'B+', color: '#84cc16', min: 3 },
+            { id: 'B', name: 'B', color: '#22c55e', min: 2.5 },
+            { id: 'C', name: 'C', color: '#38bdf8', min: 1.5 },
+            { id: 'D', name: 'D', color: '#9ca3af', min: 0.5 }
+        ],
+        '가챠형 (SSR·SR·R·N)': [
+            { id: 'g_SSR', name: 'SSR', color: '#f59e0b', min: 4.5 },
+            { id: 'g_SR', name: 'SR', color: '#a855f7', min: 3.5 },
+            { id: 'g_R', name: 'R', color: '#3b82f6', min: 2.5 },
+            { id: 'g_N', name: 'N', color: '#9ca3af', min: 0.5 }
+        ]
+    };
+
+    function cloneTiers(arr) {
+        return arr.map(t => ({ id: t.id, name: t.name, color: t.color, min: t.min || 0 }));
+    }
+
+    let tierConfig = cloneTiers(TIER_PRESETS[DEFAULT_TIER_PRESET]);
+    let keywordRankPos = {}; // { 카테고리: { 키워드: 등급 안에서의 순서(0부터) } }
     let rankWorksSearch = '';
     let rankKwActiveTab = '공';
     let rankKwSearch = '';
-    let rankLastMoved = null; // 방금 옮긴 항목 (애니메이션용)
-    let tierSheetTarget = null;
+    let rankView = { work: 'ALL', kw: 'ALL' }; // 'ALL' | 등급 id | '' (미분류)
+    let rankLastMoved = null;
+    let tierSheetTarget = null; // { scope, id }
+    let tierEditDraft = null;
 
-    function autoTierFromRating(r) {
-        if (!r) return '';
-        if (r >= 4.5) return 'S';
-        if (r >= 3.5) return 'A';
-        if (r >= 2.5) return 'B';
-        if (r >= 1) return 'C';
-        return 'D';
+    const hasOwn = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
+
+    function escAttr(s) {
+        return escapeHTML(String(s)).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     }
 
-    // 작품 등급: 직접 옮긴 값(tier) 우선, 'N' = 직접 미분류로 옮김, 없으면 별점 자동 배정
-    function getWorkTier(item) {
-        if (item.tier === 'N') return '';
-        if (TIERS.includes(item.tier)) return item.tier;
-        return autoTierFromRating(item.rating);
-    }
-
-    function tierBtnsHTML(current, handlerFn) {
-        return TIERS.map(t =>
-            `<button type="button" class="tier-btn t-${t}${current === t ? ' current' : ''}" onclick="${handlerFn(t)}">${t}</button>`
-        ).join('');
-    }
-
-    function tierLabelHTML(t, count) {
-        return `<div class="tier-label t-${t}">${t}<small>${count}</small></div>`;
-    }
-
-    // ----- 작품 랭킹 -----
-
-    function renderWorkRanking() {
-        const box = document.getElementById('rankWorksBody');
-        if (!box) return;
-        const q = rankWorksSearch;
-        const buckets = { S: [], A: [], B: [], C: [], D: [], '': [] };
-        library.forEach(it => {
-            if (q && !matchesSearchText(it.title, q)) return;
-            buckets[getWorkTier(it)].push(it);
-        });
-        Object.keys(buckets).forEach(k => buckets[k].sort((a, b) => (b.rating - a.rating) || a.title.localeCompare(b.title, 'ko')));
-
-        if (library.length === 0) {
-            box.innerHTML = `<div class="an-empty">서재가 비어있어요. 먼저 작품을 추가해주세요.</div>`;
-            return;
-        }
-
-        let html = '<div class="tier-board">';
-        TIERS.forEach(t => {
-            const chips = buckets[t].map(it =>
-                `<button type="button" class="tier-chip${rankLastMoved === 'w:' + it.id ? ' just-moved' : ''}" onclick="openTierSheet('work', '${it.id}')">${escapeHTML(it.title)}<small>${it.rating ? '★' + it.rating : ''}</small></button>`
-            ).join('');
-            html += `<div class="tier-row">${tierLabelHTML(t, buckets[t].length)}<div class="tier-items">${chips || '<span class="tier-empty">비어있음</span>'}</div></div>`;
-        });
-        html += '</div>';
-
-        html += `<div class="tier-pool-title">미분류 <span class="lib-count-badge">${buckets[''].length}</span></div>`;
-        if (buckets[''].length === 0) {
-            html += `<div class="an-empty">미분류 작품이 없어요 🎉</div>`;
-        } else {
-            html += '<div class="pool-list">';
-            buckets[''].forEach(it => {
-                html += `<div class="pool-row${rankLastMoved === 'w:' + it.id ? ' just-moved' : ''}">
-                    <div class="pool-name">${escapeHTML(it.title)}<small>${escapeHTML(platformLabel(it.platform))} · 소장률 ${it.percent}%${it.rating ? ' · ★' + it.rating : ' · 별점 없음'}</small></div>
-                    <div class="pool-btns">${tierBtnsHTML('', t => `setWorkTier('${it.id}', '${t}')`)}</div>
-                </div>`;
+    function sanitizeTierConfig(arr) {
+        if (!Array.isArray(arr) || arr.length === 0) return null;
+        const out = [];
+        const seen = new Set();
+        for (const t of arr) {
+            if (!t || typeof t.id !== 'string' || !t.id || seen.has(t.id)) return null;
+            seen.add(t.id);
+            out.push({
+                id: t.id,
+                name: String(t.name === undefined ? t.id : t.name).trim() || t.id,
+                color: /^#[0-9a-f]{6}$/i.test(t.color) ? t.color : '#9ca3af',
+                min: typeof t.min === 'number' && t.min > 0 ? Math.min(5, t.min) : 0
             });
-            html += '</div>';
         }
-        box.innerHTML = html;
-        rankLastMoved = null;
+        return out;
     }
 
-    function setWorkTier(id, tier) {
-        const item = library.find(w => w.id === id);
-        if (!item) return;
-        if (tier === 'AUTO') delete item.tier;
-        else item.tier = tier; // 'S'~'D' 또는 'N'(미분류)
-        rankLastMoved = 'w:' + id;
-        saveToStorage();
-        renderWorkRanking();
+    function isDefaultTierConfig() {
+        return JSON.stringify(tierConfig) === JSON.stringify(cloneTiers(TIER_PRESETS[DEFAULT_TIER_PRESET]));
     }
 
-    function resetWorkTiersToRating() {
-        const manual = library.filter(w => w.tier).length;
-        if (manual === 0) { alert('직접 옮긴 작품이 없어요. 이미 별점 기준 그대로예요.'); return; }
-        if (!confirm(`직접 옮긴 ${manual}개 작품의 등급을 지우고, 전부 별점 기준 자동 배정으로 되돌릴까요?`)) return;
-        library.forEach(w => { delete w.tier; });
-        saveToStorage();
-        renderWorkRanking();
+    function tierById(id) {
+        return tierConfig.find(t => t.id === id) || null;
     }
 
-    // ----- 키워드 랭킹 -----
+    function hexToRgb(hex) {
+        const h = hex.replace('#', '');
+        return { r: parseInt(h.substr(0, 2), 16), g: parseInt(h.substr(2, 2), 16), b: parseInt(h.substr(4, 2), 16) };
+    }
+    function tierTint(hex, alpha) {
+        const c = hexToRgb(hex);
+        return `rgba(${c.r},${c.g},${c.b},${alpha})`;
+    }
+    function tierTextColor(hex) {
+        const c = hexToRgb(hex);
+        const lum = (0.299 * c.r + 0.587 * c.g + 0.114 * c.b) / 255;
+        return lum > 0.62 ? '#1f2937' : '#ffffff';
+    }
+
+    // 별점 → 등급 자동 배정 (min이 큰 등급부터 검사, 어느 기준도 못 넘으면 가장 낮은 등급)
+    function autoTierIdFromRating(r) {
+        if (!r) return '';
+        const cands = tierConfig.filter(t => t.min > 0).sort((a, b) => b.min - a.min);
+        if (cands.length === 0) return '';
+        const hit = cands.find(t => r >= t.min);
+        return hit ? hit.id : cands[cands.length - 1].id;
+    }
+
+    // 작품 등급: 직접 옮긴 값(tier) 우선, '_' = 직접 미분류로 옮김, 없으면 별점 자동 배정
+    function getWorkTier(item) {
+        if (item.tier === '_') return '';
+        if (item.tier && tierById(item.tier)) return item.tier;
+        return autoTierIdFromRating(item.rating);
+    }
 
     function getKwPool(cat) {
         const stored = keywordRank[cat] || {};
@@ -3577,17 +3668,14 @@
         if (RANK_KW_AUTO_TABS.includes(cat)) {
             (KEYWORD_CATEGORIES[cat] || []).forEach(k => { pool[k] = ''; });
         }
-        Object.keys(stored).forEach(k => { pool[k] = TIERS.includes(stored[k]) ? stored[k] : ''; });
+        Object.keys(stored).forEach(k => { pool[k] = tierById(stored[k]) ? stored[k] : ''; });
         return pool;
     }
 
     function getKwCandidates(cat) {
         const set = new Set();
-        if (cat === '커스텀') {
-            getCustomKeywordList().forEach(k => set.add(k));
-        } else {
-            (KEYWORD_CATEGORIES[cat] || []).forEach(k => set.add(k));
-        }
+        if (cat === '커스텀') getCustomKeywordList().forEach(k => set.add(k));
+        else (KEYWORD_CATEGORIES[cat] || []).forEach(k => set.add(k));
         return Array.from(set);
     }
 
@@ -3597,6 +3685,236 @@
         return counts;
     }
 
+    // ----- 공통: 항목 목록 / 정렬 / 순위 -----
+
+    // scope: 'work' | 'kw'. 반환: [{id,title,sub,tier,pos,rating}]  (tier ''=미분류)
+    function rankEntries(scope) {
+        if (scope === 'work') {
+            return library.map(it => ({
+                id: it.id, title: it.title,
+                sub: `${platformLabel(it.platform)} · 소장률 ${it.percent}%${it.rating ? ' · ★' + it.rating : ' · 별점 없음'}`,
+                tier: getWorkTier(it),
+                pos: typeof it.rankPos === 'number' ? it.rankPos : null,
+                rating: it.rating
+            }));
+        }
+        const cat = rankKwActiveTab;
+        const pool = getKwPool(cat);
+        const counts = countKeywordUse();
+        const posMap = keywordRankPos[cat] || {};
+        return Object.keys(pool).map(k => ({
+            id: k, title: k, sub: `작품 ${counts[k] || 0}개`, tier: pool[k],
+            pos: typeof posMap[k] === 'number' ? posMap[k] : null,
+            rating: counts[k] || 0
+        }));
+    }
+
+    // 정렬: 직접 정한 순서(pos) 먼저, 나머지는 별점(키워드는 사용 횟수) 높은 순
+    function sortRankEntries(list) {
+        list.sort((a, b) => {
+            if (a.pos !== null && b.pos !== null) return a.pos - b.pos;
+            if (a.pos !== null) return -1;
+            if (b.pos !== null) return 1;
+            return (b.rating - a.rating) || a.title.localeCompare(b.title, 'ko');
+        });
+        return list;
+    }
+
+    function rankSetPos(scope, id, n) {
+        if (scope === 'work') {
+            const it = library.find(w => w.id === id);
+            if (it) it.rankPos = n;
+        } else {
+            const cat = rankKwActiveTab;
+            if (!keywordRankPos[cat]) keywordRankPos[cat] = {};
+            keywordRankPos[cat][id] = n;
+        }
+    }
+
+    function rankClearPos(scope, id) {
+        if (scope === 'work') {
+            const it = library.find(w => w.id === id);
+            if (it) delete it.rankPos;
+        } else if (keywordRankPos[rankKwActiveTab]) {
+            delete keywordRankPos[rankKwActiveTab][id];
+        }
+    }
+
+    function rankBoardElId(scope) {
+        return scope === 'work' ? 'rankWorksBody' : 'rankKwBody';
+    }
+
+    function renderRank(scope) {
+        if (scope === 'work') renderWorkRanking(); else renderRankBoard('kw');
+    }
+
+    function rankSetTier(scope, id, tier) {
+        if (scope === 'work') {
+            const it = library.find(w => w.id === id);
+            if (!it) return;
+            if (tier === 'AUTO') {
+                if (!it.tier) return;
+                delete it.tier;
+            } else {
+                if (getWorkTier(it) === (tier === '_' ? '' : tier)) return; // 이미 그 등급
+                it.tier = tier; // 등급 id 또는 '_'(미분류)
+            }
+            delete it.rankPos; // 새 등급에서는 맨 뒤부터 시작
+        } else {
+            const cat = rankKwActiveTab;
+            if (!keywordRank[cat]) keywordRank[cat] = {};
+            if (keywordRank[cat][id] === tier) return;
+            keywordRank[cat][id] = tier; // '' = 미분류
+            rankClearPos('kw', id);
+        }
+        rankLastMoved = scope + ':' + id;
+        saveToStorage();
+        renderRank(scope);
+    }
+
+    // target: 'top' | 'up' | 'down' | 'bottom' | 숫자(1부터 시작하는 순위)
+    function rankReorder(scope, id, target) {
+        const all = rankEntries(scope);
+        const e = all.find(x => x.id === id);
+        if (!e || !e.tier) return;
+        const list = sortRankEntries(all.filter(x => x.tier === e.tier));
+        const from = list.findIndex(x => x.id === id);
+        let to = from;
+        if (target === 'top') to = 0;
+        else if (target === 'up') to = from - 1;
+        else if (target === 'down') to = from + 1;
+        else if (target === 'bottom') to = list.length - 1;
+        else if (typeof target === 'number' && !isNaN(target)) to = Math.round(target) - 1;
+        to = Math.max(0, Math.min(list.length - 1, to));
+        const moved = list.splice(from, 1)[0];
+        list.splice(to, 0, moved);
+        list.forEach((x, i) => rankSetPos(scope, x.id, i));
+        rankLastMoved = scope + ':' + id;
+        saveToStorage();
+        renderRank(scope);
+    }
+
+    // ----- 공통: 보드 그리기 -----
+
+    function setRankView(scope, v) {
+        rankView[scope] = v;
+        renderRank(scope);
+        const box = document.getElementById(rankBoardElId(scope));
+        if (box && box.getBoundingClientRect().top < 70) box.scrollIntoView({ block: 'start' });
+    }
+
+    function rankItemHTML(scope, tier, e) {
+        const moved = rankLastMoved === scope + ':' + e.id ? ' just-moved' : '';
+        if (tier) {
+            const tx = tierTextColor(tier.color);
+            return `<div class="rank-item${moved}" style="--tc:${tier.color};background:${tierTint(tier.color, 0.09)}" data-id="${escAttr(e.id)}" onclick="openTierSheet('${scope}', this.dataset.id)">
+                <span class="rank-no" style="background:${tier.color};color:${tx}">${e.rank}</span>
+                <div class="rank-main"><div class="rank-title">${escapeHTML(e.title)}</div><div class="rank-sub">${escapeHTML(e.sub)}</div></div>
+                <span class="rank-more">⋯</span>
+            </div>`;
+        }
+        const btns = tierConfig.map(t =>
+            `<button type="button" class="tier-btn" style="background:${t.color};color:${tierTextColor(t.color)}" data-scope="${scope}" data-id="${escAttr(e.id)}" data-tier="${escAttr(t.id)}" onclick="poolTierClick(this)">${escapeHTML(t.name)}</button>`
+        ).join('');
+        return `<div class="rank-item pool${moved}" style="--tc:#9ca3af">
+            <div class="rank-main"><div class="rank-title">${escapeHTML(e.title)}</div><div class="rank-sub">${escapeHTML(e.sub)}</div></div>
+            <div class="pool-btns">${btns}</div>
+        </div>`;
+    }
+
+    function poolTierClick(btn) {
+        rankSetTier(btn.dataset.scope, btn.dataset.id, btn.dataset.tier);
+    }
+
+    function rankSectionHTML(scope, tier, entries, limit) {
+        const name = tier ? escapeHTML(tier.name) : '미분류';
+        const color = tier ? tier.color : '#6b7280';
+        const tx = tier ? tierTextColor(tier.color) : '#ffffff';
+        let rule = '';
+        if (scope === 'work' && tier && tier.min > 0) rule = `<span class="rule">★${tier.min}${tier.min >= 5 ? '' : ' 이상'} 자동</span>`;
+        let html = `<div class="rank-section">
+            <div class="rank-section-head" style="background:${color};color:${tx}"><span class="name">${name}</span><span class="cnt">${entries.length}개</span>${rule}</div>
+            <div class="rank-list">`;
+        if (entries.length === 0) {
+            html += `<div class="rank-empty">${tier ? '비어있음' : '미분류 항목이 없어요 🎉'}</div>`;
+        } else {
+            entries.slice(0, limit).forEach(e => { html += rankItemHTML(scope, tier, e); });
+            if (entries.length > limit) {
+                html += `<button type="button" class="rank-more-btn" data-view="${escAttr(tier ? tier.id : '')}" onclick="setRankView('${scope}', this.dataset.view)">${name} 전체 ${entries.length}개 보기 ›</button>`;
+            }
+        }
+        html += '</div></div>';
+        return html;
+    }
+
+    function renderRankBoard(scope) {
+        const box = document.getElementById(rankBoardElId(scope));
+        if (!box) return;
+        const q = scope === 'work' ? rankWorksSearch : '';
+        const all = rankEntries(scope);
+
+        if (scope === 'work' && library.length === 0) {
+            box.innerHTML = `<div class="an-empty">서재가 비어있어요. 먼저 작품을 추가해주세요.</div>`;
+            return;
+        }
+
+        const buckets = { '': [] };
+        tierConfig.forEach(t => { buckets[t.id] = []; });
+        all.forEach(e => { (hasOwn(buckets, e.tier) ? buckets[e.tier] : buckets['']).push(e); });
+        Object.keys(buckets).forEach(k => { sortRankEntries(buckets[k]).forEach((e, i) => { e.rank = i + 1; }); });
+        const shown = {};
+        Object.keys(buckets).forEach(k => { shown[k] = q ? buckets[k].filter(e => matchesSearchText(e.title, q)) : buckets[k]; });
+
+        let view = rankView[scope];
+        if (view !== 'ALL' && view !== '' && !tierById(view)) { view = 'ALL'; rankView[scope] = 'ALL'; }
+
+        // 등급 탭 (스크롤해도 위에 붙어 있음)
+        let tabs = `<div class="tier-tabs">`;
+        const tabBtn = (v, label, count, color, isActive) => {
+            const tx = tierTextColor(color);
+            const style = isActive
+                ? `background:${color};color:${tx};border-color:${color}`
+                : `background:${tierTint(color, 0.12)};color:#1f2937;border-color:${color}`;
+            return `<button type="button" class="tier-tab${isActive ? ' active' : ''}" style="${style}" data-view="${escAttr(v)}" onclick="setRankView('${scope}', this.dataset.view)">${label}<small style="color:${isActive ? tx : '#6b7280'}">${count}</small></button>`;
+        };
+        const totalShown = Object.keys(shown).reduce((s, k) => s + shown[k].length, 0);
+        tabs += tabBtn('ALL', '전체', totalShown, '#47799b', view === 'ALL');
+        tierConfig.forEach(t => { tabs += tabBtn(t.id, escapeHTML(t.name), shown[t.id].length, t.color, view === t.id); });
+        tabs += tabBtn('', '미분류', shown[''].length, '#6b7280', view === '');
+        tabs += `</div>`;
+
+        let body = '';
+        if (view === 'ALL') {
+            const limit = q ? Infinity : 8;
+            tierConfig.forEach(t => { body += rankSectionHTML(scope, t, shown[t.id], limit); });
+            body += rankSectionHTML(scope, null, shown[''], limit);
+        } else if (view === '') {
+            body = rankSectionHTML(scope, null, shown[''], Infinity);
+        } else {
+            body = rankSectionHTML(scope, tierById(view), shown[view], Infinity);
+        }
+
+        box.innerHTML = tabs + body;
+        rankLastMoved = null;
+    }
+
+    // ----- 작품 랭킹 -----
+
+    function renderWorkRanking() {
+        renderRankBoard('work');
+    }
+
+    function resetWorkTiersToRating() {
+        const manual = library.filter(w => w.tier || typeof w.rankPos === 'number').length;
+        if (manual === 0) { alert('직접 옮기거나 순서를 바꾼 작품이 없어요. 이미 별점 기준 그대로예요.'); return; }
+        if (!confirm(`직접 옮기거나 순서를 바꾼 ${manual}개 작품을 전부 별점 기준 자동 배정으로 되돌릴까요?`)) return;
+        library.forEach(w => { delete w.tier; delete w.rankPos; });
+        saveToStorage();
+        renderWorkRanking();
+    }
+
+    // ----- 키워드 랭킹 -----
+
     function setRankKwTab(cat) {
         rankKwActiveTab = cat;
         rankKwSearch = '';
@@ -3605,9 +3923,7 @@
 
     function renderKeywordRanking() {
         const tabsEl = document.getElementById('rankKwTabs');
-        const box = document.getElementById('rankKwBody');
-        if (!tabsEl || !box) return;
-
+        if (!tabsEl) return;
         tabsEl.innerHTML = '';
         RANK_KW_TABS.forEach(cat => {
             const b = document.createElement('button');
@@ -3617,140 +3933,205 @@
             b.addEventListener('click', () => setRankKwTab(cat));
             tabsEl.appendChild(b);
         });
+        renderKwAddBox();
+        renderRankBoard('kw');
+    }
 
+    function renderKwAddBox() {
+        const host = document.getElementById('rankKwAdd');
+        if (!host) return;
+        const isAuto = RANK_KW_AUTO_TABS.includes(rankKwActiveTab);
+        host.innerHTML = `<div class="rank-add-box">
+            <div class="add-title"><span>키워드 추가</span><span id="rankKwAddAll"></span></div>
+            <div class="rank-add-input-row">
+                <input type="text" id="rankKwSearchInput" placeholder="검색하거나, 새 키워드를 직접 입력" autocomplete="off"
+                    oninput="onRankKwSearchInput(this.value)"
+                    onkeydown="if (event.key === 'Enter') { event.preventDefault(); addTypedKwToRank(); }">
+                <button type="button" onclick="addTypedKwToRank()">추가</button>
+            </div>
+            <div class="add-hint">${isAuto
+                ? '이 분류는 사전 키워드가 이미 다 들어 있어요. 빠진 키워드는 직접 입력해서 추가할 수 있어요.'
+                : '아래 목록에서 탭하거나, 목록에 없는 키워드는 직접 입력하고 추가를 눌러주세요.'}</div>
+            <div class="rank-add-list" id="rankKwAddList"></div>
+        </div>`;
+        const inp = document.getElementById('rankKwSearchInput');
+        if (inp) inp.value = rankKwSearch;
+        refreshKwAddDynamic();
+    }
+
+    // 후보 목록/전부 추가 버튼만 갱신 (입력칸은 그대로 둬서 모바일 키보드가 안 닫혀요)
+    function refreshKwAddDynamic() {
         const cat = rankKwActiveTab;
-        const isAuto = RANK_KW_AUTO_TABS.includes(cat);
         const pool = getKwPool(cat);
-        const counts = countKeywordUse();
-        const buckets = { S: [], A: [], B: [], C: [], D: [], '': [] };
-        Object.keys(pool).forEach(k => buckets[pool[k]].push(k));
-        Object.keys(buckets).forEach(t => buckets[t].sort((a, b) => ((counts[b] || 0) - (counts[a] || 0)) || a.localeCompare(b, 'ko')));
+        const candidates = getKwCandidates(cat).filter(k => !hasOwn(pool, k) && matchesSearchText(k, rankKwSearch));
+        const typed = rankKwSearch.replace(/^#+/, '').trim();
+        const showNew = typed && !hasOwn(pool, typed) && !candidates.includes(typed);
 
         let html = '';
-
-        if (!isAuto) {
-            const candidates = getKwCandidates(cat).filter(k => !(k in pool) && matchesSearchText(k, rankKwSearch));
-            const addAllBtn = candidates.length > 1 && !rankKwSearch
-                ? `<button type="button" class="secondary btn-small" onclick="addAllKwToRank()">전부 추가 (${candidates.length})</button>` : '';
-            html += `<div class="rank-add-box">
-                <div class="add-title"><span>키워드 추가</span>${addAllBtn}</div>
-                <input type="text" id="rankKwSearchInput" placeholder="${escapeHTML(cat)} 키워드 검색 (초성 가능)" value="${escapeHTML(rankKwSearch)}" oninput="onRankKwSearchInput(this.value)">
-                <div class="rank-add-list" id="rankKwAddList">${rankKwAddListHTML(candidates, cat)}</div>
-            </div>`;
+        if (showNew) {
+            html += `<button type="button" class="rank-add-chip new" onclick="addTypedKwToRank()">"${escapeHTML(typed)}" 새 키워드로 추가</button>`;
         }
-
-        html += '<div class="tier-board">';
-        TIERS.forEach(t => {
-            const chips = buckets[t].map(k =>
-                `<button type="button" class="tier-chip${rankLastMoved === 'k:' + cat + ':' + k ? ' just-moved' : ''}" data-kw="${escapeHTML(k)}" onclick="openTierSheet('kw', this.dataset.kw)">${escapeHTML(k)}<small>${counts[k] || 0}</small></button>`
-            ).join('');
-            html += `<div class="tier-row">${tierLabelHTML(t, buckets[t].length)}<div class="tier-items">${chips || '<span class="tier-empty">비어있음</span>'}</div></div>`;
-        });
-        html += '</div>';
-
-        html += `<div class="tier-pool-title">미분류 <span class="lib-count-badge">${buckets[''].length}</span></div>`;
-        if (buckets[''].length === 0) {
-            html += `<div class="an-empty">${isAuto ? '전부 분류했어요 🎉' : '위에서 키워드를 추가하면 여기에 들어와요.'}</div>`;
-        } else {
-            html += '<div class="pool-list">';
-            buckets[''].forEach(k => {
-                html += `<div class="pool-row${rankLastMoved === 'k:' + cat + ':' + k ? ' just-moved' : ''}">
-                    <div class="pool-name">${escapeHTML(k)}<small>작품 ${counts[k] || 0}개</small></div>
-                    <div class="pool-btns">${TIERS.map(t => `<button type="button" class="tier-btn t-${t}" data-kw="${escapeHTML(k)}" onclick="setKwTier(this.dataset.kw, '${t}')">${t}</button>`).join('')}</div>
-                </div>`;
-            });
-            html += '</div>';
-        }
-
-        box.innerHTML = html;
-        rankLastMoved = null;
-    }
-
-    function rankKwAddListHTML(candidates, cat) {
-        if (candidates.length === 0) {
-            return `<span class="tier-empty">${rankKwSearch ? '검색 결과가 없어요.' : (cat === '커스텀' ? '추가할 커스텀 키워드가 없어요.' : '이 분류의 키워드를 전부 추가했어요.')}</span>`;
-        }
-        return candidates.map(k =>
-            `<button type="button" class="rank-add-chip" data-kw="${escapeHTML(k)}" onclick="addKwToRank(this.dataset.kw)">${escapeHTML(k)}</button>`
+        html += candidates.map(k =>
+            `<button type="button" class="rank-add-chip" data-kw="${escAttr(k)}" onclick="addKwToRank(this.dataset.kw)">${escapeHTML(k)}</button>`
         ).join('');
+        if (!html) {
+            const isAuto = RANK_KW_AUTO_TABS.includes(cat);
+            html = isAuto ? '' : `<span class="tier-empty">${rankKwSearch ? '검색 결과가 없어요.' : (cat === '커스텀' ? '추가할 커스텀 키워드가 없어요. 위에 직접 입력해보세요.' : '이 분류의 키워드를 전부 추가했어요.')}</span>`;
+        }
+        const list = document.getElementById('rankKwAddList');
+        if (list) { list.innerHTML = html; list.style.display = html ? '' : 'none'; }
+
+        const allHost = document.getElementById('rankKwAddAll');
+        if (allHost) {
+            allHost.innerHTML = candidates.length > 1 && !rankKwSearch
+                ? `<button type="button" class="secondary btn-small" onclick="addAllKwToRank()">전부 추가 (${candidates.length})</button>` : '';
+        }
     }
 
-    // 입력 중에는 입력칸을 다시 그리지 않고 후보 목록만 갱신 (모바일 키보드 유지)
     function onRankKwSearchInput(value) {
         rankKwSearch = value.trim();
-        const cat = rankKwActiveTab;
+        refreshKwAddDynamic();
+    }
+
+    // 새로 추가한 키워드는 미분류 맨 위에 보이게 함
+    function putAtTopOfPool(cat, kw) {
         const pool = getKwPool(cat);
-        const candidates = getKwCandidates(cat).filter(k => !(k in pool) && matchesSearchText(k, rankKwSearch));
-        const list = document.getElementById('rankKwAddList');
-        if (list) list.innerHTML = rankKwAddListHTML(candidates, cat);
+        const posMap = keywordRankPos[cat] || {};
+        let minPos = 0;
+        Object.keys(pool).forEach(k => { if (pool[k] === '' && typeof posMap[k] === 'number' && posMap[k] < minPos) minPos = posMap[k]; });
+        if (!keywordRankPos[cat]) keywordRankPos[cat] = {};
+        keywordRankPos[cat][kw] = minPos - 1;
+    }
+
+    function afterKwAdded(kw) {
+        if (rankView.kw !== 'ALL' && rankView.kw !== '') rankView.kw = ''; // 방금 추가한 키워드가 보이는 미분류로
+        rankLastMoved = 'kw:' + kw;
+        saveToStorage();
+        refreshKwAddDynamic();
+        renderRankBoard('kw');
     }
 
     function addKwToRank(kw) {
         const cat = rankKwActiveTab;
         if (!keywordRank[cat]) keywordRank[cat] = {};
-        if (!(kw in keywordRank[cat])) keywordRank[cat][kw] = '';
-        rankLastMoved = 'k:' + cat + ':' + kw;
-        saveToStorage();
-        renderKeywordRanking();
+        if (hasOwn(keywordRank[cat], kw)) return;
+        keywordRank[cat][kw] = '';
+        putAtTopOfPool(cat, kw);
+        afterKwAdded(kw);
+    }
+
+    // 입력칸에 직접 친 키워드 추가 (목록에 없는 새 키워드도 가능)
+    function addTypedKwToRank() {
         const inp = document.getElementById('rankKwSearchInput');
-        if (inp && rankKwSearch) inp.focus();
+        const kw = ((inp && inp.value) || '').trim().replace(/^#+/, '').trim();
+        if (!kw) { alert('추가할 키워드를 입력해주세요.'); return; }
+        const cat = rankKwActiveTab;
+        if (hasOwn(getKwPool(cat), kw)) { alert(`"${kw}"는 이미 ${cat} 랭킹에 있어요.`); return; }
+        // 사전에 없는 새 키워드는 서재의 커스텀 키워드로도 등록 (작품에 붙일 때 고를 수 있게)
+        if (findKeywordCategory(kw) === '커스텀') {
+            addKeywordPreset(kw);
+            renderKeywordChips();
+            renderKeywordRouletteOptions();
+        }
+        if (!keywordRank[cat]) keywordRank[cat] = {};
+        keywordRank[cat][kw] = '';
+        putAtTopOfPool(cat, kw);
+        if (inp) inp.value = '';
+        rankKwSearch = '';
+        afterKwAdded(kw);
     }
 
     function addAllKwToRank() {
         const cat = rankKwActiveTab;
         const pool = getKwPool(cat);
         if (!keywordRank[cat]) keywordRank[cat] = {};
-        getKwCandidates(cat).forEach(k => { if (!(k in pool)) keywordRank[cat][k] = ''; });
+        getKwCandidates(cat).forEach(k => { if (!hasOwn(pool, k)) keywordRank[cat][k] = ''; });
         saveToStorage();
-        renderKeywordRanking();
-    }
-
-    function setKwTier(kw, tier) {
-        const cat = rankKwActiveTab;
-        if (!keywordRank[cat]) keywordRank[cat] = {};
-        keywordRank[cat][kw] = tier; // '' = 미분류
-        rankLastMoved = 'k:' + cat + ':' + kw;
-        saveToStorage();
-        renderKeywordRanking();
+        refreshKwAddDynamic();
+        renderRankBoard('kw');
     }
 
     function removeKwFromRank(kw) {
         const cat = rankKwActiveTab;
         if (keywordRank[cat]) delete keywordRank[cat][kw];
+        rankClearPos('kw', kw);
         saveToStorage();
-        renderKeywordRanking();
+        refreshKwAddDynamic();
+        renderRankBoard('kw');
     }
 
-    // ----- 등급 선택 시트 (등급 칩을 탭했을 때) -----
+    // ----- 등급/순위 선택 시트 (항목을 탭했을 때) -----
 
-    function openTierSheet(kind, id) {
-        let title, sub, current, actions = '';
-        if (kind === 'work') {
-            const item = library.find(w => w.id === id);
-            if (!item) return;
-            title = item.title;
-            current = getWorkTier(item);
-            sub = `${platformLabel(item.platform)} · 소장률 ${item.percent}%${item.rating ? ' · ★' + item.rating : ' · 별점 없음'}`;
-            actions = `<button type="button" class="secondary" onclick="applyTierSheet('N')">미분류로</button>` +
-                `<button type="button" class="secondary" onclick="applyTierSheet('AUTO')">별점 기준으로 되돌리기</button>`;
-        } else {
-            const cat = rankKwActiveTab;
-            const pool = getKwPool(cat);
-            title = id;
-            current = pool[id] || '';
-            const n = countKeywordUse()[id] || 0;
-            sub = `${cat} · 작품 ${n}개`;
-            actions = `<button type="button" class="secondary" onclick="applyTierSheet('')">미분류로</button>`;
-            if (!RANK_KW_AUTO_TABS.includes(cat)) {
-                actions += `<button type="button" class="danger" onclick="applyTierSheet('REMOVE')">랭킹에서 빼기</button>`;
-            }
-        }
-        tierSheetTarget = { kind, id };
-        document.getElementById('tierSheetTitle').textContent = title;
-        document.getElementById('tierSheetSub').textContent = sub;
-        document.getElementById('tierSheetBtns').innerHTML = tierBtnsHTML(current, t => `applyTierSheet('${t}')`);
-        document.getElementById('tierSheetActions').innerHTML = actions;
+    function openTierSheet(scope, id) {
+        tierSheetTarget = { scope, id };
+        renderTierSheet();
         document.getElementById('tierSheetOverlay').classList.add('show');
+    }
+
+    function renderTierSheet() {
+        const t = tierSheetTarget;
+        if (!t) return;
+        const all = rankEntries(t.scope);
+        const e = all.find(x => x.id === t.id);
+        if (!e) { closeTierSheet(); return; }
+        const list = sortRankEntries(all.filter(x => x.tier === e.tier));
+        const idx = list.findIndex(x => x.id === t.id);
+        const tier = tierById(e.tier);
+
+        document.getElementById('tierSheetTitle').textContent = e.title;
+        document.getElementById('tierSheetSub').textContent = e.sub + (tier ? ` · ${tier.name} ${idx + 1}위 / ${list.length}` : ' · 미분류');
+
+        // 등급 버튼
+        document.getElementById('tierSheetBtns').innerHTML = tierConfig.map(tc =>
+            `<button type="button" class="tier-btn${e.tier === tc.id ? ' current' : ''}" style="background:${tc.color};color:${tierTextColor(tc.color)}" data-tier="${escAttr(tc.id)}" onclick="applyTierSheet(this.dataset.tier)">${escapeHTML(tc.name)}</button>`
+        ).join('');
+
+        // 순위 조정 (등급이 있을 때만)
+        const orderEl = document.getElementById('tierSheetOrder');
+        if (tier) {
+            orderEl.style.display = '';
+            orderEl.innerHTML = `<div class="sheet-label">순위 조정 <small>(위에 있을수록 순위가 높아요)</small></div>
+                <div class="sheet-order-btns">
+                    <button type="button" class="secondary" onclick="sheetReorder('top')" ${idx === 0 ? 'disabled' : ''}>⤒ 맨 위</button>
+                    <button type="button" class="secondary" onclick="sheetReorder('up')" ${idx === 0 ? 'disabled' : ''}>▲ 한 칸 위</button>
+                    <button type="button" class="secondary" onclick="sheetReorder('down')" ${idx === list.length - 1 ? 'disabled' : ''}>▼ 한 칸 아래</button>
+                    <button type="button" class="secondary" onclick="sheetReorder('bottom')" ${idx === list.length - 1 ? 'disabled' : ''}>⤓ 맨 아래</button>
+                </div>
+                <div class="sheet-order-input">
+                    <input type="number" id="sheetRankInput" min="1" max="${list.length}" value="${idx + 1}" inputmode="numeric">
+                    <span>위로</span>
+                    <button type="button" onclick="sheetReorder('num')">이동</button>
+                </div>`;
+        } else {
+            orderEl.style.display = 'none';
+            orderEl.innerHTML = '';
+        }
+
+        // 기타 동작
+        let actions = '';
+        if (e.tier) {
+            actions += `<button type="button" class="secondary" onclick="applyTierSheet('${t.scope === 'work' ? '_' : ''}')">미분류로</button>`;
+        }
+        if (t.scope === 'work') {
+            actions += `<button type="button" class="secondary" onclick="applyTierSheet('AUTO')">별점 기준으로 되돌리기</button>`;
+        } else if (!RANK_KW_AUTO_TABS.includes(rankKwActiveTab)) {
+            actions += `<button type="button" class="danger" onclick="applyTierSheet('REMOVE')">랭킹에서 빼기</button>`;
+        }
+        actions += `<button type="button" onclick="closeTierSheet()">닫기</button>`;
+        document.getElementById('tierSheetActions').innerHTML = actions;
+    }
+
+    function sheetReorder(mode) {
+        const t = tierSheetTarget;
+        if (!t) return;
+        let target = mode;
+        if (mode === 'num') {
+            const v = parseInt(document.getElementById('sheetRankInput').value, 10);
+            if (isNaN(v)) { alert('이동할 순위를 숫자로 입력해주세요.'); return; }
+            target = v;
+        }
+        rankReorder(t.scope, t.id, target);
+        renderTierSheet(); // 시트는 열어둔 채로 이어서 조정 가능
     }
 
     function closeTierSheet(event) {
@@ -3760,17 +4141,104 @@
     }
 
     function applyTierSheet(tier) {
-        const target = tierSheetTarget;
-        if (!target) return;
+        const t = tierSheetTarget;
+        if (!t) return;
         document.getElementById('tierSheetOverlay').classList.remove('show');
         tierSheetTarget = null;
-        if (target.kind === 'work') {
-            setWorkTier(target.id, tier);
-        } else if (tier === 'REMOVE') {
-            removeKwFromRank(target.id);
-        } else {
-            setKwTier(target.id, tier);
+        if (tier === 'REMOVE') removeKwFromRank(t.id);
+        else rankSetTier(t.scope, t.id, tier);
+    }
+
+    // ----- 등급 편집 (이름 / 색 / 개수 / 자동 배정 기준) -----
+
+    function openTierEditor() {
+        tierEditDraft = cloneTiers(tierConfig);
+        renderTierEditor();
+        document.getElementById('tierEditOverlay').classList.add('show');
+    }
+
+    function closeTierEditor() {
+        document.getElementById('tierEditOverlay').classList.remove('show');
+        tierEditDraft = null;
+    }
+
+    function renderTierEditor() {
+        document.getElementById('tierEditPresets').innerHTML = Object.keys(TIER_PRESETS).map(name =>
+            `<button type="button" class="secondary btn-small" data-preset="${escAttr(name)}" onclick="applyTierPreset(this.dataset.preset)">${escapeHTML(name)}</button>`
+        ).join('');
+
+        const minOptions = (cur) => {
+            let o = `<option value="0"${!cur ? ' selected' : ''}>자동 배정 안 함</option>`;
+            for (let v = 5; v >= 0.5; v -= 0.5) o += `<option value="${v}"${cur === v ? ' selected' : ''}>★${v} 이상</option>`;
+            return o;
+        };
+
+        document.getElementById('tierEditRows').innerHTML = tierEditDraft.map((t, i) => `
+            <div class="tier-edit-row" style="border-left-color:${t.color}">
+                <div class="tier-edit-line">
+                    <input type="color" value="${t.color}" oninput="tierEditSet(${i}, 'color', this.value, this)">
+                    <input type="text" maxlength="8" value="${escAttr(t.name)}" placeholder="등급 이름" oninput="tierEditSet(${i}, 'name', this.value)">
+                    <button type="button" class="secondary btn-small" onclick="tierEditMove(${i}, -1)" ${i === 0 ? 'disabled' : ''}>▲</button>
+                    <button type="button" class="secondary btn-small" onclick="tierEditMove(${i}, 1)" ${i === tierEditDraft.length - 1 ? 'disabled' : ''}>▼</button>
+                    <button type="button" class="danger btn-small" onclick="tierEditRemove(${i})">✕</button>
+                </div>
+                <div class="tier-edit-line2"><span>작품 자동 배정</span>
+                    <select onchange="tierEditSet(${i}, 'min', parseFloat(this.value))">${minOptions(t.min)}</select>
+                </div>
+            </div>`).join('');
+    }
+
+    function tierEditSet(i, key, value, el) {
+        if (!tierEditDraft[i]) return;
+        tierEditDraft[i][key] = value;
+        if (key === 'color' && el) el.closest('.tier-edit-row').style.borderLeftColor = value;
+    }
+
+    function tierEditMove(i, dir) {
+        const j = i + dir;
+        if (j < 0 || j >= tierEditDraft.length) return;
+        const tmp = tierEditDraft[i]; tierEditDraft[i] = tierEditDraft[j]; tierEditDraft[j] = tmp;
+        renderTierEditor();
+    }
+
+    function tierEditRemove(i) {
+        if (tierEditDraft.length <= 1) { alert('등급은 최소 1개는 있어야 해요.'); return; }
+        tierEditDraft.splice(i, 1);
+        renderTierEditor();
+    }
+
+    function addTierToDraft() {
+        if (tierEditDraft.length >= 12) { alert('등급은 최대 12개까지 만들 수 있어요.'); return; }
+        tierEditDraft.push({ id: 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), name: '새 등급', color: '#8b5cf6', min: 0 });
+        renderTierEditor();
+        const rows = document.getElementById('tierEditRows');
+        rows.lastElementChild && rows.lastElementChild.scrollIntoView({ block: 'nearest' });
+    }
+
+    function applyTierPreset(name) {
+        if (!TIER_PRESETS[name]) return;
+        tierEditDraft = cloneTiers(TIER_PRESETS[name]);
+        renderTierEditor();
+    }
+
+    function saveTierEditor() {
+        if (!tierEditDraft) return;
+        const draft = tierEditDraft.map(t => ({ id: t.id, name: String(t.name || '').trim(), color: t.color, min: t.min || 0 }));
+        if (draft.some(t => !t.name)) { alert('이름이 비어있는 등급이 있어요.'); return; }
+
+        const removed = tierConfig.filter(t => !draft.some(d => d.id === t.id)).map(t => t.id);
+        if (removed.length) {
+            const wn = library.filter(w => removed.includes(w.tier)).length;
+            let kn = 0;
+            Object.keys(keywordRank).forEach(cat => Object.keys(keywordRank[cat] || {}).forEach(k => { if (removed.includes(keywordRank[cat][k])) kn++; }));
+            if ((wn > 0 || kn > 0) && !confirm(`삭제한 등급에 직접 넣어둔 작품 ${wn}개, 키워드 ${kn}개가 있어요.\n작품은 별점 기준 자동 배정으로, 키워드는 미분류로 돌아갑니다. 계속할까요?`)) return;
         }
+
+        tierConfig = draft;
+        saveToStorage();
+        closeTierEditor();
+        renderWorkRanking();
+        renderKeywordRanking();
     }
 
     // =====================================================================

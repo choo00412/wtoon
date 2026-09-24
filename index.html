@@ -275,6 +275,23 @@
         padding: 3px 10px; border-radius: 9999px;
     }
 
+    /* ---------- 키워드 즐겨찾기 별표 ---------- */
+    .chip-with-star {
+        display: inline-flex; align-items: stretch; border: 1px solid var(--border);
+        border-radius: 9999px; overflow: hidden; background: #fff;
+    }
+    .chip-with-star .chip {
+        border: none; border-radius: 0; margin: 0;
+    }
+    .chip-with-star .chip-star {
+        border: none; border-left: 1px solid var(--border); background: #f9fafb;
+        color: #d1d5db; font-size: 0.85rem; padding: 0 9px; cursor: pointer;
+        display: flex; align-items: center; justify-content: center; line-height: 1;
+        transition: color 0.15s ease, background 0.15s ease;
+    }
+    .chip-with-star .chip-star:hover { background: #fef3c7; color: #d97706; }
+    .chip-with-star .chip-star.active { color: #f59e0b; background: #fffbeb; }
+
     /* ---------- 상세 모달 내 정주행 기록 토글 ---------- */
     .modal-watch-toggle {
         display: flex; align-items: center; gap: 10px; padding: 10px 14px;
@@ -1211,6 +1228,7 @@
     let readingBooks = [];
     let currentBookId = null;
     let keywordPresets = [];
+    let keywordFavorites = [];
     const GH_FILENAME = 'webtoon_library.json';
 
     // ---------- 미리 정의된 키워드 사전 (분야/소재/캐릭터/공/수) ----------
@@ -1222,8 +1240,24 @@
         "수": ["가난수","감자수","강수","계략수","공이었수","군림수","귀염수","까칠수","능글수","능력수","다공일수","다정수","단정수","도망수","동정수","떡대수","명랑수","무심수","무자각수","문란수","미남수","미인수","반항수","상처수","성실수","소심수","순진수","아방수","안경수","얼빠수","연상수","연하수","외유내강수","유혹수","임신수","잔망수","적극수","절륜수","지랄수","직진수","집착수","짝사랑수","츤데레수","평범수","허당수","헌신수","호구수"]
     };
     const KEYWORD_CATEGORY_NAMES = Object.keys(KEYWORD_CATEGORIES);
+    const MODAL_TAB_NAMES = ['⭐ 즐겨찾기', ...KEYWORD_CATEGORY_NAMES, '커스텀'];
     let modalActiveKeywordCategory = KEYWORD_CATEGORY_NAMES[0];
     let modalKeywordSearchQuery = '';
+
+    function isKeywordFavorite(kw) {
+        return keywordFavorites.includes(kw);
+    }
+
+    function toggleKeywordFavorite(kw) {
+        const idx = keywordFavorites.indexOf(kw);
+        if (idx === -1) {
+            keywordFavorites.push(kw);
+        } else {
+            keywordFavorites.splice(idx, 1);
+        }
+        saveToStorage();
+        renderModalKeywordPresets();
+    }
 
     function findKeywordCategory(keyword) {
         for (const cat of KEYWORD_CATEGORY_NAMES) {
@@ -1265,6 +1299,11 @@
         const storedKeywordPresets = localStorage.getItem('webtoonKeywordPresets');
         if (storedKeywordPresets) {
             try { keywordPresets = JSON.parse(storedKeywordPresets); } catch (e) { keywordPresets = []; }
+        }
+
+        const storedKeywordFavorites = localStorage.getItem('webtoonKeywordFavorites');
+        if (storedKeywordFavorites) {
+            try { keywordFavorites = JSON.parse(storedKeywordFavorites); } catch (e) { keywordFavorites = []; }
         }
 
         library.forEach(normalizeItem);
@@ -1313,6 +1352,7 @@
         localStorage.setItem('webtoonTimetable', JSON.stringify(timetableData));
         localStorage.setItem('webtoonReadingBooks', JSON.stringify(readingBooks));
         localStorage.setItem('webtoonKeywordPresets', JSON.stringify(keywordPresets));
+        localStorage.setItem('webtoonKeywordFavorites', JSON.stringify(keywordFavorites));
     }
 
     // ---------- 탭 전환 ----------
@@ -1887,8 +1927,7 @@
     function renderModalKeywordCategoryTabs() {
         const tabs = document.getElementById('modalKeywordCategoryTabs');
         if (!tabs) return;
-        const allCats = [...KEYWORD_CATEGORY_NAMES, '커스텀'];
-        tabs.innerHTML = allCats.map(cat =>
+        tabs.innerHTML = MODAL_TAB_NAMES.map(cat =>
             `<button type="button" class="chip${cat === modalActiveKeywordCategory ? ' active' : ''}" onclick="setModalKeywordCategory('${cat.replace(/'/g, "\\'")}')">${escapeHTML(cat)}</button>`
         ).join('');
     }
@@ -1912,13 +1951,27 @@
         box.innerHTML = '';
         const current = getModalKeywordArray();
 
+        // 칩 하나 = [선택용 버튼] + [즐겨찾기 별표 버튼] 두 부분으로 된 알약 하나
         const makeChip = (kw) => {
+            const wrap = document.createElement('span');
+            wrap.className = 'chip-with-star';
+
             const btn = document.createElement('button');
             btn.type = 'button';
             btn.className = 'chip' + (current.includes(kw) ? ' active' : '');
             btn.textContent = kw;
             btn.addEventListener('click', () => toggleModalKeywordPreset(kw));
-            return btn;
+
+            const star = document.createElement('button');
+            star.type = 'button';
+            star.className = 'chip-star' + (isKeywordFavorite(kw) ? ' active' : '');
+            star.textContent = isKeywordFavorite(kw) ? '★' : '☆';
+            star.title = '즐겨찾기';
+            star.addEventListener('click', (e) => { e.stopPropagation(); toggleKeywordFavorite(kw); });
+
+            wrap.appendChild(btn);
+            wrap.appendChild(star);
+            return wrap;
         };
 
         if (modalKeywordSearchQuery) {
@@ -1947,9 +2000,19 @@
             return;
         }
 
-        const list = modalActiveKeywordCategory === '커스텀' ? getCustomKeywordList() : (KEYWORD_CATEGORIES[modalActiveKeywordCategory] || []);
+        let list;
+        if (modalActiveKeywordCategory === '⭐ 즐겨찾기') {
+            list = keywordFavorites.slice().sort((a, b) => a.localeCompare(b, 'ko'));
+        } else if (modalActiveKeywordCategory === '커스텀') {
+            list = getCustomKeywordList();
+        } else {
+            list = KEYWORD_CATEGORIES[modalActiveKeywordCategory] || [];
+        }
+
         if (list.length === 0) {
-            box.innerHTML = `<span class="group-empty-hint">아직 이 카테고리에 커스텀 키워드가 없습니다. 아래에서 새로 추가해보세요.</span>`;
+            box.innerHTML = modalActiveKeywordCategory === '⭐ 즐겨찾기'
+                ? `<span class="group-empty-hint">아직 즐겨찾기한 키워드가 없어요. 키워드 옆 ☆를 눌러 추가해보세요.</span>`
+                : `<span class="group-empty-hint">아직 이 카테고리에 커스텀 키워드가 없습니다. 아래에서 새로 추가해보세요.</span>`;
             return;
         }
         list.forEach(kw => box.appendChild(makeChip(kw)));
@@ -2717,7 +2780,7 @@
     // ---------- GitHub Gist 클라우드 동기화 (수동) ----------
 
     function buildBackupPayload() {
-        return { library, groups, wishlist, timetableData, readingBooks, keywordPresets };
+        return { library, groups, wishlist, timetableData, readingBooks, keywordPresets, keywordFavorites };
     }
 
     function applyBackupPayload(payload) {
@@ -2742,6 +2805,9 @@
 
             if (Array.isArray(payload.keywordPresets)) {
                 keywordPresets = payload.keywordPresets;
+            }
+            if (Array.isArray(payload.keywordFavorites)) {
+                keywordFavorites = payload.keywordFavorites;
             }
         }
     }

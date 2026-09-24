@@ -142,6 +142,24 @@
     .lib-search-sort-row .form-group { min-width: 0; }
     .lib-search-sort-row input, .lib-search-sort-row select { padding: 10px 8px; }
 
+    .search-scope-toggle {
+        display: flex; align-items: center; gap: 8px; margin: 8px 0 16px;
+        font-size: 0.82rem; color: var(--text-muted); cursor: pointer; user-select: none;
+    }
+    .toggle-switch { position: relative; width: 38px; height: 21px; flex: none; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .toggle-switch .slider {
+        position: absolute; inset: 0; background: #d1d5db; border-radius: 9999px;
+        cursor: pointer; transition: background 0.15s ease;
+    }
+    .toggle-switch .slider::before {
+        content: ''; position: absolute; width: 15px; height: 15px; left: 3px; top: 3px;
+        background: #fff; border-radius: 50%; transition: transform 0.15s ease;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.25);
+    }
+    .toggle-switch input:checked + .slider { background: var(--primary); }
+    .toggle-switch input:checked + .slider::before { transform: translateX(17px); }
+
     .form-group { margin-bottom: 16px; }
 
     label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem; }
@@ -218,6 +236,28 @@
     .keyword-group-block { margin-bottom: 14px; }
     .keyword-group-block:last-child { margin-bottom: 0; }
     .keyword-group-title { font-size: 0.82rem; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; }
+
+    .keyword-group-details {
+        margin-bottom: 10px; border: 1px solid var(--border); border-radius: 8px;
+        padding: 0 12px; background: #fff;
+    }
+    .keyword-group-details:last-child { margin-bottom: 0; }
+    .keyword-group-details[open] { padding-bottom: 12px; }
+    .keyword-group-summary {
+        list-style: none; cursor: pointer; user-select: none;
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 10px 0; font-weight: 700; font-size: 0.85rem; color: var(--text-main);
+    }
+    .keyword-group-summary::-webkit-details-marker { display: none; }
+    .keyword-group-summary::before {
+        content: '▶'; display: inline-block; font-size: 0.65rem; margin-right: 8px; color: var(--text-muted);
+        transition: transform 0.15s ease;
+    }
+    .keyword-group-details[open] .keyword-group-summary::before { transform: rotate(90deg); }
+    .keyword-group-count {
+        font-size: 0.72rem; font-weight: 700; color: var(--text-muted); background: #f3f4f6;
+        padding: 2px 9px; border-radius: 9999px; margin-left: auto; margin-right: 8px;
+    }
 
     /* ---------- 키워드 선택 박스 ---------- */
     .keyword-picker {
@@ -753,6 +793,14 @@
                 </div>
             </div>
 
+            <label class="search-scope-toggle">
+                <span class="toggle-switch">
+                    <input type="checkbox" id="searchScopeToggle" onchange="toggleSearchScope(this.checked)">
+                    <span class="slider"></span>
+                </span>
+                <span id="searchScopeLabel">제목만 검색 (켜면 키워드도 검색)</span>
+            </label>
+
             <div class="filter-chips" id="platformChips">
                 <button class="chip active" data-platform="all" onclick="setPlatformFilter('all')">전체</button>
                 <button class="chip" data-platform="레진" onclick="setPlatformFilter('레진코믹스')">레진</button>
@@ -1220,6 +1268,7 @@
     let currentEditRating = 0;
     let libraryFilter = { type: 'all' };
     let librarySearchQuery = '';
+    let searchIncludeKeywords = false;
     let librarySortMode = 'percent';
     let selectionMode = false;
     let selectedIds = new Set();
@@ -1241,7 +1290,7 @@
     };
     const KEYWORD_CATEGORY_NAMES = Object.keys(KEYWORD_CATEGORIES);
     const MODAL_TAB_NAMES = ['⭐ 즐겨찾기', ...KEYWORD_CATEGORY_NAMES, '커스텀'];
-    let modalActiveKeywordCategory = KEYWORD_CATEGORY_NAMES[0];
+    let modalActiveKeywordCategory = MODAL_TAB_NAMES[0];
     let modalKeywordSearchQuery = '';
 
     function isKeywordFavorite(kw) {
@@ -1333,6 +1382,38 @@
     function todayStr() {
         const d = new Date();
         return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+
+    // ---------- 초성 검색 유틸 ----------
+    const CHOSUNG_LIST = ['ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
+
+    function getChosung(str) {
+        let result = '';
+        for (const ch of str) {
+            const code = ch.charCodeAt(0);
+            if (code >= 0xAC00 && code <= 0xD7A3) {
+                result += CHOSUNG_LIST[Math.floor((code - 0xAC00) / 588)];
+            } else {
+                result += ch;
+            }
+        }
+        return result;
+    }
+
+    function isChosungQuery(query) {
+        return /^[\u3131-\u314e\s]+$/.test(query);
+    }
+
+    // 제목 비교 + 초성 비교를 함께 지원하는 검색 매칭 함수
+    function matchesSearchText(target, query) {
+        if (!query) return true;
+        const t = target.toLowerCase();
+        const q = query.toLowerCase();
+        if (t.includes(q)) return true;
+        if (isChosungQuery(query)) {
+            return getChosung(target).includes(query);
+        }
+        return false;
     }
 
     function starOverlayHTML(rating, large) {
@@ -1570,20 +1651,16 @@
 
     // 봄툰/리디 등 텍스트 줄단위 파싱 ("제목 | 소장률%")
     function parseFromText(rawText) {
-        const lines = rawText.split('\n');
+        // 줄바꿈이 있든 없든(예: 복사 과정에서 개행이 유실된 경우) 안전하게 "제목 | 퍼센트%" 패턴을
+        // 문자열 전체에서 순서대로 찾아내는 방식. 한 줄에 여러 항목이 이어붙어 있어도 정상 분리됨.
         const result = [];
-
-        lines.forEach(line => {
-            const trimmed = line.trim();
-            if (!trimmed) return;
-            const match = trimmed.match(/^(.+?)\s*[\|:]\s*(\d+)\s*%?\s*$/);
-            if (match) {
-                const title = match[1].trim();
-                const percent = parseInt(match[2], 10);
-                if (title) result.push({ title, percent });
-            }
-        });
-
+        const regex = /(.+?)\s*[|:]\s*(\d+)\s*%/g;
+        let m;
+        while ((m = regex.exec(rawText)) !== null) {
+            const title = m[1].trim().replace(/^[\n\r]+/, '').trim();
+            const percent = parseInt(m[2], 10);
+            if (title) result.push({ title, percent });
+        }
         return result;
     }
 
@@ -1636,6 +1713,12 @@
 
     function setSearchQuery(value) {
         librarySearchQuery = value.trim();
+        renderList();
+    }
+
+    function toggleSearchScope(checked) {
+        searchIncludeKeywords = checked;
+        document.getElementById('searchScopeLabel').textContent = checked ? '제목 + 키워드 검색 중' : '제목만 검색 (켜면 키워드도 검색)';
         renderList();
     }
 
@@ -1800,12 +1883,13 @@
             if (usedInCat.length === 0) return;
             anyUsed = true;
 
-            const block = document.createElement('div');
-            block.className = 'keyword-group-block';
-            const title = document.createElement('div');
-            title.className = 'keyword-group-title';
-            title.textContent = cat;
-            block.appendChild(title);
+            const block = document.createElement('details');
+            block.className = 'keyword-group-details';
+
+            const summary = document.createElement('summary');
+            summary.className = 'keyword-group-summary';
+            summary.innerHTML = `<span>${escapeHTML(cat)}</span><span class="keyword-group-count">${usedInCat.length}개</span>`;
+            block.appendChild(summary);
 
             const row = document.createElement('div');
             row.className = 'filter-chips';
@@ -1980,7 +2064,7 @@
             let found = false;
             allCats.forEach(cat => {
                 const list = cat === '커스텀' ? getCustomKeywordList() : KEYWORD_CATEGORIES[cat];
-                const matches = list.filter(kw => kw.toLowerCase().includes(modalKeywordSearchQuery));
+                const matches = list.filter(kw => matchesSearchText(kw, modalKeywordSearchQuery));
                 if (matches.length === 0) return;
                 found = true;
                 const block = document.createElement('div');
@@ -2118,10 +2202,9 @@
         let filtered = library.filter(itemMatchesFilter);
 
         if (librarySearchQuery) {
-            const q = librarySearchQuery.toLowerCase();
             filtered = filtered.filter(item =>
-                item.title.toLowerCase().includes(q) ||
-                item.keywords.some(k => k.toLowerCase().includes(q))
+                matchesSearchText(item.title, librarySearchQuery) ||
+                (searchIncludeKeywords && item.keywords.some(k => matchesSearchText(k, librarySearchQuery)))
             );
         }
 
@@ -2205,7 +2288,7 @@
         document.getElementById('modalNewKeywordPreset').value = '';
         document.getElementById('modalKeywordSearch').value = '';
         modalKeywordSearchQuery = '';
-        modalActiveKeywordCategory = KEYWORD_CATEGORY_NAMES[0];
+        modalActiveKeywordCategory = MODAL_TAB_NAMES[0];
         renderModalKeywordCategoryTabs();
         renderModalKeywordPresets();
         renderModalSelectedKeywords();

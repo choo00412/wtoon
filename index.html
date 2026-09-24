@@ -347,10 +347,10 @@
     .chip:hover { border-color: var(--primary); color: var(--primary); }
     .chip:active { transform: scale(0.96); }
     .chip.active { background: var(--primary); color: #fff; border-color: var(--primary); }
-    .chip[data-platform="레진코믹스"].active { background: var(--lezhin); border-color: var(--lezhin); }
+    .chip[data-platform="레진코믹스"].active, .chip[data-platform="레진"].active { background: var(--lezhin); border-color: var(--lezhin); }
     .chip[data-platform="봄툰"].active { background: var(--bomtoon); border-color: var(--bomtoon); }
     .chip[data-platform="리디"].active { background: var(--ridi); border-color: var(--ridi); }
-    .chip[data-platform="네이버웹툰"].active { background: var(--naver); border-color: var(--naver); }
+    .chip[data-platform="네이버웹툰"].active, .chip[data-platform="네웹"].active { background: var(--naver); border-color: var(--naver); }
 
     .group-section { border-top: 1px dashed var(--border); padding-top: 16px; margin-bottom: 8px; }
     .group-toggle-header {
@@ -704,6 +704,121 @@
     .wishlist-check-label { display: flex; align-items: center; gap: 14px; flex: 1; cursor: pointer; min-width: 0; }
     .wishlist-title { font-size: 1.1rem; font-weight: 600; word-break: break-word; }
     .wishlist-title.checked { text-decoration: line-through; color: var(--text-muted); font-weight: 400; }
+
+    /* ---------- 랭킹 (티어) ---------- */
+    :root {
+        --tier-s: #ef4444; --tier-a: #f97316; --tier-b: #eab308; --tier-c: #22c55e; --tier-d: #9ca3af;
+    }
+    .tier-board { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+    .tier-row { display: flex; align-items: stretch; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: #fff; min-height: 56px; }
+    .tier-label {
+        flex: none; width: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+        color: #fff; font-weight: 900; font-size: 1.35rem; line-height: 1.1;
+    }
+    .tier-label small { font-size: 0.68rem; font-weight: 700; opacity: 0.9; margin-top: 2px; }
+    .tier-label.t-S { background: var(--tier-s); }
+    .tier-label.t-A { background: var(--tier-a); }
+    .tier-label.t-B { background: var(--tier-b); color: #422006; }
+    .tier-label.t-C { background: var(--tier-c); }
+    .tier-label.t-D { background: var(--tier-d); }
+    .tier-items { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; align-content: flex-start; }
+    .tier-empty { color: #c0c5cd; font-size: 0.8rem; align-self: center; }
+    .tier-chip {
+        background: #f3f4f6; color: var(--text-main); border: 1px solid var(--border);
+        padding: 6px 11px; border-radius: 9999px; font-size: 0.82rem; font-weight: 700;
+        max-width: 100%; text-align: left; word-break: break-all;
+    }
+    .tier-chip:hover { background: #e8edf2; }
+    .tier-chip small { color: var(--text-muted); font-weight: 600; margin-left: 4px; }
+    .tier-chip.just-moved { animation: tier-pop 0.42s cubic-bezier(.2,1.4,.4,1); border-color: var(--primary); }
+    @keyframes tier-pop {
+        0% { transform: scale(0.6); opacity: 0.2; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    .tier-pool-title { margin: 20px 0 8px; font-size: 0.95rem; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+    .tier-pool-title .lib-count-badge { font-size: 0.75rem; }
+    .pool-list { display: flex; flex-direction: column; gap: 6px; }
+    .pool-row {
+        display: flex; align-items: center; justify-content: space-between; gap: 8px;
+        border: 1px solid var(--border); border-radius: 10px; padding: 8px 8px 8px 12px; background: #fff;
+    }
+    .pool-row.just-moved { animation: tier-pop 0.42s cubic-bezier(.2,1.4,.4,1); }
+    .pool-name { flex: 1; min-width: 0; font-weight: 700; font-size: 0.9rem; word-break: break-all; line-height: 1.3; }
+    .pool-name small { display: block; color: var(--text-muted); font-weight: 600; font-size: 0.72rem; }
+    .pool-btns { display: flex; gap: 4px; flex: none; }
+    .tier-btn {
+        width: 32px; height: 32px; padding: 0; border-radius: 8px; font-weight: 900; font-size: 0.85rem; color: #fff;
+    }
+    .tier-btn.t-S { background: var(--tier-s); }
+    .tier-btn.t-A { background: var(--tier-a); }
+    .tier-btn.t-B { background: var(--tier-b); color: #422006; }
+    .tier-btn.t-C { background: var(--tier-c); }
+    .tier-btn.t-D { background: var(--tier-d); }
+    .tier-btn:hover { filter: brightness(0.94); }
+    .tier-btn.current { outline: 3px solid rgba(31,41,55,0.35); outline-offset: 1px; }
+    .rank-tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 12px; -webkit-overflow-scrolling: touch; }
+    .rank-tabs .chip { flex: none; }
+    .rank-add-box { border: 1px dashed #c7ced8; border-radius: 10px; padding: 12px; background: #f9fafb; margin-bottom: 14px; }
+    .rank-add-box .add-title { font-size: 0.82rem; font-weight: 800; color: var(--text-muted); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .rank-add-list { display: flex; flex-wrap: wrap; gap: 6px; max-height: 170px; overflow-y: auto; margin-top: 10px; }
+    .rank-add-chip {
+        background: #fff; color: var(--text-main); border: 1px solid var(--border);
+        padding: 5px 11px; border-radius: 9999px; font-size: 0.82rem; font-weight: 700;
+    }
+    .rank-add-chip:hover { border-color: var(--primary); color: var(--primary); background: #fff; }
+    .rank-add-chip::before { content: '+ '; color: var(--primary); }
+
+    .sheet-overlay {
+        display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.45); z-index: 1100;
+        align-items: flex-end; justify-content: center;
+    }
+    .sheet-overlay.show { display: flex; animation: modal-overlay-in 0.16s ease; }
+    .sheet {
+        width: 100%; max-width: 520px; background: #fff; border-radius: 18px 18px 0 0;
+        padding: 20px 20px calc(20px + env(safe-area-inset-bottom, 0px));
+        box-shadow: 0 -10px 30px rgba(0,0,0,0.18);
+    }
+    .sheet-title { font-size: 1.05rem; font-weight: 800; word-break: break-all; }
+    .sheet-sub { font-size: 0.8rem; color: var(--text-muted); margin: 2px 0 14px; }
+    .sheet-tier-btns { display: flex; gap: 8px; margin-bottom: 12px; }
+    .sheet-tier-btns .tier-btn { flex: 1; height: 48px; font-size: 1.15rem; border-radius: 10px; }
+    .sheet-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .sheet-actions button { flex: 1; min-width: 120px; font-size: 0.88rem; }
+
+    /* ---------- 분석 ---------- */
+    .an-tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .an-tile { background: #f9fafb; border: 1px solid var(--border); border-radius: 10px; padding: 12px 8px; text-align: center; }
+    .an-tile .v { font-size: 1.35rem; font-weight: 900; color: var(--primary); line-height: 1.2; }
+    .an-tile .l { font-size: 0.72rem; color: var(--text-muted); font-weight: 700; margin-top: 2px; }
+    .an-section-title { font-size: 1.05rem; font-weight: 800; margin-bottom: 4px; }
+    .an-section-sub { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 14px; }
+    .an-bars { display: flex; flex-direction: column; gap: 7px; }
+    .an-bar-row { display: grid; grid-template-columns: 76px 1fr 64px; align-items: center; gap: 8px; font-size: 0.82rem; }
+    .an-bar-label { font-weight: 700; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .an-bar-track { height: 12px; background: #f1f3f6; border-radius: 0 6px 6px 0; overflow: hidden; }
+    .an-bar-fill { height: 100%; background: var(--primary); border-radius: 0 4px 4px 0; min-width: 0; transition: width 0.3s ease; }
+    .an-bar-val { text-align: right; color: var(--text-muted); font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .an-empty { color: var(--text-muted); font-size: 0.88rem; padding: 10px 0; }
+    .an-heat-wrap { display: flex; gap: 6px; }
+    .an-heat-days { display: grid; grid-template-rows: repeat(7, 1fr); gap: 2px; font-size: 0.6rem; color: var(--text-muted); font-weight: 700; align-items: center; }
+    .an-heat { flex: 1; min-width: 0; display: grid; grid-auto-flow: column; grid-template-rows: repeat(7, auto); grid-auto-columns: minmax(0, 1fr); gap: 2px; }
+    .an-heat-cell { aspect-ratio: 1 / 1; min-width: 0; border-radius: 2px; background: #eef1f4; }
+    .an-heat-cell.l1 { background: #c6d8e5; }
+    .an-heat-cell.l2 { background: #94b5cc; }
+    .an-heat-cell.l3 { background: #5e8fb0; }
+    .an-heat-cell.l4 { background: #2f5f7f; }
+    .an-heat-cell.future { background: transparent; }
+    .an-heat-legend { display: flex; align-items: center; justify-content: flex-end; gap: 3px; font-size: 0.68rem; color: var(--text-muted); margin-top: 8px; }
+    .an-heat-legend .an-heat-cell { width: 11px; aspect-ratio: 1 / 1; }
+    .an-list-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 9px 0; border-bottom: 1px solid #f1f3f6; cursor: pointer; }
+    .an-list-row:last-child { border-bottom: none; }
+    .an-list-title { font-weight: 700; font-size: 0.9rem; word-break: break-all; }
+    .an-list-meta { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; white-space: nowrap; text-align: right; }
+    .an-details { border: 1px solid var(--border); border-radius: 10px; padding: 0 14px; margin-bottom: 10px; background: #fff; }
+    .an-details summary { cursor: pointer; list-style: none; padding: 12px 0; font-weight: 800; font-size: 0.92rem; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .an-details summary::-webkit-details-marker { display: none; }
+    .an-details[open] { padding-bottom: 8px; }
+    .an-details .an-section-sub { margin-bottom: 6px; }
 </style>
 </head>
 <body>
@@ -962,6 +1077,15 @@
             <div class="card">
                 <h2>My</h2>
                 <div class="my-menu-list">
+                    <button type="button" class="my-menu-item" onclick="showPage('page-analysis'); renderAnalysis();">
+                        <span>📊 분석</span><span class="my-menu-arrow">›</span>
+                    </button>
+                    <button type="button" class="my-menu-item" onclick="showPage('page-rank-works'); renderWorkRanking();">
+                        <span>🏆 작품 랭킹</span><span class="my-menu-arrow">›</span>
+                    </button>
+                    <button type="button" class="my-menu-item" onclick="showPage('page-rank-keywords'); renderKeywordRanking();">
+                        <span>🏷️ 키워드 랭킹</span><span class="my-menu-arrow">›</span>
+                    </button>
                     <button type="button" class="my-menu-item" onclick="showPage('page-wishlist')">
                         <span>Wishlist</span><span class="my-menu-arrow">›</span>
                     </button>
@@ -989,6 +1113,49 @@
                 <h2>정주행 기록</h2>
                 <div class="list-container" id="watchHistoryList" style="max-height: 640px;"></div>
             </div>
+        </div>
+    </div>
+
+    <!-- ================= 작품 랭킹 페이지 ================= -->
+    <div id="page-rank-works" class="page">
+        <div class="narrow-wrap">
+            <div class="subpage-back-row">
+                <button class="secondary btn-small" onclick="showPage('page-my')">←</button>
+            </div>
+            <div class="card">
+                <h2>🏆 작품 랭킹
+                    <button type="button" class="secondary btn-small" onclick="resetWorkTiersToRating()">별점으로 초기화</button>
+                </h2>
+                <div class="hint" style="margin-top: 0;">별점 기준으로 자동 배정돼 있어요 (★4.5~5 S / ★3.5~4 A / ★2.5~3 B / ★1~2 C / ★0.5 D, 별점 없음은 미분류). 작품 이름을 탭하면 등급을 옮길 수 있어요.</div>
+                <div class="form-group">
+                    <input type="text" id="rankWorksSearch" placeholder="작품 검색 (초성 가능)" oninput="rankWorksSearch = this.value.trim(); renderWorkRanking();">
+                </div>
+                <div id="rankWorksBody"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= 키워드 랭킹 페이지 ================= -->
+    <div id="page-rank-keywords" class="page">
+        <div class="narrow-wrap">
+            <div class="subpage-back-row">
+                <button class="secondary btn-small" onclick="showPage('page-my')">←</button>
+            </div>
+            <div class="card">
+                <h2>🏷️ 키워드 랭킹</h2>
+                <div class="rank-tabs" id="rankKwTabs"></div>
+                <div id="rankKwBody"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= 분석 페이지 ================= -->
+    <div id="page-analysis" class="page">
+        <div class="narrow-wrap">
+            <div class="subpage-back-row">
+                <button class="secondary btn-small" onclick="showPage('page-my')">←</button>
+            </div>
+            <div id="analysisBody"></div>
         </div>
     </div>
 
@@ -1094,6 +1261,16 @@
                 </div>
             </div>
         </div>
+    </div>
+</div>
+
+<!-- 랭킹 등급 선택 시트 (모바일 하단 시트) -->
+<div id="tierSheetOverlay" class="sheet-overlay" onclick="closeTierSheet(event)">
+    <div class="sheet">
+        <div class="sheet-title" id="tierSheetTitle"></div>
+        <div class="sheet-sub" id="tierSheetSub"></div>
+        <div class="sheet-tier-btns" id="tierSheetBtns"></div>
+        <div class="sheet-actions" id="tierSheetActions"></div>
     </div>
 </div>
 
@@ -1278,6 +1455,7 @@
     let currentBookId = null;
     let keywordPresets = [];
     let keywordFavorites = [];
+    let keywordRank = {}; // { 카테고리: { 키워드: 'S'|'A'|'B'|'C'|'D'|'' (''=미분류) } }
     const GH_FILENAME = 'webtoon_library.json';
 
     // ---------- 미리 정의된 키워드 사전 (분야/소재/캐릭터/공/수) ----------
@@ -1313,6 +1491,11 @@
             if (KEYWORD_CATEGORIES[cat].includes(keyword)) return cat;
         }
         return '커스텀';
+    }
+
+    // 화면 표시용 플랫폼 이름 (저장값은 그대로 두고 배지 글자만 줄임)
+    function platformLabel(p) {
+        return p === '레진코믹스' ? '레진' : p;
     }
 
     function genId() {
@@ -1353,6 +1536,11 @@
         const storedKeywordFavorites = localStorage.getItem('webtoonKeywordFavorites');
         if (storedKeywordFavorites) {
             try { keywordFavorites = JSON.parse(storedKeywordFavorites); } catch (e) { keywordFavorites = []; }
+        }
+
+        const storedKeywordRank = localStorage.getItem('webtoonKeywordRank');
+        if (storedKeywordRank) {
+            try { keywordRank = JSON.parse(storedKeywordRank) || {}; } catch (e) { keywordRank = {}; }
         }
 
         library.forEach(normalizeItem);
@@ -1434,6 +1622,7 @@
         localStorage.setItem('webtoonReadingBooks', JSON.stringify(readingBooks));
         localStorage.setItem('webtoonKeywordPresets', JSON.stringify(keywordPresets));
         localStorage.setItem('webtoonKeywordFavorites', JSON.stringify(keywordFavorites));
+        localStorage.setItem('webtoonKeywordRank', JSON.stringify(keywordRank));
     }
 
     // ---------- 탭 전환 ----------
@@ -1445,7 +1634,10 @@
         'page-wishlist': 'page-my',
         'page-timetable': 'page-my',
         'page-import': 'page-my',
-        'page-watchhistory': 'page-my'
+        'page-watchhistory': 'page-my',
+        'page-analysis': 'page-my',
+        'page-rank-works': 'page-my',
+        'page-rank-keywords': 'page-my'
     };
 
     function showPage(pageId) {
@@ -2237,7 +2429,7 @@
                 <div class="item-main" onclick="${selectionMode ? '' : `openDetail('${item.id}')`}">
                     <div class="item-top-row">
                         <span class="item-title">${safeTitle}</span>
-                        <span class="badge" data-platform="${safePlatform}">${safePlatform}</span>
+                        <span class="badge" data-platform="${safePlatform}">${platformLabel(item.platform)}</span>
                     </div>
                     <div class="item-meta-row">
                         <span>소장률 <strong style="color: var(--primary);">${item.percent}%</strong></span>
@@ -2282,7 +2474,7 @@
 
         document.getElementById('modalTitle').textContent = item.title;
         document.getElementById('modalSub').innerHTML =
-            `<span class="badge" data-platform="${escapeHTML(item.platform)}">${escapeHTML(item.platform)}</span> 소장률 ${item.percent}%`;
+            `<span class="badge" data-platform="${escapeHTML(item.platform)}">${platformLabel(item.platform)}</span> 소장률 ${item.percent}%`;
         document.getElementById('modalKeywords').value = item.keywords.join(', ');
         document.getElementById('modalMemo').value = item.memo || '';
         document.getElementById('modalNewKeywordPreset').value = '';
@@ -2474,7 +2666,7 @@
                     <div class="roulette-meta">오늘은 이 작품 어때요?</div>
                     <div class="roulette-title clickable" onclick="openDetail('${finalPick.id}')" title="클릭하면 상세정보로 이동">${escapeHTML(finalPick.title)}</div>
                     <div class="roulette-meta">
-                        <span class="badge" data-platform="${escapeHTML(finalPick.platform)}">${escapeHTML(finalPick.platform)}</span>
+                        <span class="badge" data-platform="${escapeHTML(finalPick.platform)}">${platformLabel(finalPick.platform)}</span>
                         소장률 ${finalPick.percent}%
                     </div>
                     <label style="margin-top: 12px; display: flex; align-items: center; gap: 8px; font-size: 0.95rem; color: #92400e; cursor: pointer;">
@@ -2545,7 +2737,7 @@
                 <div class="item-main" style="cursor: default;">
                     <div class="item-top-row">
                         <span class="item-title" style="font-size: 1.05rem;">${escapeHTML(r.title)}</span>
-                        <span class="badge" data-platform="${escapeHTML(r.platform)}">${escapeHTML(r.platform)}</span>
+                        <span class="badge" data-platform="${escapeHTML(r.platform)}">${platformLabel(r.platform)}</span>
                     </div>
                 </div>
             `;
@@ -2863,7 +3055,7 @@
     // ---------- GitHub Gist 클라우드 동기화 (수동) ----------
 
     function buildBackupPayload() {
-        return { library, groups, wishlist, timetableData, readingBooks, keywordPresets, keywordFavorites };
+        return { library, groups, wishlist, timetableData, readingBooks, keywordPresets, keywordFavorites, keywordRank };
     }
 
     function applyBackupPayload(payload) {
@@ -2891,6 +3083,9 @@
             }
             if (Array.isArray(payload.keywordFavorites)) {
                 keywordFavorites = payload.keywordFavorites;
+            }
+            if (payload.keywordRank && typeof payload.keywordRank === 'object' && !Array.isArray(payload.keywordRank)) {
+                keywordRank = payload.keywordRank;
             }
         }
     }
@@ -3101,7 +3296,8 @@
                     rating: typeof item.rating === 'number' ? item.rating : 0,
                     groupIds: remappedGroupIds,
                     memo: typeof item.memo === 'string' ? item.memo : '',
-                    watchLog: Array.isArray(item.watchLog) ? item.watchLog : []
+                    watchLog: Array.isArray(item.watchLog) ? item.watchLog : [],
+                    ...(item.tier ? { tier: item.tier } : {})
                 }));
                 added++;
             } else {
@@ -3130,6 +3326,9 @@
                 if (Array.isArray(item.watchLog)) {
                     existingItem.watchLog = Array.from(new Set([...existingItem.watchLog, ...item.watchLog])).sort();
                 }
+
+                // 수동으로 매긴 등급은 이 기기에 등급이 없을 때만 가져옴 (기존 수동 등급 우선)
+                if (item.tier && !existingItem.tier) existingItem.tier = item.tier;
 
                 updated++;
             }
@@ -3186,6 +3385,20 @@
         // 키워드 프리셋 병합: 이름 기준으로 합침
         if (Array.isArray(incoming.keywordPresets)) {
             incoming.keywordPresets.forEach(kw => addKeywordPreset(kw));
+        }
+
+        // 키워드 랭킹 병합: 없는 키워드는 추가, 이 기기에서 미분류인 키워드만 가져온 등급 적용
+        if (incoming.keywordRank && typeof incoming.keywordRank === 'object' && !Array.isArray(incoming.keywordRank)) {
+            Object.keys(incoming.keywordRank).forEach(cat => {
+                const src = incoming.keywordRank[cat];
+                if (!src || typeof src !== 'object') return;
+                if (!keywordRank[cat]) keywordRank[cat] = {};
+                Object.keys(src).forEach(kw => {
+                    const t = TIERS.includes(src[kw]) ? src[kw] : '';
+                    if (!(kw in keywordRank[cat])) keywordRank[cat][kw] = t;
+                    else if (!keywordRank[cat][kw] && t) keywordRank[cat][kw] = t;
+                });
+            });
         }
 
         return { added, updated, skipped };
@@ -3253,6 +3466,542 @@
         const div = document.createElement('div');
         div.textContent = str;
         return div.innerHTML;
+    }
+
+    // =====================================================================
+    // 랭킹 (티어 매기기): 작품 / 키워드
+    // =====================================================================
+    const TIERS = ['S', 'A', 'B', 'C', 'D'];
+    const RANK_KW_TABS = ['분야/분위기', '소재/관계', '캐릭터', '공', '수', '커스텀'];
+    const RANK_KW_AUTO_TABS = ['공', '수']; // 처음부터 사전 전체가 미분류 풀에 들어가는 탭
+    let rankWorksSearch = '';
+    let rankKwActiveTab = '공';
+    let rankKwSearch = '';
+    let rankLastMoved = null; // 방금 옮긴 항목 (애니메이션용)
+    let tierSheetTarget = null;
+
+    function autoTierFromRating(r) {
+        if (!r) return '';
+        if (r >= 4.5) return 'S';
+        if (r >= 3.5) return 'A';
+        if (r >= 2.5) return 'B';
+        if (r >= 1) return 'C';
+        return 'D';
+    }
+
+    // 작품 등급: 직접 옮긴 값(tier) 우선, 'N' = 직접 미분류로 옮김, 없으면 별점 자동 배정
+    function getWorkTier(item) {
+        if (item.tier === 'N') return '';
+        if (TIERS.includes(item.tier)) return item.tier;
+        return autoTierFromRating(item.rating);
+    }
+
+    function tierBtnsHTML(current, handlerFn) {
+        return TIERS.map(t =>
+            `<button type="button" class="tier-btn t-${t}${current === t ? ' current' : ''}" onclick="${handlerFn(t)}">${t}</button>`
+        ).join('');
+    }
+
+    function tierLabelHTML(t, count) {
+        return `<div class="tier-label t-${t}">${t}<small>${count}</small></div>`;
+    }
+
+    // ----- 작품 랭킹 -----
+
+    function renderWorkRanking() {
+        const box = document.getElementById('rankWorksBody');
+        if (!box) return;
+        const q = rankWorksSearch;
+        const buckets = { S: [], A: [], B: [], C: [], D: [], '': [] };
+        library.forEach(it => {
+            if (q && !matchesSearchText(it.title, q)) return;
+            buckets[getWorkTier(it)].push(it);
+        });
+        Object.keys(buckets).forEach(k => buckets[k].sort((a, b) => (b.rating - a.rating) || a.title.localeCompare(b.title, 'ko')));
+
+        if (library.length === 0) {
+            box.innerHTML = `<div class="an-empty">서재가 비어있어요. 먼저 작품을 추가해주세요.</div>`;
+            return;
+        }
+
+        let html = '<div class="tier-board">';
+        TIERS.forEach(t => {
+            const chips = buckets[t].map(it =>
+                `<button type="button" class="tier-chip${rankLastMoved === 'w:' + it.id ? ' just-moved' : ''}" onclick="openTierSheet('work', '${it.id}')">${escapeHTML(it.title)}<small>${it.rating ? '★' + it.rating : ''}</small></button>`
+            ).join('');
+            html += `<div class="tier-row">${tierLabelHTML(t, buckets[t].length)}<div class="tier-items">${chips || '<span class="tier-empty">비어있음</span>'}</div></div>`;
+        });
+        html += '</div>';
+
+        html += `<div class="tier-pool-title">미분류 <span class="lib-count-badge">${buckets[''].length}</span></div>`;
+        if (buckets[''].length === 0) {
+            html += `<div class="an-empty">미분류 작품이 없어요 🎉</div>`;
+        } else {
+            html += '<div class="pool-list">';
+            buckets[''].forEach(it => {
+                html += `<div class="pool-row${rankLastMoved === 'w:' + it.id ? ' just-moved' : ''}">
+                    <div class="pool-name">${escapeHTML(it.title)}<small>${escapeHTML(platformLabel(it.platform))} · 소장률 ${it.percent}%${it.rating ? ' · ★' + it.rating : ' · 별점 없음'}</small></div>
+                    <div class="pool-btns">${tierBtnsHTML('', t => `setWorkTier('${it.id}', '${t}')`)}</div>
+                </div>`;
+            });
+            html += '</div>';
+        }
+        box.innerHTML = html;
+        rankLastMoved = null;
+    }
+
+    function setWorkTier(id, tier) {
+        const item = library.find(w => w.id === id);
+        if (!item) return;
+        if (tier === 'AUTO') delete item.tier;
+        else item.tier = tier; // 'S'~'D' 또는 'N'(미분류)
+        rankLastMoved = 'w:' + id;
+        saveToStorage();
+        renderWorkRanking();
+    }
+
+    function resetWorkTiersToRating() {
+        const manual = library.filter(w => w.tier).length;
+        if (manual === 0) { alert('직접 옮긴 작품이 없어요. 이미 별점 기준 그대로예요.'); return; }
+        if (!confirm(`직접 옮긴 ${manual}개 작품의 등급을 지우고, 전부 별점 기준 자동 배정으로 되돌릴까요?`)) return;
+        library.forEach(w => { delete w.tier; });
+        saveToStorage();
+        renderWorkRanking();
+    }
+
+    // ----- 키워드 랭킹 -----
+
+    function getKwPool(cat) {
+        const stored = keywordRank[cat] || {};
+        const pool = {};
+        if (RANK_KW_AUTO_TABS.includes(cat)) {
+            (KEYWORD_CATEGORIES[cat] || []).forEach(k => { pool[k] = ''; });
+        }
+        Object.keys(stored).forEach(k => { pool[k] = TIERS.includes(stored[k]) ? stored[k] : ''; });
+        return pool;
+    }
+
+    function getKwCandidates(cat) {
+        const set = new Set();
+        if (cat === '커스텀') {
+            getCustomKeywordList().forEach(k => set.add(k));
+        } else {
+            (KEYWORD_CATEGORIES[cat] || []).forEach(k => set.add(k));
+        }
+        return Array.from(set);
+    }
+
+    function countKeywordUse() {
+        const counts = {};
+        library.forEach(it => it.keywords.forEach(k => { counts[k] = (counts[k] || 0) + 1; }));
+        return counts;
+    }
+
+    function setRankKwTab(cat) {
+        rankKwActiveTab = cat;
+        rankKwSearch = '';
+        renderKeywordRanking();
+    }
+
+    function renderKeywordRanking() {
+        const tabsEl = document.getElementById('rankKwTabs');
+        const box = document.getElementById('rankKwBody');
+        if (!tabsEl || !box) return;
+
+        tabsEl.innerHTML = '';
+        RANK_KW_TABS.forEach(cat => {
+            const b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'chip' + (cat === rankKwActiveTab ? ' active' : '');
+            b.textContent = cat;
+            b.addEventListener('click', () => setRankKwTab(cat));
+            tabsEl.appendChild(b);
+        });
+
+        const cat = rankKwActiveTab;
+        const isAuto = RANK_KW_AUTO_TABS.includes(cat);
+        const pool = getKwPool(cat);
+        const counts = countKeywordUse();
+        const buckets = { S: [], A: [], B: [], C: [], D: [], '': [] };
+        Object.keys(pool).forEach(k => buckets[pool[k]].push(k));
+        Object.keys(buckets).forEach(t => buckets[t].sort((a, b) => ((counts[b] || 0) - (counts[a] || 0)) || a.localeCompare(b, 'ko')));
+
+        let html = '';
+
+        if (!isAuto) {
+            const candidates = getKwCandidates(cat).filter(k => !(k in pool) && matchesSearchText(k, rankKwSearch));
+            const addAllBtn = candidates.length > 1 && !rankKwSearch
+                ? `<button type="button" class="secondary btn-small" onclick="addAllKwToRank()">전부 추가 (${candidates.length})</button>` : '';
+            html += `<div class="rank-add-box">
+                <div class="add-title"><span>키워드 추가</span>${addAllBtn}</div>
+                <input type="text" id="rankKwSearchInput" placeholder="${escapeHTML(cat)} 키워드 검색 (초성 가능)" value="${escapeHTML(rankKwSearch)}" oninput="onRankKwSearchInput(this.value)">
+                <div class="rank-add-list" id="rankKwAddList">${rankKwAddListHTML(candidates, cat)}</div>
+            </div>`;
+        }
+
+        html += '<div class="tier-board">';
+        TIERS.forEach(t => {
+            const chips = buckets[t].map(k =>
+                `<button type="button" class="tier-chip${rankLastMoved === 'k:' + cat + ':' + k ? ' just-moved' : ''}" data-kw="${escapeHTML(k)}" onclick="openTierSheet('kw', this.dataset.kw)">${escapeHTML(k)}<small>${counts[k] || 0}</small></button>`
+            ).join('');
+            html += `<div class="tier-row">${tierLabelHTML(t, buckets[t].length)}<div class="tier-items">${chips || '<span class="tier-empty">비어있음</span>'}</div></div>`;
+        });
+        html += '</div>';
+
+        html += `<div class="tier-pool-title">미분류 <span class="lib-count-badge">${buckets[''].length}</span></div>`;
+        if (buckets[''].length === 0) {
+            html += `<div class="an-empty">${isAuto ? '전부 분류했어요 🎉' : '위에서 키워드를 추가하면 여기에 들어와요.'}</div>`;
+        } else {
+            html += '<div class="pool-list">';
+            buckets[''].forEach(k => {
+                html += `<div class="pool-row${rankLastMoved === 'k:' + cat + ':' + k ? ' just-moved' : ''}">
+                    <div class="pool-name">${escapeHTML(k)}<small>작품 ${counts[k] || 0}개</small></div>
+                    <div class="pool-btns">${TIERS.map(t => `<button type="button" class="tier-btn t-${t}" data-kw="${escapeHTML(k)}" onclick="setKwTier(this.dataset.kw, '${t}')">${t}</button>`).join('')}</div>
+                </div>`;
+            });
+            html += '</div>';
+        }
+
+        box.innerHTML = html;
+        rankLastMoved = null;
+    }
+
+    function rankKwAddListHTML(candidates, cat) {
+        if (candidates.length === 0) {
+            return `<span class="tier-empty">${rankKwSearch ? '검색 결과가 없어요.' : (cat === '커스텀' ? '추가할 커스텀 키워드가 없어요.' : '이 분류의 키워드를 전부 추가했어요.')}</span>`;
+        }
+        return candidates.map(k =>
+            `<button type="button" class="rank-add-chip" data-kw="${escapeHTML(k)}" onclick="addKwToRank(this.dataset.kw)">${escapeHTML(k)}</button>`
+        ).join('');
+    }
+
+    // 입력 중에는 입력칸을 다시 그리지 않고 후보 목록만 갱신 (모바일 키보드 유지)
+    function onRankKwSearchInput(value) {
+        rankKwSearch = value.trim();
+        const cat = rankKwActiveTab;
+        const pool = getKwPool(cat);
+        const candidates = getKwCandidates(cat).filter(k => !(k in pool) && matchesSearchText(k, rankKwSearch));
+        const list = document.getElementById('rankKwAddList');
+        if (list) list.innerHTML = rankKwAddListHTML(candidates, cat);
+    }
+
+    function addKwToRank(kw) {
+        const cat = rankKwActiveTab;
+        if (!keywordRank[cat]) keywordRank[cat] = {};
+        if (!(kw in keywordRank[cat])) keywordRank[cat][kw] = '';
+        rankLastMoved = 'k:' + cat + ':' + kw;
+        saveToStorage();
+        renderKeywordRanking();
+        const inp = document.getElementById('rankKwSearchInput');
+        if (inp && rankKwSearch) inp.focus();
+    }
+
+    function addAllKwToRank() {
+        const cat = rankKwActiveTab;
+        const pool = getKwPool(cat);
+        if (!keywordRank[cat]) keywordRank[cat] = {};
+        getKwCandidates(cat).forEach(k => { if (!(k in pool)) keywordRank[cat][k] = ''; });
+        saveToStorage();
+        renderKeywordRanking();
+    }
+
+    function setKwTier(kw, tier) {
+        const cat = rankKwActiveTab;
+        if (!keywordRank[cat]) keywordRank[cat] = {};
+        keywordRank[cat][kw] = tier; // '' = 미분류
+        rankLastMoved = 'k:' + cat + ':' + kw;
+        saveToStorage();
+        renderKeywordRanking();
+    }
+
+    function removeKwFromRank(kw) {
+        const cat = rankKwActiveTab;
+        if (keywordRank[cat]) delete keywordRank[cat][kw];
+        saveToStorage();
+        renderKeywordRanking();
+    }
+
+    // ----- 등급 선택 시트 (등급 칩을 탭했을 때) -----
+
+    function openTierSheet(kind, id) {
+        let title, sub, current, actions = '';
+        if (kind === 'work') {
+            const item = library.find(w => w.id === id);
+            if (!item) return;
+            title = item.title;
+            current = getWorkTier(item);
+            sub = `${platformLabel(item.platform)} · 소장률 ${item.percent}%${item.rating ? ' · ★' + item.rating : ' · 별점 없음'}`;
+            actions = `<button type="button" class="secondary" onclick="applyTierSheet('N')">미분류로</button>` +
+                `<button type="button" class="secondary" onclick="applyTierSheet('AUTO')">별점 기준으로 되돌리기</button>`;
+        } else {
+            const cat = rankKwActiveTab;
+            const pool = getKwPool(cat);
+            title = id;
+            current = pool[id] || '';
+            const n = countKeywordUse()[id] || 0;
+            sub = `${cat} · 작품 ${n}개`;
+            actions = `<button type="button" class="secondary" onclick="applyTierSheet('')">미분류로</button>`;
+            if (!RANK_KW_AUTO_TABS.includes(cat)) {
+                actions += `<button type="button" class="danger" onclick="applyTierSheet('REMOVE')">랭킹에서 빼기</button>`;
+            }
+        }
+        tierSheetTarget = { kind, id };
+        document.getElementById('tierSheetTitle').textContent = title;
+        document.getElementById('tierSheetSub').textContent = sub;
+        document.getElementById('tierSheetBtns').innerHTML = tierBtnsHTML(current, t => `applyTierSheet('${t}')`);
+        document.getElementById('tierSheetActions').innerHTML = actions;
+        document.getElementById('tierSheetOverlay').classList.add('show');
+    }
+
+    function closeTierSheet(event) {
+        if (event && event.target && event.target.id !== 'tierSheetOverlay') return;
+        document.getElementById('tierSheetOverlay').classList.remove('show');
+        tierSheetTarget = null;
+    }
+
+    function applyTierSheet(tier) {
+        const target = tierSheetTarget;
+        if (!target) return;
+        document.getElementById('tierSheetOverlay').classList.remove('show');
+        tierSheetTarget = null;
+        if (target.kind === 'work') {
+            setWorkTier(target.id, tier);
+        } else if (tier === 'REMOVE') {
+            removeKwFromRank(target.id);
+        } else {
+            setKwTier(target.id, tier);
+        }
+    }
+
+    // =====================================================================
+    // 분석
+    // =====================================================================
+    const AN_PLATFORMS = ['레진코믹스', '봄툰', '리디', '네이버웹툰'];
+    const AN_PLATFORM_COLORS = { '레진코믹스': 'var(--lezhin)', '봄툰': 'var(--bomtoon)', '리디': 'var(--ridi)', '네이버웹툰': 'var(--naver)' };
+    const AN_KW_CATS = ['전체', ...KEYWORD_CATEGORY_NAMES, '커스텀'];
+    let anRatingPlatform = 'all';
+    let anKwCat = '전체';
+
+    function avgRating(items) {
+        const rated = items.filter(i => i.rating > 0);
+        if (rated.length === 0) return null;
+        return rated.reduce((s, i) => s + i.rating, 0) / rated.length;
+    }
+
+    // rows: [{ label, value, color?, valText?, title? }]
+    function barRowsHTML(rows, opts) {
+        opts = opts || {};
+        if (!rows.length) return `<div class="an-empty">데이터가 없어요.</div>`;
+        const max = Math.max(1, ...rows.map(r => r.value));
+        const cols = opts.labelW ? ` style="grid-template-columns: ${opts.labelW}px 1fr 64px;"` : '';
+        return '<div class="an-bars">' + rows.map(r => {
+            const w = Math.round((r.value / max) * 1000) / 10;
+            const color = r.color ? `background:${r.color};` : '';
+            const tip = escapeHTML(r.title || `${r.label}: ${r.valText || r.value}`);
+            return `<div class="an-bar-row"${cols} title="${tip}">
+                <span class="an-bar-label">${escapeHTML(r.label)}</span>
+                <div class="an-bar-track"><div class="an-bar-fill" style="width:${w}%;${color}"></div></div>
+                <span class="an-bar-val">${escapeHTML(r.valText !== undefined ? String(r.valText) : String(r.value))}</span>
+            </div>`;
+        }).join('') + '</div>';
+    }
+
+    function setAnRatingPlatform(p) { anRatingPlatform = p; renderAnalysis(); }
+    function setAnKwCat(c) { anKwCat = c; renderAnalysis(); }
+
+    function anCard(title, sub, inner) {
+        return `<div class="card">
+            <div class="an-section-title">${title}</div>
+            ${sub ? `<div class="an-section-sub">${sub}</div>` : '<div style="height:10px"></div>'}
+            ${inner}
+        </div>`;
+    }
+
+    function anChipRow(options, active, fnName, labelFn) {
+        return '<div class="filter-chips" style="margin-bottom:14px;">' + options.map(o => {
+            const v = typeof o === 'string' ? o : o.value;
+            const l = labelFn ? labelFn(o) : (typeof o === 'string' ? o : o.label);
+            return `<button type="button" class="chip${v === active ? ' active' : ''}" data-v="${escapeHTML(v)}" onclick="${fnName}(this.dataset.v)">${escapeHTML(l)}</button>`;
+        }).join('') + '</div>';
+    }
+
+    function dateFromStr(s) {
+        const p = String(s).split('-').map(Number);
+        return new Date(p[0], (p[1] || 1) - 1, p[2] || 1);
+    }
+
+    function dateKey(d) {
+        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+
+    function renderAnalysis() {
+        const box = document.getElementById('analysisBody');
+        if (!box) return;
+
+        if (library.length === 0) {
+            box.innerHTML = anCard('📊 분석', '', `<div class="an-empty">서재가 비어있어요. 작품을 추가하면 통계가 나와요.</div>`);
+            return;
+        }
+
+        const DAY = ['일', '월', '화', '수', '목', '금', '토'];
+        let html = '';
+
+        // --- 요약 타일 ---
+        const avg = avgRating(library);
+        const ratedCount = library.filter(i => i.rating > 0).length;
+        const totalWatch = library.reduce((s, i) => s + i.watchLog.length, 0);
+        const done = library.filter(i => i.percent >= 100).length;
+        html += anCard('📊 한눈에 보기', '', `<div class="an-tiles">
+            <div class="an-tile"><div class="v">${library.length}</div><div class="l">전체 작품</div></div>
+            <div class="an-tile"><div class="v">${avg === null ? '-' : avg.toFixed(2)}</div><div class="l">평균 별점</div></div>
+            <div class="an-tile"><div class="v">${ratedCount}</div><div class="l">별점 준 작품</div></div>
+            <div class="an-tile"><div class="v">${done}</div><div class="l">100% 소장</div></div>
+            <div class="an-tile"><div class="v">${totalWatch}</div><div class="l">정주행 기록</div></div>
+            <div class="an-tile"><div class="v">${groups.length}</div><div class="l">그룹</div></div>
+        </div>`);
+
+        // --- 플랫폼별 작품 수 / 평균 별점 ---
+        const platSet = new Set(AN_PLATFORMS);
+        library.forEach(i => platSet.add(i.platform));
+        const platList = Array.from(platSet);
+        const platRows = platList.map(p => {
+            const n = library.filter(i => i.platform === p).length;
+            return { label: platformLabel(p), value: n, color: AN_PLATFORM_COLORS[p], valText: n + '개' };
+        });
+        const platAvgRows = platList.filter(p => library.some(i => i.platform === p)).map(p => {
+            const a = avgRating(library.filter(i => i.platform === p));
+            return { label: platformLabel(p), value: a || 0, color: AN_PLATFORM_COLORS[p], valText: a === null ? '-' : '★' + a.toFixed(2) };
+        });
+        html += anCard('플랫폼별', '작품 수와 평균 별점 (별점 준 작품만 계산)',
+            `<div class="an-section-sub" style="margin-bottom:8px;font-weight:700;">작품 수</div>${barRowsHTML(platRows)}
+             <div class="an-section-sub" style="margin:16px 0 8px;font-weight:700;">평균 별점</div>${barRowsHTML(platAvgRows)}`);
+
+        // --- 별점 분포 (플랫폼 선택) ---
+        const ratingPool = anRatingPlatform === 'all' ? library : library.filter(i => i.platform === anRatingPlatform);
+        const ratingRows = [];
+        for (let r = 5; r >= 0.5; r -= 0.5) {
+            const n = ratingPool.filter(i => i.rating === r).length;
+            ratingRows.push({ label: '★' + r, value: n, valText: n + '개' });
+        }
+        ratingRows.push({ label: '별점 없음', value: ratingPool.filter(i => !i.rating).length, valText: ratingPool.filter(i => !i.rating).length + '개', color: '#c9ced6' });
+        const platChips = [{ value: 'all', label: '전체' }, ...AN_PLATFORMS.map(p => ({ value: p, label: platformLabel(p) }))];
+        html += anCard('별점 분포', '0.5점 단위로 몇 개씩인지 (플랫폼별로 볼 수 있어요)',
+            anChipRow(platChips, anRatingPlatform, 'setAnRatingPlatform') + barRowsHTML(ratingRows));
+
+        // --- 소장률 구간 ---
+        const pctBuckets = [
+            { label: '0~25%', test: p => p <= 25 }, { label: '26~50%', test: p => p > 25 && p <= 50 },
+            { label: '51~75%', test: p => p > 50 && p <= 75 }, { label: '76~99%', test: p => p > 75 && p < 100 },
+            { label: '100% 완독', test: p => p >= 100 }
+        ];
+        html += anCard('소장률 구간', '',
+            barRowsHTML(pctBuckets.map(b => { const n = library.filter(i => b.test(i.percent)).length; return { label: b.label, value: n, valText: n + '개' }; })));
+
+        // --- 키워드 Top 10 ---
+        const kwCount = {};
+        library.forEach(i => i.keywords.forEach(k => {
+            if (anKwCat !== '전체' && findKeywordCategory(k) !== anKwCat) return;
+            kwCount[k] = (kwCount[k] || 0) + 1;
+        }));
+        const kwTop = Object.keys(kwCount).sort((a, b) => (kwCount[b] - kwCount[a]) || a.localeCompare(b, 'ko')).slice(0, 10)
+            .map(k => ({ label: '#' + k, value: kwCount[k], valText: kwCount[k] + '개' }));
+        html += anCard('키워드 Top 10', '가장 많이 붙인 키워드',
+            anChipRow(AN_KW_CATS, anKwCat, 'setAnKwCat') + barRowsHTML(kwTop, { labelW: 110 }));
+
+        // --- 정주행: 최근 14일 / 히트맵 / 요일 ---
+        const watchMap = {};
+        library.forEach(i => i.watchLog.forEach(d => { watchMap[d] = (watchMap[d] || 0) + 1; }));
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+
+        const recentRows = [];
+        for (let k = 0; k < 14; k++) {
+            const d = new Date(today); d.setDate(d.getDate() - k);
+            const n = watchMap[dateKey(d)] || 0;
+            recentRows.push({ label: `${d.getMonth() + 1}/${d.getDate()} (${DAY[d.getDay()]})`, value: n, valText: n + '개' });
+        }
+        const hasWatch = Object.keys(watchMap).length > 0;
+        html += anCard('일자별 정주행', '최근 14일 동안 하루에 몇 작품을 정주행 체크했는지',
+            hasWatch ? barRowsHTML(recentRows) : `<div class="an-empty">아직 정주행 기록이 없어요. 메인 룰렛에서 "오늘 정주행 완료"로 기록해보세요.</div>`);
+
+        // 히트맵: 최근 24주, 일요일 시작 열
+        const WEEKS = 24;
+        const start = new Date(today);
+        start.setDate(start.getDate() - today.getDay() - (WEEKS - 1) * 7);
+        let cells = '';
+        for (let w = 0; w < WEEKS; w++) {
+            for (let dow = 0; dow < 7; dow++) {
+                const d = new Date(start); d.setDate(start.getDate() + w * 7 + dow);
+                if (d > today) { cells += '<div class="an-heat-cell future"></div>'; continue; }
+                const n = watchMap[dateKey(d)] || 0;
+                const lv = n === 0 ? '' : n === 1 ? ' l1' : n === 2 ? ' l2' : n <= 4 ? ' l3' : ' l4';
+                cells += `<div class="an-heat-cell${lv}" title="${dateKey(d)} · ${n}개"></div>`;
+            }
+        }
+        html += anCard('정주행 캘린더', `최근 ${WEEKS}주 (진할수록 그날 많이 본 날)`,
+            `<div class="an-heat-wrap">
+                <div class="an-heat-days">${DAY.map(d => `<span>${d}</span>`).join('')}</div>
+                <div class="an-heat">${cells}</div>
+            </div>
+            <div class="an-heat-legend">적음 <div class="an-heat-cell"></div><div class="an-heat-cell l1"></div><div class="an-heat-cell l2"></div><div class="an-heat-cell l3"></div><div class="an-heat-cell l4"></div> 많음</div>`);
+
+        const dowCount = [0, 0, 0, 0, 0, 0, 0];
+        Object.keys(watchMap).forEach(d => { dowCount[dateFromStr(d).getDay()] += watchMap[d]; });
+        html += anCard('요일별 정주행', '무슨 요일에 제일 많이 보는지 (전체 기간)',
+            hasWatch ? barRowsHTML(DAY.map((d, idx) => ({ label: d + '요일', value: dowCount[idx], valText: dowCount[idx] + '개' })))
+                     : `<div class="an-empty">정주행 기록이 쌓이면 보여드릴게요.</div>`);
+
+        // --- 그룹별 통계 ---
+        if (groups.length > 0) {
+            const gRows = groups.map(g => {
+                const items = library.filter(i => i.groupIds.includes(g.id));
+                const a = avgRating(items);
+                return { label: g.name, value: items.length, valText: `${items.length}개 · ${a === null ? '-' : '★' + a.toFixed(1)}` };
+            }).sort((a, b) => b.value - a.value);
+            html += anCard('그룹별', '그룹 안의 작품 수 · 평균 별점', barRowsHTML(gRows, { labelW: 100 }));
+        }
+
+        // --- 공/수 조합 ---
+        const gongSet = new Set(KEYWORD_CATEGORIES['공']), suSet = new Set(KEYWORD_CATEGORIES['수']);
+        const pairCount = {};
+        library.forEach(i => {
+            const gs = i.keywords.filter(k => gongSet.has(k)), ss = i.keywords.filter(k => suSet.has(k));
+            gs.forEach(g => ss.forEach(s => { const key = g + ' × ' + s; pairCount[key] = (pairCount[key] || 0) + 1; }));
+        });
+        const pairRows = Object.keys(pairCount).sort((a, b) => (pairCount[b] - pairCount[a]) || a.localeCompare(b, 'ko')).slice(0, 10)
+            .map(k => ({ label: k, value: pairCount[k], valText: pairCount[k] + '개' }));
+        html += anCard('공 × 수 조합', '한 작품에 같이 붙은 공/수 키워드 조합 Top 10 (취향 분석)',
+            pairRows.length ? barRowsHTML(pairRows, { labelW: 150 })
+                            : `<div class="an-empty">공 키워드와 수 키워드가 함께 붙은 작품이 아직 없어요.</div>`);
+
+        // --- 발굴 리스트 ---
+        const lastWatch = i => i.watchLog.length ? i.watchLog.slice().sort().pop() : '';
+        const unrated = library.filter(i => i.percent >= 80 && !i.rating).sort((a, b) => b.percent - a.percent);
+        const cutoff = new Date(today); cutoff.setDate(cutoff.getDate() - 90);
+        const cutoffKey = dateKey(cutoff);
+        const revisit = library.filter(i => i.rating >= 4 && (!lastWatch(i) || lastWatch(i) < cutoffKey))
+            .sort((a, b) => (lastWatch(a) || '').localeCompare(lastWatch(b) || '') || b.rating - a.rating);
+
+        const listHTML = (items, metaFn) => items.length === 0
+            ? `<div class="an-empty">해당하는 작품이 없어요.</div>`
+            : items.slice(0, 10).map(i => `<div class="an-list-row" onclick="openDetail('${i.id}')">
+                    <span class="an-list-title">${escapeHTML(i.title)}</span>
+                    <span class="an-list-meta">${escapeHTML(metaFn(i))}</span>
+                </div>`).join('') + (items.length > 10 ? `<div class="an-empty">외 ${items.length - 10}개</div>` : '');
+
+        html += `<div class="card">
+            <div class="an-section-title">발굴 리스트</div>
+            <div class="an-section-sub">탭하면 작품 상세가 열려요</div>
+            <details class="an-details"><summary><span>정 붙이다 만 것?</span><span class="lib-count-badge">${unrated.length}</span></summary>
+                <div class="an-section-sub">소장률 80% 이상인데 별점을 안 준 작품</div>
+                ${listHTML(unrated, i => `${platformLabel(i.platform)} · ${i.percent}%`)}
+            </details>
+            <details class="an-details"><summary><span>다시 보고 싶을지도</span><span class="lib-count-badge">${revisit.length}</span></summary>
+                <div class="an-section-sub">별점 ★4 이상인데 최근 90일 정주행 기록이 없는 작품</div>
+                ${listHTML(revisit, i => `★${i.rating} · ${lastWatch(i) ? '마지막 ' + lastWatch(i) : '기록 없음'}`)}
+            </details>
+        </div>`;
+
+        box.innerHTML = html;
     }
 
     window.addEventListener('DOMContentLoaded', init);

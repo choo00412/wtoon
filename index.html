@@ -27,6 +27,9 @@
         --ridi-bg: #e0f2fe;
         --naver: #22c55e;
         --naver-bg: #dcfce7;
+
+        --container-max: 1100px;
+        --narrow-max: 700px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -40,11 +43,31 @@
         min-height: 100vh;
     }
 
-    .container { max-width: 1100px; margin: 0 auto; }
-    .narrow-wrap { max-width: 700px; margin: 0 auto; }
+    .container { max-width: var(--container-max); margin: 0 auto; transition: max-width 0.2s ease; }
+    .narrow-wrap { max-width: var(--narrow-max); margin: 0 auto; transition: max-width 0.2s ease; }
 
     h1 {
         font-size: 1.6rem; text-align: center; margin-bottom: 20px;
+    }
+
+    /* ---------- PC / 와이드 모드 ---------- */
+    body.wide-mode {
+        --container-max: 1600px;
+        --narrow-max: 1100px;
+        padding-left: 32px;
+        padding-right: 32px;
+    }
+    body.wide-mode .top-bar-inner { max-width: var(--container-max); }
+    body.wide-mode .list-container {
+        column-count: 2;
+        column-gap: 16px;
+    }
+    body.wide-mode .list-item {
+        break-inside: avoid;
+    }
+    @media (max-width: 900px) {
+        /* 창이 좁으면 와이드 모드여도 억지로 줄이지 않고 자연스럽게 1열로 */
+        body.wide-mode .list-container { column-count: 1; }
     }
 
     /* ---------- 상단 고정 바 ---------- */
@@ -58,8 +81,9 @@
         box-shadow: 0 1px 2px rgba(0,0,0,0.03);
     }
     .top-bar-inner {
-        max-width: 1100px; height: 100%; margin: 0 auto;
+        max-width: var(--container-max); height: 100%; margin: 0 auto;
         display: flex; align-items: center; justify-content: space-between; gap: 12px;
+        transition: max-width 0.2s ease;
     }
     .top-bar-title {
         font-size: 1.15rem; font-weight: 800; letter-spacing: -0.01em;
@@ -853,6 +877,7 @@
     <div class="top-bar-inner">
         <div class="top-bar-title">My Wtoon Library</div>
         <div class="top-bar-actions">
+            <button class="secondary btn-small" id="viewModeBtn" onclick="toggleViewMode()">🖥 PC 모드</button>
             <button class="success btn-small" onclick="pushToCloud()">Upload</button>
             <button class="danger btn-small" onclick="pullFromCloud()">Load</button>
         </div>
@@ -1502,7 +1527,21 @@
     let keywordPresets = [];
     let keywordFavorites = [];
     let keywordRank = {}; // { 카테고리: { 키워드: 등급 id | '' (''=미분류) } }
+    let wideMode = false;
     const GH_FILENAME = 'webtoon_library.json';
+
+    // ---------- PC / 모바일 뷰 전환 ----------
+    function applyWideMode() {
+        document.body.classList.toggle('wide-mode', wideMode);
+        const btn = document.getElementById('viewModeBtn');
+        if (btn) btn.textContent = wideMode ? '📱 모바일 모드' : '🖥 PC 모드';
+    }
+
+    function toggleViewMode() {
+        wideMode = !wideMode;
+        localStorage.setItem('webtoonWideMode', wideMode ? '1' : '0');
+        applyWideMode();
+    }
 
     // ---------- 미리 정의된 키워드 사전 (분야/소재/캐릭터/공/수) ----------
     const KEYWORD_CATEGORIES = {
@@ -1597,6 +1636,9 @@
         if (storedTierConfig) {
             try { tierConfig = sanitizeTierConfig(JSON.parse(storedTierConfig)) || tierConfig; } catch (e) { /* keep default */ }
         }
+
+        wideMode = localStorage.getItem('webtoonWideMode') === '1';
+        applyWideMode();
 
         migrateRankCats(keywordRank, keywordRankPos);
         initRankDrag();

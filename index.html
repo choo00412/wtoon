@@ -490,10 +490,25 @@
     .reading-entry-toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
     .reading-entry-toolbar button { flex: none; margin-left: auto; }
     .clipboard-import-btn {
-        width: 100%; background: #0891b2; margin-top: 10px; margin-bottom: 0;
+        width: 100%; background: #0891b2; margin-top: 0; margin-bottom: 0;
         display: flex; align-items: center; justify-content: center; gap: 8px;
     }
     .clipboard-import-btn:hover { background: #0e7490; }
+    .clipboard-import-btn-row { margin-top: 12px; }
+
+    .platform-quick-import {
+        display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;
+    }
+    .quick-import-btn {
+        flex: 1; min-width: 140px; color: #fff; font-weight: 700;
+        display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .quick-import-lezhin { background: var(--lezhin); }
+    .quick-import-lezhin:hover { filter: brightness(0.9); }
+    .quick-import-bomtoon { background: var(--bomtoon); }
+    .quick-import-bomtoon:hover { filter: brightness(0.9); }
+    .quick-import-ridi { background: var(--ridi); }
+    .quick-import-ridi:hover { filter: brightness(0.9); }
 
     .file-upload-btn {
         display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px; border-radius: 8px;
@@ -1271,8 +1286,16 @@
                     </div>
                 </div>
 
-                <button class="clipboard-import-btn" onclick="pasteFromClipboardAndImport()">📋 클립보드에서 자동으로 가져오기 (레진 북마클릿용)</button>
-                <div class="hint" style="margin: 6px 0 14px;">레진 북마클릿 실행 후 복사한 내용을 클립보드에서 바로 읽어와 자동으로 추가합니다. (붙여넣기 직접 안 해도 됨)</div>
+                <div class="platform-quick-import">
+                    <button class="quick-import-btn quick-import-lezhin" onclick="quickClipboardImport('레진코믹스')">🔴 레진 서재 업데이트</button>
+                    <button class="quick-import-btn quick-import-bomtoon" onclick="quickClipboardImport('봄툰')">🟢 봄툰 서재 업데이트</button>
+                    <button class="quick-import-btn quick-import-ridi" onclick="quickClipboardImport('리디')">🔵 리디 서재 업데이트</button>
+                </div>
+                <div class="hint" style="margin: 6px 0 14px;">각 사이트에서 북마클릿 실행 후 복사한 내용을 클립보드에서 바로 읽어와, 그 플랫폼으로 자동 추가합니다. 이미 있는 작품은 건너뛰고 새 작품만 추가돼요. (리디는 소장률 없이 항상 50%로 들어와요)</div>
+
+                <div class="clipboard-import-btn-row">
+                    <button class="clipboard-import-btn" onclick="pasteFromClipboardAndImport()">📋 클립보드에서 가져오기 (위에서 선택한 플랫폼 기준)</button>
+                </div>
 
                 <div class="form-group">
                     <label for="htmlData">내용 붙여넣기</label>
@@ -1776,15 +1799,21 @@
         }
 
         if (!text || !text.trim()) {
-            alert('클립보드가 비어있습니다. 먼저 레진 페이지에서 북마클릿을 실행해 복사해주세요.');
+            alert('클립보드가 비어있습니다. 먼저 해당 사이트 페이지에서 북마클릿을 실행해 복사해주세요.');
             return;
         }
 
-        document.getElementById('platform').value = '레진코믹스';
         document.getElementById('inputType').value = 'text';
         updatePlaceholder();
         document.getElementById('htmlData').value = text;
         parseData();
+    }
+
+    // 플랫폼별 "서재 업데이트" 원탭 버튼: 플랫폼/입력방식/기준치를 맞춰두고 바로 클립보드에서 가져옴
+    function quickClipboardImport(platform) {
+        document.getElementById('platform').value = platform;
+        document.getElementById('minPercent').value = 0;
+        pasteFromClipboardAndImport();
     }
 
     // ---------- 파싱 ----------
@@ -1826,13 +1855,15 @@
                         memo: '', watchLog: []
                     });
                     added++;
+                } else if (platform === '리디') {
+                    // 리디는 실제 소장률이 아니라 임의 고정값(50%)이라, 이미 있는 작품은 건드리지 않고
+                    // 사용자가 직접 조정해둔 값을 그대로 보존한다. 새 작품 추가만 반영.
+                    skipped++;
+                } else if (existingItem.percent !== percent) {
+                    existingItem.percent = percent;
+                    updated++;
                 } else {
-                    if (existingItem.percent !== percent) {
-                        existingItem.percent = percent;
-                        updated++;
-                    } else {
-                        skipped++;
-                    }
+                    skipped++;
                 }
             } else {
                 skipped++;
